@@ -1,0 +1,24 @@
+/* src/css/Navbar.css */
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #4F4A45;
+  padding: 10%;
+  border-radius: 10%;
+}
+
+.nav-item {
+  padding: 10%;
+  color: #ffffff;
+  font-size: 20px; /* Adjust size as needed */
+}
+
+.nav-item.active {
+  color: #FE9801; /* Active item color */
+}
+
+.nav-item:not(.active):hover {
+  color: #a50000; /* Hover color for non-active items */
+}

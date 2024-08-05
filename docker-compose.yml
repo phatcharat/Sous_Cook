@@ -7,8 +7,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    volumes:
+      - ./client:/app           
+      - /app/node_modules       
     stdin_open: true
     tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true 
 
   server:
     build:
@@ -16,3 +21,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '5000:5000'
+    volumes:
+      - ./server:/app            
+      - /app/node_modules       

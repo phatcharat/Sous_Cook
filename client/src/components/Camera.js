@@ -1,14 +1,12 @@
-// src/components/Camera.js
-
-import React, { useRef, useCallback } from "react";
-import Webcam from "react-webcam";
+import React, { useRef, useCallback } from 'react';
+import Webcam from 'react-webcam';
 
 const Camera = () => {
   const webcamRef = useRef(null);
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
-    // Send imageSrc to your server
+    console.log(imageSrc);
   }, [webcamRef]);
 
   return (
