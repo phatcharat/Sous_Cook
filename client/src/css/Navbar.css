@@ -1,24 +1,40 @@
 /* src/css/Navbar.css */
 
+
 .navbar {
+  position: fixed;
   display: flex;
+  bottom: 2%;
   justify-content: center;
   align-items: center;
   background-color: #4F4A45;
-  padding: 10%;
-  border-radius: 10%;
+  padding: 5% 28%;
+  border-radius: calc(40px + 5vmin);
 }
 
 .nav-item {
-  padding: 10%;
+  padding: 0px 0px 0px 20%;
   color: #ffffff;
-  font-size: 20px; /* Adjust size as needed */
+  font-size: 20px;
+}
+
+.nav-item.icon-home {
+  padding: 0%;
+}
+
+.nav-item .icon {
+  font-size: 3rem; /* Adjust based on the height of your navbar */
 }
 
 .nav-item.active {
-  color: #FE9801; /* Active item color */
+  color: #FE9801; 
 }
 
 .nav-item:not(.active):hover {
-  color: #a50000; /* Hover color for non-active items */
+  color: #3f3f3f; 
+}
+
+.icon {
+  padding: calc(1px + 1vmin); 
+  font-size: calc(16px + 1vmin); 
 }

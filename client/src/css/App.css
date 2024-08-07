@@ -1,16 +1,35 @@
 /* src/css/App.css */
 
 .App {
-  text-align: center;
+  max-width: 800px;
+  height: auto;
+  margin: auto;
+  position: relative;
+  overflow: hidden;
 }
 
 .App-header {
   background-color: #FBF6EE;
-  min-height: 100vh;
+  width: 100%;   /* Make header take full width of App */
+  height: 100%;  /* Make header take full height of App */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.body{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #5e5d5d;
+  padding: 50%;  /* Adjust padding as needed */
+  outline: 0;
+  border-radius: 40px;
+  width: 100%;  /* Fit to container */
+  height: auto;  /* Adjust height based on content */
+
 }

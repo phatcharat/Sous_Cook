@@ -5,11 +5,13 @@ import Navbar from './components/Navbar';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App"> 
       <header className="App-header">
-        <h1>Welcome to My React App</h1>
+        {/* <h1>Welcome to My React App</h1> */}
+        <div className='body'></div>
         <Navbar />
-        <Camera />
+
+        {/* <Camera /> */}
       </header>
     </div>
   );
