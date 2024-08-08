@@ -7,29 +7,29 @@ import IconClock from '../image/nav_icon/icon_history.svg';
 import IconUser from '../image/nav_icon/icon_people.svg';
 
 const Navbar = ({ onCameraClick }) => {
-    const [selected, setSelected] = useState('');
+    const [selected, setSelected] = useState('home');
 
     return (
         <div className="navbar">
-            <a className={`nav-item ${selected === 'home' ? 'selected' : ''}`} 
+            <a className={`home nav-item ${selected === 'home' ? 'selected' : ''}`} 
                onClick={() => setSelected('home')}>
                 <img src={IconHome} alt="Home" />
             </a>
-            <a className={`nav-item ${selected === 'heart' ? 'selected' : ''}`} 
+            <a className={`heart nav-item ${selected === 'heart' ? 'selected' : ''}`} 
                onClick={() => setSelected('heart')}>
                 <img src={IconHeart} alt="Favorites" />
             </a>
-            <a className={`nav-item ${selected === 'camera' ? 'selected' : ''}`} 
+            <a className={`camera nav-item ${selected === 'camera' ? 'selected' : ''}`} 
                onClick={onCameraClick}>
-                <img src={IconCamera} alt="Camera" />
+                <img src={IconCamera} alt="camera" />
             </a>
-            <a className={`nav-item ${selected === 'clock' ? 'selected' : ''}`} 
+            <a className={`history nav-item ${selected === 'clock' ? 'selected' : ''}`} 
                onClick={() => setSelected('clock')}>
-                <img src={IconClock} alt="History" />
+                <img src={IconClock} alt="history" />
             </a>
-            <a className={`nav-item ${selected === 'user' ? 'selected' : ''}`} 
+            <a className={`account nav-item ${selected === 'user' ? 'selected' : ''}`} 
                onClick={() => setSelected('user')}>
-                <img src={IconUser} alt="Account" />
+                <img src={IconUser} alt="account" />
             </a>
         </div>
     );

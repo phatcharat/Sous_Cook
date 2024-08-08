@@ -30,7 +30,8 @@
     justify-content: space-between; /* This will space out any elements inside the header */
     align-items: center;
     width: 100%; /* Full width of the container */
-    padding: 10px 20px; /* Add some padding inside the header */
+    height: 4%;
+    bottom: 95%;  /* Add some padding inside the header */
     background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
     color: white; /* White text color for visibility */
     z-index: 101; /* Ensure it's above other content but below any fullscreen modals/popups */
@@ -59,4 +60,21 @@
 .toolbar {
     bottom: 0;
     align-items: center;
+}
+
+.flash-button.img {
+    width: 2em;
+    height: 2em;
+}
+
+.flash-button {
+    font-size: 20px;
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+  
+.flash-on {
+    color: yellow;
 }
