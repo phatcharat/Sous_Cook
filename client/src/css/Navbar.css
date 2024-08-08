@@ -13,13 +13,13 @@
 }
 
 .nav-item {
-  padding: 0px 0px 0px 20%;
+  padding: 0px 10% 0px 10%;
   color: #ffffff;
   font-size: 20px;
 }
 
 .nav-item.icon-home {
-  padding: 0%;
+  padding: 0px 10% 0px 10%;
 }
 
 .nav-item .icon {

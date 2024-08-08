@@ -1,20 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './css/App.css';
-import Camera from './components/Camera';
 import Navbar from './components/Navbar';
+import Camera from './components/Camera';
 
 function App() {
-  return (
-    <div className="App"> 
-      <header className="App-header">
-        {/* <h1>Welcome to My React App</h1> */}
-        <div className='body'></div>
-        <Navbar />
+    const [showCamera, setShowCamera] = useState(false);
 
-        {/* <Camera /> */}
-      </header>
-    </div>
-  );
+    return (
+        <div className="App">
+            {showCamera ? (
+                <Camera onClose={() => setShowCamera(false)} />
+            ) : (
+                <Navbar onCameraClick={() => setShowCamera(true)} />
+            )}
+        </div>
+    );
 }
 
 export default App;

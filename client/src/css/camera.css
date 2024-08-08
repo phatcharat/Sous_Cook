@@ -1,0 +1,62 @@
+.camera-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    padding: 0; /* No padding to ensure children can align properly */
+    margin: 0; /* No margin */
+    z-index: 1000; /* Make sure this is on top */
+}
+
+
+.webcam-view {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover the entire area without stretching */
+}
+
+.camera-header {
+    position: absolute;
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    right: 0; /* Align to the right to ensure full width */
+    display: flex;
+    justify-content: space-between; /* This will space out any elements inside the header */
+    align-items: center;
+    width: 100%; /* Full width of the container */
+    padding: 10px 20px; /* Add some padding inside the header */
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+    color: white; /* White text color for visibility */
+    z-index: 101; /* Ensure it's above other content but below any fullscreen modals/popups */
+}
+
+.toolbar {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent */
+    color: white;
+}
+
+.capture-button, .close-button {
+    font-size: 16px;
+    color: white;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.toolbar {
+    bottom: 0;
+    align-items: center;
+}

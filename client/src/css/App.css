@@ -20,16 +20,16 @@
   color: white;
 }
 
-.body{
+.body {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: #5e5d5d;
-  padding: 50%;  /* Adjust padding as needed */
+  padding: 0; 
   outline: 0;
-  border-radius: 40px;
-  width: 100%;  /* Fit to container */
-  height: auto;  /* Adjust height based on content */
-
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  margin: 0; 
+  box-sizing: border-box; 
 }
