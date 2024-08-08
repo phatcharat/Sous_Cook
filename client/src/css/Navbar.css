@@ -1,36 +1,47 @@
 /* src/css/Navbar.css */
 
-
 .navbar {
   position: fixed;
-  bottom: 2%; /* Keeps the navbar 2% above the bottom */
-  left: 0; /* Aligns the navbar starting from the left edge */
-  right: 0; /* Aligns the navbar ending at the right edge */
+  bottom: 2%;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
   background-color: #4F4A45;
-  padding: 1em; 
+  padding: 2em; 
   border-radius: calc(40px + 5vmin);
-  width: 90%; /* Ensures the navbar spans the necessary width */
-  margin: auto; /* Centers the navbar within the specified left and right */
+  width: 80%;
+  margin: auto;
 }
 
 .nav-item {
   color: #ffffff;
   font-size: 20px;
+  padding: 0 10px;
 }
 
-.nav-item .icon {
-  font-size: 3rem; /* Adjust based on the height of your navbar */
+.nav-item img {
+  width: 3em;
+  height: 3em;
+  transition: transform 0.3s ease, fill 0.3s ease;  
 }
 
-.nav-item.active {
-  color: #FE9801; 
+.nav-item:hover img {
+  transform: scale(1.1);
 }
 
-.nav-item:not(.active):hover {
-  color: #3f3f3f; 
+.nav-item.selected img {
+  filter: invert(61%) sepia(89%) saturate(3433%) hue-rotate(358deg) brightness(103%) contrast(101%);
+}
+
+
+.nav-item:first-child {
+  padding-left: 1em;  
+}
+
+.nav-item:last-child {
+  padding-right: 1em;  
 }
 
 .icon {
