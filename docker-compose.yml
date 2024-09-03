@@ -15,7 +15,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true 
     env_file:
-      - .env
+      - ./client/.env
 
   server:
     build:
@@ -27,4 +27,4 @@ services:
       - ./server:/app            
       - /app/node_modules
     env_file:
-      - .env
+      - ./server/.env
