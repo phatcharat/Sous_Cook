@@ -9,45 +9,74 @@
     justify-content: center;
     align-items: center;
     background-color: rgb(0, 0, 0);
-    padding: 0; /* No padding to ensure children can align properly */
-    margin: 0; /* No margin */
-    z-index: 1000; /* Make sure this is on top */
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+    overflow: hidden;
 }
 
+.flash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    opacity: 0.9; /* Brightness of the flash */
+    z-index: 1100; /* Ensure it overlays everything */
+}
+
+@keyframes flash-animation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.8;
+    }
+}
 
 .webcam-view {
+    flex: 1;
     width: 100%;
-    height: 100%;
-    object-fit: cover; /* Cover the entire area without stretching */
+    height: auto;
+    object-fit: cover;
+    transform: scale(1);
+}
+
+.captured-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 .camera-header {
     position: absolute;
-    top: 0; /* Align to the top */
-    left: 0; /* Align to the left */
-    right: 0; /* Align to the right to ensure full width */
+    top: 0;
+    left: 0;
+    right: 0;
     display: flex;
-    justify-content: space-between; /* This will space out any elements inside the header */
+    justify-content: space-between;
     align-items: center;
-    width: 100%; /* Full width of the container */
-    height: 4%;
-    bottom: 95%;  /* Add some padding inside the header */
-    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
-    color: white; /* White text color for visibility */
-    z-index: 101; /* Ensure it's above other content but below any fullscreen modals/popups */
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    z-index: 101;
 }
 
 .toolbar {
     position: absolute;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent */
+    background-color: rgba(0, 0, 0, 0.5);
     color: white;
+    bottom: 0;
+    align-items: center;
 }
 
-.capture-button, .close-button {
+.capture-button, .retake-button, .close-button, .toggle-camera-button {
     font-size: 16px;
     color: white;
     background: rgba(255, 255, 255, 0.3);
@@ -55,16 +84,7 @@
     padding: 8px 16px;
     border-radius: 5px;
     cursor: pointer;
-}
-
-.toolbar {
-    bottom: 0;
-    align-items: center;
-}
-
-.flash-button.img {
-    width: 2em;
-    height: 2em;
+    margin-top: 10px;
 }
 
 .flash-button {
@@ -74,7 +94,12 @@
     background-color: transparent;
     cursor: pointer;
 }
-  
+
+.flash-button img {
+    width: 2em;
+    height: 2em;
+}
+
 .flash-on {
     color: yellow;
 }
