@@ -10,3 +10,6 @@ client/package-lock.json
 server/package-lock.json
 client/yarn.lock
 server/yarn.lock
+
+#Environment Variables
+.env

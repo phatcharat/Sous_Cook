@@ -10,24 +10,21 @@ const Camera = ({ onClose }) => {
   const [isFlashOn, setFlashOn] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [flashVisible, setFlashVisible] = useState(false);
+  const [gptResponse, setGptResponse] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // New loading state
 
   const capture = useCallback(() => {
     if (isFlashOn) {
-      // Show the flash overlay
       setFlashVisible(true);
 
-      // Wait a short duration, then capture the photo and hide the flash
       setTimeout(() => {
         if (webcamRef.current) {
           const imageSrc = webcamRef.current.getScreenshot();
-          setCapturedImage(imageSrc); // Save the captured image to state
+          setCapturedImage(imageSrc);
         }
-
-        // Hide the flash overlay
         setFlashVisible(false);
-      }, 200); // Delay for flash effect (200ms)
+      }, 200);
     } else {
-      // Capture photo without flash
       if (webcamRef.current) {
         const imageSrc = webcamRef.current.getScreenshot();
         setCapturedImage(imageSrc);
@@ -38,6 +35,34 @@ const Camera = ({ onClose }) => {
   const toggleFlash = () => {
     setFlashOn(!isFlashOn);
   };
+
+  const sendImageToBackend = async () => {
+    setIsLoading(true); // Set loading state to true
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: capturedImage }),
+      });
+
+      const data = await response.json();
+      setGptResponse(data.gptResponse);
+    } catch (error) {
+      console.error('Error sending image to backend:', error);
+    } finally {
+      setIsLoading(false); // Set loading state to false after processing
+    }
+  };
+
+  if (isLoading) {
+    return <LoadingPage />; // Show loading page while waiting
+  }
+
+  if (gptResponse) {
+    return <ResponsePage response={gptResponse} />;
+  }
 
   return (
     <div className="camera-container">
@@ -50,7 +75,7 @@ const Camera = ({ onClose }) => {
             screenshotFormat="image/jpeg"
             className="webcam-view"
             videoConstraints={{
-              facingMode: "environment", // Always use the rear camera
+              facingMode: "environment",
             }}
           />
           <div className="camera-header">
@@ -60,17 +85,36 @@ const Camera = ({ onClose }) => {
             <span>Identify the Ingredient</span>
             <img src={IconClose} className="close-button" alt="Close" onClick={onClose} />
           </div>
-          <button onClick={capture} className="capture-button">Capture Photo</button>
+          <button onClick={capture} className="capture-button styled-button">Capture Photo</button>
         </>
       ) : (
         <div className="camera-container">
           <img src={capturedImage} alt="Captured" className="captured-image" />
-          <button onClick={() => setCapturedImage(null)} className="retake-button">Retake</button>
+          <button onClick={() => setCapturedImage(null)} className="retake-button styled-button">Retake</button>
+          <button onClick={sendImageToBackend} className="send-button styled-button">Send</button>
         </div>
       )}
-      <div className="toolbar">
-        {/* Additional toolbar items can be added here */}
-      </div>
+    </div>
+  );
+};
+
+const LoadingPage = () => {
+  return (
+    <div className="loading-container">
+      <div className="spinner"></div>
+      <p>Processing your image, please wait...</p>
+    </div>
+  );
+};
+
+const ResponsePage = ({ response }) => {
+  return (
+    <div className="response-container">
+      <h2>Response from ChatGPT</h2>
+      <p>{response}</p>
+      <button onClick={() => window.location.reload()} className="back-button styled-button">
+        Back to Camera
+      </button>
     </div>
   );
 };

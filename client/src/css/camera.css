@@ -15,24 +15,38 @@
     overflow: hidden;
 }
 
-.flash-overlay {
+.camera-header {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    background-color: white;
-    opacity: 0.9; /* Brightness of the flash */
-    z-index: 1100; /* Ensure it overlays everything */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    z-index: 101;
 }
 
-@keyframes flash-animation {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 0.8;
-    }
+.styled-button {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 102;
+}
+
+.send-button {
+    bottom: 80px; /* Position send button above retake button */
 }
 
 .webcam-view {
@@ -49,57 +63,49 @@
     object-fit: contain;
 }
 
-.camera-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+.loading-container {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: 100%;
-    padding: 10px;
+    text-align: center;
+    color: white;
+    height: 100vh;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.response-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+
+.back-button {
+    margin-top: 20px;
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
-    z-index: 101;
-}
-
-.toolbar {
-    position: absolute;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    bottom: 0;
-    align-items: center;
-}
-
-.capture-button, .retake-button, .close-button, .toggle-camera-button {
-    font-size: 16px;
-    color: white;
-    background: rgba(255, 255, 255, 0.3);
+    font-size: 18px;
+    padding: 10px 20px;
     border: none;
-    padding: 8px 16px;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
-}
-
-.flash-button {
-    font-size: 20px;
-    padding: 10px;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-}
-
-.flash-button img {
-    width: 2em;
-    height: 2em;
-}
-
-.flash-on {
-    color: yellow;
 }
