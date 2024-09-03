@@ -36,7 +36,7 @@ const Camera = ({ onClose }) => {
                   <img src={isFlashOn ? FlashOnIcon : FlashOffIcon} alt={isFlashOn ? "Flash On" : "Flash Off"} />
               </button>
               <span>Identify the Ingredient</span>
-              <img src={IconClose} className="close-button" alt="Close" />
+              <img src={IconClose} className="close-button" alt="Close"onClick={onClose} />
           </div>
           <button onClick={capture} className="capture-button">Capture Photo</button>
           <div className="toolbar">
