@@ -10,6 +10,8 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5000
+# Expose the port
+EXPOSE 5050
 
-CMD ["node", "index.js"]
+# Use nodemon for development (watching files for changes)
+CMD ["npx", "nodemon", "index.js"]

@@ -15,6 +15,9 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Set development mode for better logging during development
+ENV NODE_ENV=development
+
 # Build the React application
 RUN npm run build
 

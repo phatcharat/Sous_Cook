@@ -20,7 +20,7 @@ const Camera = ({ onClose }) => {
       setTimeout(() => {
         if (webcamRef.current) {
           const imageSrc = webcamRef.current.getScreenshot();
-          setCapturedImage(imageSrc);
+          setCapturedImage(imageSrc);  // Capture and set image from webcam
         }
         setFlashVisible(false);
       }, 200);
@@ -36,32 +36,36 @@ const Camera = ({ onClose }) => {
     setFlashOn(!isFlashOn);
   };
 
-  const sendImageToBackend = async () => {
-    setIsLoading(true); // Set loading state to true
+  const sendImageToBackend = async (imageSrc) => {
+    console.log("Captured image:", imageSrc);  // Log the captured image to check its format
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image: capturedImage }),
+        body: JSON.stringify({ image: imageSrc }),  // Send imageSrc, which is a base64 string
       });
-
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
       const data = await response.json();
-      setGptResponse(data.gptResponse);
+      console.log('Response from backend:', data);
     } catch (error) {
       console.error('Error sending image to backend:', error);
-    } finally {
-      setIsLoading(false); // Set loading state to false after processing
     }
   };
+  
 
   if (isLoading) {
     return <LoadingPage />; // Show loading page while waiting
   }
 
   if (gptResponse) {
-    return <ResponsePage response={gptResponse} />;
+    return <ResponsePage response={gptResponse} />;  // Show GPT-4 response
   }
 
   return (
@@ -72,10 +76,10 @@ const Camera = ({ onClose }) => {
           <Webcam
             audio={false}
             ref={webcamRef}
-            screenshotFormat="image/jpeg"
+            screenshotFormat="image/jpeg"  // Capture image in JPEG format
             className="webcam-view"
             videoConstraints={{
-              facingMode: "environment",
+              facingMode: "environment",  // Use the back camera
             }}
           />
           <div className="camera-header">
@@ -91,7 +95,7 @@ const Camera = ({ onClose }) => {
         <div className="camera-container">
           <img src={capturedImage} alt="Captured" className="captured-image" />
           <button onClick={() => setCapturedImage(null)} className="retake-button styled-button">Retake</button>
-          <button onClick={sendImageToBackend} className="send-button styled-button">Send</button>
+          <button onClick={() => sendImageToBackend(capturedImage)} className="send-button styled-button">Send</button>
         </div>
       )}
     </div>
@@ -110,7 +114,7 @@ const LoadingPage = () => {
 const ResponsePage = ({ response }) => {
   return (
     <div className="response-container">
-      <h2>Response from ChatGPT</h2>
+      <h2>Response from GPT-4</h2>
       <p>{response}</p>
       <button onClick={() => window.location.reload()} className="back-button styled-button">
         Back to Camera
