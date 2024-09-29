@@ -37,8 +37,6 @@ const Camera = ({ onClose }) => {
   };
 
   const sendImageToBackend = async (imageSrc) => {
-    console.log("Captured image:", imageSrc);  // Log the captured image to check its format
-  
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
         method: 'POST',
@@ -58,7 +56,17 @@ const Camera = ({ onClose }) => {
       console.error('Error sending image to backend:', error);
     }
   };
-  
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCapturedImage(reader.result);  // Set the uploaded image as capturedImage (base64 format)
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (isLoading) {
     return <LoadingPage />; // Show loading page while waiting
@@ -90,6 +98,10 @@ const Camera = ({ onClose }) => {
             <img src={IconClose} className="close-button" alt="Close" onClick={onClose} />
           </div>
           <button onClick={capture} className="capture-button styled-button">Capture Photo</button>
+          <div className="upload-section">
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="upload-button" />
+            <span>Upload Image</span>
+          </div>
         </>
       ) : (
         <div className="camera-container">

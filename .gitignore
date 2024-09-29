@@ -13,3 +13,6 @@ server/yarn.lock
 
 #Environment Variables
 .env
+
+# Google Cloud credentials file
+credentials.json

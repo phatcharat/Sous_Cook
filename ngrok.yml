@@ -1,0 +1,10 @@
+version: 2
+authtoken: 2lYmPOgK99UoTa866YUTblSHwjI_ZAm8zVetQkFjdLAz2rnX 
+
+tunnels:
+  server:
+    proto: http
+    addr: 5050    
+  client:
+    proto: http
+    addr: 3000    

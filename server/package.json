@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "@google-cloud/vision": "^4.3.2",
     "axios": "^0.21.4",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.19.2",
     "fs": "^0.0.1-security",
     "multer": "^1.4.5-lts.1",
-    "openai": "^4.57.1"
+    "openai": "^4.57.1",
+    "sharp": "^0.29.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
