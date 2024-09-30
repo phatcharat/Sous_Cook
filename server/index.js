@@ -48,21 +48,21 @@ app.post('/upload', async (req, res) => {
 app.post('/menu-recommendations', async (req, res) => {
   const { ingredients, cuisines, dietaryPreferences, mealOccasions } = req.body;
 
+  console.log('Received ingredients:', ingredients);
+
   if (!ingredients || ingredients.length === 0) {
     return res.status(400).json({ error: "No ingredients provided in request body" });
   }
 
   try {
-    // Get menu recommendations using OpenAI API
     const recommendations = await getMenuRecommendations(ingredients, cuisines, dietaryPreferences, mealOccasions);
-
-    // Return the recommendations
     res.json({ recommendations });
   } catch (error) {
     console.error('Error getting menu recommendations:', error);
     res.status(500).json({ error: 'Error getting menu recommendations' });
   }
 });
+
 
 
 async function detectIngredients(imagePath) {
@@ -225,80 +225,89 @@ async function classifyCroppedImage(imagePath) {
     }
   }
 
-async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences, mealOccasions) {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const ingredientsList = ingredients.map((ingredient) => ingredient.name);
-  const cuisinesList = cuisines.join(', ');  // Convert cuisines array to a comma-separated string
-  const dietaryPreferencesList = dietaryPreferences.join(', ');  // Convert dietary preferences array to a comma-separated string
-  const mealOccasionsList = mealOccasions.join(', ');  // Convert meal occasions array to a comma-separated string
+  async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences, mealOccasions) {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  
+    // Safely map the ingredients list and ensure they have a valid 'name' property
+    const ingredientsList = ingredients;
 
-  const prompt = createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList);
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 10000,
-    });
-
-    const responseContent = response.choices[0].message.content; // Extract the content from the response
-    console.log("GPT-4o-mini response:", responseContent); // Log the full response to debug
-
-    // Extract JSON between <JSON_START> and <JSON_END>
-    const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
-    if (jsonMatch) {
-      const jsonString = jsonMatch[1].trim();
-      try {
-        const recommendations = JSON.parse(jsonString);
-        return recommendations;
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
+    if (ingredientsList.length === 0) {
+      throw new Error("No valid ingredients found");
+    }
+  
+    const cuisinesList = cuisines.join(', ');  // Convert cuisines array to a comma-separated string
+    const dietaryPreferencesList = dietaryPreferences.join(', ');  // Convert dietary preferences array to a comma-separated string
+    const mealOccasionsList = mealOccasions.join(', ');  // Convert meal occasions array to a comma-separated string
+  
+    const prompt = createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList);
+  
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 10000,
+      });
+  
+      const responseContent = response.choices[0].message.content; // Extract the content from the response
+      console.log("GPT-4o-mini response:", responseContent); // Log the full response to debug
+  
+      // Extract JSON between <JSON_START> and <JSON_END>
+      const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
+      if (jsonMatch) {
+        const jsonString = jsonMatch[1].trim();
+        try {
+          const recommendations = JSON.parse(jsonString);
+          return recommendations;
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+        }
+      } else {
+        console.error('No JSON object found in the response.');
       }
-    } else {
-      console.error('No JSON object found in the response.');
+    } catch (error) {
+      console.error('Error getting menu recommendations:', error);
     }
-  } catch (error) {
-    console.error('Error getting menu recommendations:', error);
   }
-}
+  
 
-function createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList) {
-  return `
-    You are an AI assistant that provides menu recommendations based on the following details:
-
-    Ingredients: ${ingredientsList.join(', ')}
-    Cuisines: ${cuisinesList.join(', ')}
-    Dietary Preferences: ${dietaryPreferencesList.join(', ')}
-    Meal Occasions: ${mealOccasionsList.join(', ')}
-
-    Recommend up to 10 menus that can be prepared from these ingredients, taking into consideration the mentioned cuisines, dietary preferences, and meal occasions. For each menu, provide the following details:
-    - Menu name
-    - Step-by-step cooking instructions
-    - Quantity required for each ingredient
-    - Preparation time (prep_time)
-    - Cooking time (cooking_time)
-
-    Return the response in the following JSON format:
-    {
-      "menus": [
-        {
-          "menu_name": "string",
-          "prep_time": "string",
-          "cooking_time": "string",
-          "steps": ["string", "string", ...],
-          "ingredients_quantity": {
-            "ingredient_name": "string (quantity and unit)",
-            ...
-          }
-        },
-        ...
-      ]
-    }
-
-    Ensure the JSON is properly formatted with no extra explanations or text.
-  `;
-}
-
+  function createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList) {
+    return `
+      You are an AI assistant that provides menu recommendations based on the following details:
+  
+      Ingredients: ${ingredientsList.join(', ')}
+      Cuisines: ${cuisinesList}
+      Dietary Preferences: ${dietaryPreferencesList}
+      Meal Occasions: ${mealOccasionsList}
+  
+      Recommend up to 10 menus that can be prepared from these ingredients, taking into consideration the mentioned cuisines, dietary preferences, and meal occasions. For each menu, provide the following details:
+      - Menu name
+      - Preparation time (prep_time)
+      - Cooking time (cooking_time)
+      - Step-by-step cooking instructions
+      - Quantity required for each ingredient
+  
+      Return the response in the following JSON format:
+      <JSON_START>
+      {
+        "menus": [
+          {
+            "menu_name": "string",
+            "prep_time": "string",
+            "cooking_time": "string",
+            "steps": ["string", "string", ...],
+            "ingredients_quantity": {
+              "ingredient_name": "string (quantity and unit)",
+              ...
+            }
+          },
+          ...
+        ]
+      }
+      <JSON_END>
+  
+      Ensure the JSON is properly formatted with no extra explanations or text.
+    `;
+  }  
 
 // Function to encode image to base64
 function encodeImage(imagePath) {

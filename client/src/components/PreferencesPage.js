@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getIngredientsFromLocalStorage, savePreferencesToLocalStorage, getPreferencesFromLocalStorage } from '../utils/storageUtils';
 import '../css/PreferencesPage.css';
-import '../css/LoadingPage.css';
 
 const PreferencesPage = ({ onBack }) => {
   const [selectedCuisines, setSelectedCuisines] = useState([]);
@@ -44,31 +43,38 @@ const PreferencesPage = ({ onBack }) => {
         : [...prevState, item]
     );
   };
-
-  const handleSearch = async () => {
-
+  const handleConfirm = async () => {
+    const ingredientNames = ingredients
+      .filter((i) => i && i.ingredient_name)
+      .map((i) => i.ingredient_name);
+  
+    console.log('Ingredient names being sent:', ingredientNames);
+  
     try {
-        setIsLoading(true);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/menu-recommendations`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ingredients: ingredients.map(i => i.name),
-                cuisines,
-                dietaryPreferences,
-                mealOccasions,
-            }),
-        });
+    setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/menu-recommendations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ingredients: ingredientNames, // Send the array of ingredient names
+          cuisines,
+          dietaryPreferences,
+          mealOccasions,
+        }),
+      });
 
       const data = await response.json();
+
+      console.log('Menu recommendations:', data);
       setIsLoading(false);
-      console.log('Menu recommendations:', JSON.stringify(data.recommendations, null, 2));
+
     } catch (error) {
       console.error('Error getting menu recommendations:', error);
+
       setIsLoading(false);
     }
   };
-
+  
   return (
   <>
     {isLoading && <LoadingPage />}
@@ -114,7 +120,7 @@ const PreferencesPage = ({ onBack }) => {
         ))}
       </div>
 
-      <button className="search-button" onClick={handleSearch}>SEARCH FOR RECIPE</button>
+      <button className="search-button" onClick={handleConfirm}>SEARCH FOR RECIPE</button>
     </div>
     </>
   );
