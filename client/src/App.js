@@ -8,11 +8,12 @@ function App() {
 
     return (
         <div className="App">
-            {showCamera ? (
-                <Camera onClose={() => setShowCamera(false)} />
-            ) : (
-                <Navbar onCameraClick={() => setShowCamera(true)} />
-            )}
+
+                {showCamera ? (
+                    <Camera onClose={() => setShowCamera(false)} />
+                ) : (
+                    <Navbar onCameraClick={() => setShowCamera(true)} />
+                )}
         </div>
     );
 }

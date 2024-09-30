@@ -1,0 +1,64 @@
+/* Preferences Page Container */
+.preferences-container {
+    padding: 20px;
+  }
+  
+  /* Header */
+  .header {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  /* Back Button */
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  /* Preference List Styling */
+  .preference-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  /* Preference Item (Button) */
+  .preference-item {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Preference Item when selected */
+  .preference-item.selected {
+    background-color: #A8D671;  /* Light green when selected */
+    border-color: #A8D671;
+    color: white;
+  }
+  
+  /* Search Button */
+  .search-button {
+    background-color: #FFA500;  /* Orange button */
+    color: white;
+    font-size: 18px;
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  /* Permanent Filter Label */
+  .permanent-filter {
+    font-size: 14px;
+    color: #888;
+  }
+  

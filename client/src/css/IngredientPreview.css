@@ -1,0 +1,119 @@
+/* IngredientPreview.css */
+
+/* Container for the ingredient preview */
+.ingredient-preview-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Header styling */
+.ingredient-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Ingredient list styling */
+.ingredient-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual ingredient item */
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f9f9f9; /* Light background for each item */
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+/* Content inside the ingredient item */
+.ingredient-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Ingredient icon styling */
+.ingredient-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+}
+
+/* Ingredient name styling */
+.ingredient-name {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Actions (edit and delete buttons) */
+.ingredient-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Edit and delete button styling */
+.edit-btn,
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Confirm button styling */
+.confirm-btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background-color: #28a745; /* Green background */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.confirm-btn:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+.ingredient-edit-input {
+  padding: 5px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.save-btn, .cancel-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-left: 5px;
+}
+
+.edit-btn img, .delete-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.ingredient-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}

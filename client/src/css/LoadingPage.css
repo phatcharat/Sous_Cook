@@ -1,0 +1,66 @@
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.7);  /* Transparent overlay */
+    z-index: 9999;  /* Ensure it appears above other elements */
+  }
+  
+  /* Popup box containing the spinner and the text */
+  .loading-popup {
+    display: flex;
+    flex-direction: column;  /* Stack spinner and text vertically */
+    align-items: center;     /* Center both spinner and text */
+    justify-content: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Spinner styling */
+  .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #09f;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  
+  /* Spinner animation */
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Centered text under the spinner */
+  .loading-popup p {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    text-align: center;
+  }
+  .error-icon {
+  color: red;
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
