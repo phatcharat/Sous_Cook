@@ -32,7 +32,7 @@
   }
   
   /* Close button styling */
-  .close-button {
+  .notfound-popup .close-button {
     background-color: #ff4b4b;
     color: white;
     border: none;
@@ -43,7 +43,7 @@
     margin-top: 15px;
   }
   
-  .close-button:hover {
+  .notfound-popup .close-button:hover {
     background-color: #ff6b6b;
   }
   

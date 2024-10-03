@@ -15,38 +15,53 @@
     overflow: hidden;
 }
 
+.camera-header, .header-title {
+    font-family: 'Manrope', sans-serif; /* Apply Manrope font */
+}
+
 .camera-header {
     position: absolute;
-    top: 0;
+    top: 1.75em;
     left: 0;
     right: 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* Keep the close button on the right */
     align-items: center;
     width: 100%;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    background-color: transparent;
     z-index: 101;
+    color: white;
+    font-weight: bold;
+}
+
+.header-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* Center the text horizontally */
+    font-size: 16px;
+    color: #F4EEC7; /* The color for the header text */
 }
 
 .styled-button {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    font-size: 18px;
-    padding: 10px 20px;
+    background-color: transparent;
     border: none;
-    border-radius: 5px;
+    padding-left: 17%;
+    padding-right: 17%;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1em; /* Adjust size as needed */
+    height: 1em;
     z-index: 102;
-}
+  }
 
-.send-button {
-    bottom: 80px; /* Position send button above retake button */
+.button-image {
+
+    width: 8em;
+    height: 8em;
+    object-fit: contain; /* Ensure the SVG is properly contained within the button */
 }
 
 .webcam-view {
@@ -108,4 +123,64 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+.close-button{
+    width: 0.8em;
+    height: 0.8em;
+    cursor: pointer;
+    padding-inline-end: 10%;
+}
+.camera-buttom{
+    position: fixed;
+    bottom: 2.5%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+}
+.camera-buttom-preview{
+    position: fixed;
+    padding: 15%;
+    bottom: 0%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+}
+.camera-button {
+    background-color: transparent; /* Remove background */
+    border: none; /* Remove default border */
+    cursor: pointer;
+    z-index: 102;
+    border-radius: 50%; /* Ensuring the button remains circular */
+}
+
+.camera-button-img {
+    width: 5em;
+    height: 5em;
+    object-fit: cover;
+}
+
+  
+.upload-image{
+    width: 3.5em;
+    height: 3.5em;
+    background-color: #67656570;
+    border-radius: 25%; 
+    
+}
+.upload-container{
+    padding-left: 10%;
+}
+.flash-button{
+    display: none;
+}   
+.swap-camera{
+    width: 2.5em;
+    height: 2.5em;
+    padding-right: 10%;
 }

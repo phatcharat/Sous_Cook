@@ -1,138 +1,150 @@
 import React, { useState, useEffect } from 'react';
-import { getIngredientsFromLocalStorage, savePreferencesToLocalStorage, getPreferencesFromLocalStorage } from '../utils/storageUtils';
+import { getIngredientsFromLocalStorage, savePreferencesToLocalStorage, getPreferencesFromLocalStorage,saveMenuToLocalStorage,printData } from '../utils/storageUtils';
+import MenuSuggestion from './MenuSuggestion'
 import '../css/PreferencesPage.css';
 
 const PreferencesPage = ({ onBack }) => {
-  const [selectedCuisines, setSelectedCuisines] = useState([]);
-  const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState([]);
-  const [selectedMealOccasions, setSelectedMealOccasions] = useState([]);
-  const [ingredients, setIngredients] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [selectedCuisines, setSelectedCuisines] = useState([]);
+    const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState([]);
+    const [selectedMealOccasions, setSelectedMealOccasions] = useState([]);
+    const [ingredients, setIngredients] = useState([]);
+    const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [isMenuSuggest, setIsMenuSuggest] = useState(false); // Loading state
 
-  // Load stored preferences and ingredients on component mount
-  useEffect(() => {
+    // Function to handle navigation back from PreferencesPage
+    const handleBackToIngredientPreview = () => {
+        setIsMenuSuggest(false); // Navigate back to the IngredientPreview page
+    };
+  
+    // Load stored preferences and ingredients on component mount
+    useEffect(() => {
     const storedPreferences = getPreferencesFromLocalStorage();
     if (storedPreferences) {
-      setSelectedCuisines(storedPreferences.cuisines || []);
-      setSelectedDietaryPreferences(storedPreferences.dietaryPreferences || []);
-      setSelectedMealOccasions(storedPreferences.mealOccasions || []);
+        setSelectedCuisines(storedPreferences.cuisines || []);
+        setSelectedDietaryPreferences(storedPreferences.dietaryPreferences || []);
+        setSelectedMealOccasions(storedPreferences.mealOccasions || []);
     }
 
     const storedIngredients = getIngredientsFromLocalStorage();
     setIngredients(storedIngredients || []);
-  }, []);
+    }, []);
 
-  // Save preferences to local storage whenever a selection is made
-  useEffect(() => {
-    const preferences = {
-      cuisines: selectedCuisines,
-      dietaryPreferences: selectedDietaryPreferences,
-      mealOccasions: selectedMealOccasions,
-    };
+    // Save preferences to local storage whenever a selection is made
+    useEffect(() => {
+        const preferences = {
+            cuisines: selectedCuisines,
+            dietaryPreferences: selectedDietaryPreferences,
+            mealOccasions: selectedMealOccasions,
+        };
     savePreferencesToLocalStorage(preferences);
-  }, [selectedCuisines, selectedDietaryPreferences, selectedMealOccasions]);
+    }, [selectedCuisines, selectedDietaryPreferences, selectedMealOccasions]);
 
-  const cuisines = ['Southeast Asian', 'American', 'Italian', 'Mexican', 'Indian', 'Fusion', 'South American', 'Middle Eastern', 'Mediterranean'];
-  const dietaryPreferences = ['Vegetarian', 'Lactose Intolerance', 'Pescatarian', 'Gluten intolerance', 'No red meat', 'Keto', 'Diabetes', 'Dairy-free', 'Low carb', 'High carb', 'High protein', 'Nuts Allergies', 'Healthy'];
-  const mealOccasions = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Side Dish', 'Party'];
+    const cuisines = ['Southeast Asian', 'American', 'Italian', 'Mexican', 'Indian', 'Fusion', 'South American', 'Middle Eastern', 'Mediterranean'];
+    const dietaryPreferences = ['Vegetarian', 'Lactose Intolerance', 'Pescatarian', 'Gluten intolerance', 'No red meat', 'Keto', 'Diabetes', 'Dairy-free', 'Low carb', 'High carb', 'High protein', 'Nuts Allergies', 'Healthy'];
+    const mealOccasions = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Side Dish', 'Party'];
 
-  const toggleSelection = (item, setSelection, selectedItems) => {
+    const toggleSelection = (item, setSelection, selectedItems) => {
     setSelection(prevState =>
-      prevState.includes(item)
+        prevState.includes(item)
         ? prevState.filter(selected => selected !== item)
         : [...prevState, item]
-    );
-  };
-  const handleConfirm = async () => {
-    const ingredientNames = ingredients
-      .filter((i) => i && i.ingredient_name)
-      .map((i) => i.ingredient_name);
-  
-    console.log('Ingredient names being sent:', ingredientNames);
-  
-    try {
-    setIsLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/menu-recommendations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ingredients: ingredientNames, // Send the array of ingredient names
-          cuisines,
-          dietaryPreferences,
-          mealOccasions,
-        }),
-      });
+        );
+    };
 
-      const data = await response.json();
+    const handleConfirm = async () => {
+        const ingredientNames = ingredients
+          .filter((i) => i && i.ingredient_name)
+          .map((i) => i.ingredient_name);
+      
+        console.log('Ingredient names being sent:', ingredientNames);
+        try {
+          setIsLoading(true);
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/menu-recommendations`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ingredients: ingredientNames, 
+              cuisines: selectedCuisines,
+              dietaryPreferences: selectedDietaryPreferences,
+              mealOccasions: selectedMealOccasions,
+            }),
+          });
+      
+          const data = await response.json();
+          console.log('Menu recommendations:', data);
+      
+          // Save the menu recommendations to local storage
+          saveMenuToLocalStorage(data.recommendations);
+          printData('menus');
+          setIsLoading(false);
+          setIsMenuSuggest(true);
+        } catch (error) {
+          console.error('Error getting menu recommendations:', error);
+          setIsLoading(false);
+        }
+      };
+      
+    
 
-      console.log('Menu recommendations:', data);
-      setIsLoading(false);
-
-    } catch (error) {
-      console.error('Error getting menu recommendations:', error);
-
-      setIsLoading(false);
-    }
-  };
-  
-  return (
-  <>
+    return (
+    <>
     {isLoading && <LoadingPage />}
+    {isMenuSuggest ? (<MenuSuggestion onBack={handleBackToIngredientPreview} />):(
     <div className="preferences-container">
-      <button className="back-button" onClick={onBack}>←</button>
+        <button className="back-button" onClick={onBack}>←</button>
 
-      <h1 className="header">Cuisines</h1>
-      <div className="preference-list">
+        <h1 className="header">Cuisines</h1>
+        <div className="preference-list">
         {cuisines.map(cuisine => (
-          <button
+            <button
             key={cuisine}
             className={`preference-item ${selectedCuisines.includes(cuisine) ? 'selected' : ''}`}
             onClick={() => toggleSelection(cuisine, setSelectedCuisines, selectedCuisines)}
-          >
+            >
             {cuisine}
-          </button>
+            </button>
         ))}
-      </div>
+        </div>
 
-      <h1 className="header">Dietary Preferences <span className="permanent-filter">(This filter is permanent)</span></h1>
-      <div className="preference-list">
+        <h1 className="header">Dietary Preferences <span className="permanent-filter">(This filter is permanent)</span></h1>
+        <div className="preference-list">
         {dietaryPreferences.map(preference => (
-          <button
+            <button
             key={preference}
             className={`preference-item ${selectedDietaryPreferences.includes(preference) ? 'selected' : ''}`}
             onClick={() => toggleSelection(preference, setSelectedDietaryPreferences, selectedDietaryPreferences)}
-          >
+            >
             {preference}
-          </button>
+            </button>
         ))}
-      </div>
+        </div>
 
-      <h1 className="header">Meal Occasions</h1>
-      <div className="preference-list">
+        <h1 className="header">Meal Occasions</h1>
+        <div className="preference-list">
         {mealOccasions.map(occasion => (
-          <button
+            <button
             key={occasion}
             className={`preference-item ${selectedMealOccasions.includes(occasion) ? 'selected' : ''}`}
             onClick={() => toggleSelection(occasion, setSelectedMealOccasions, selectedMealOccasions)}
-          >
+            >
             {occasion}
-          </button>
+            </button>
         ))}
-      </div>
-
-      <button className="search-button" onClick={handleConfirm}>SEARCH FOR RECIPE</button>
-    </div>
-    </>
-  );
-};
-const LoadingPage = () => {
-    return (
-      <div className="loading-overlay">
-        <div className="loading-popup">
-          <div className="spinner"></div>
-          <p>Processing your image, please wait...</p>
         </div>
-      </div>
+
+        <button className="search-button" onClick={handleConfirm}>SEARCH FOR RECIPE</button>
+    </div>)}
+    </>
     );
-  };
+    };
+    const LoadingPage = () => {
+    return (
+        <div className="loading-overlay">
+        <div className="loading-popup">
+            <div className="spinner"></div>
+            <p>Suggestion menu, please wait...</p>
+        </div>
+        </div>
+    );
+};
 export default PreferencesPage;

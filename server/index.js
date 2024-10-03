@@ -7,6 +7,15 @@ const OpenAI = require('openai');
 const sharp = require('sharp');
 const vision = require('@google-cloud/vision');
 const client = new vision.ImageAnnotatorClient();
+const Bottleneck = require('bottleneck');
+
+const limiter = new Bottleneck({
+  minTime: 200,  // Control the time between requests
+  maxConcurrent: 10  // Control how many requests run at the same time
+});
+
+const endaman_app_id = process.env.EDAMAN_APP_ID;
+const endaman_api_key = process.env.EDAMAN_API_KEY;
 
 require('dotenv').config();
 
@@ -49,6 +58,9 @@ app.post('/menu-recommendations', async (req, res) => {
   const { ingredients, cuisines, dietaryPreferences, mealOccasions } = req.body;
 
   console.log('Received ingredients:', ingredients);
+  console.log('Received cuisines:', cuisines);
+  console.log('Received dietaryPreferences:', dietaryPreferences);
+  console.log('Received mealOccasions:', mealOccasions);
 
   if (!ingredients || ingredients.length === 0) {
     return res.status(400).json({ error: "No ingredients provided in request body" });
@@ -235,12 +247,12 @@ async function classifyCroppedImage(imagePath) {
       throw new Error("No valid ingredients found");
     }
   
-    const cuisinesList = cuisines.join(', ');  // Convert cuisines array to a comma-separated string
-    const dietaryPreferencesList = dietaryPreferences.join(', ');  // Convert dietary preferences array to a comma-separated string
-    const mealOccasionsList = mealOccasions.join(', ');  // Convert meal occasions array to a comma-separated string
-  
+    const cuisinesList = cuisines.length === 0 ? 'any' : cuisines.join(', ');
+    const dietaryPreferencesList = dietaryPreferences.length === 0 ? 'any' : dietaryPreferences.join(', ');
+    const mealOccasionsList = mealOccasions.length === 0 ? 'any' : mealOccasions.join(', ');
+
     const prompt = createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList);
-  
+    console.log(prompt);
     try {
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -257,6 +269,10 @@ async function classifyCroppedImage(imagePath) {
         const jsonString = jsonMatch[1].trim();
         try {
           const recommendations = JSON.parse(jsonString);
+
+          // Add images to the menus
+          recommendations.menus = await addImagesToMenus(recommendations.menus);
+
           return recommendations;
         } catch (error) {
           console.error('Error parsing JSON:', error);
@@ -315,8 +331,89 @@ function encodeImage(imagePath) {
   return imageBuffer.toString('base64');
 }
 
+const addImagesToMenus = async (menus) => {
+  const menusWithImages = await Promise.all(
+    menus.map(async (menu) => {
+      const imageUrl = await fetchImageForMenu(menu.menu_name);
+      return {
+        ...menu,
+        image: imageUrl ? imageUrl : 'default-image-url',  // Use default image if no image found
+      };
+    })
+  );
+  return menusWithImages;
+};
 
+const fetchImageForMenu = limiter.wrap(async (menuName) => {
+  try {
+    const response = await fetch(
+      `https://api.edamam.com/search?q=${menuName}&app_id=${endaman_app_id}&app_key=${endaman_api_key}`
+    );
+    const data = await response.json();
 
+    if (data.hits && data.hits.length > 0) {
+      return data.hits[0].recipe.image;
+    } else {
+      console.log(`No image found for menu: ${menuName}`);
+      return 'default-image-url';
+    }
+  } catch (error) {
+    console.error(`Error fetching image for ${menuName}:`, error);
+    return 'default-image-url';
+  }
+});
+
+// POST endpoint for /get_ingredient_image
+app.post('/get_ingredient_image', async (req, res) => {
+  try {
+    const ingredients = req.body.ingredients;
+
+    if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
+      return res.status(400).json({ error: 'Please provide a list of ingredient names.' });
+    }
+
+    let results = [];
+
+    for (const ingredient of ingredients) {
+      const imageUrl = await getIngredientImage(ingredient);
+      results.push({ ingredient, imageUrl });
+    }
+
+    // Send the response
+    res.json(results);
+  } catch (error) {
+    console.error('Error fetching ingredient images:', error.message);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// Function to fetch ingredient image from Edamam Food Database API
+async function getIngredientImage(ingredient) {
+  const url = 'https://api.edamam.com/api/food-database/v2/parser';
+  const params = {
+    app_id: app_id,
+    app_key: app_key,
+    ingr: ingredient,
+  };
+
+  try {
+    const response = await axios.get(url, { params });
+    const data = response.data;
+
+    if (data.hints && data.hints.length > 0) {
+      const foodItem = data.hints[0].food;
+      const imageUrl = foodItem.image;
+      console.log(`Found image for ingredient "${ingredient}": ${imageUrl}`);
+      return imageUrl || null;
+    } else {
+      console.log(`No image found for ingredient "${ingredient}".`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error fetching image for "${ingredient}":`, error.message);
+    return null;
+  }
+}
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

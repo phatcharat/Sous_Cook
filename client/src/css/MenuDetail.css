@@ -1,0 +1,139 @@
+/* Container for the entire menu detail */
+.menu-detail-container {
+    background-color: #fdf6e3;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .text-container{
+    padding: 20px;
+  }
+  /* Back button styling */
+  .back-button {
+    background: none;
+    border: none;
+    color: #ff6600;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .back-button:hover {
+    color: #ff9900;
+  }
+  
+  /* Menu name styling */
+  .menu-detail-container h1 {
+    font-size: 30px;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  /* Menu image styling */
+  .menu-image-large {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+  
+  /* Ingredients section */
+  .menu-detail-container h2 {
+    font-size: 22px;
+    color: #555;
+    margin-top: 30px;
+    margin-bottom: 10px;
+  }
+  
+  .menu-detail-container ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .menu-detail-container ul li {
+    font-size: 18px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Steps section */
+  .menu-detail-container ol {
+    padding-left: 20px;
+    margin: 0;
+  }
+  
+  .menu-detail-container ol li {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  
+  /* Tips section */
+  .menu-detail-container p {
+    font-size: 15px;
+    color: #666;
+    
+  }
+  
+  /* Add some margin to the ingredients and steps sections */
+  .menu-detail-container h2 + ul, 
+  .menu-detail-container h2 + ol {
+    margin-top: 10px;
+  }
+
+  .ingredients-container, .seasoning-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .menu-detail-container .ingredient-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .ingredient-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  
+  .ingredient-item p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  /* Media queries for responsiveness */
+  @media (max-width: 768px) {
+    .menu-detail-container {
+      padding: 15px;
+    }
+  
+    h1 {
+      font-size: 22px;
+    }
+  
+    h2 {
+      font-size: 18px;
+    }
+  
+    ul li, ol li {
+      font-size: 16px;
+    }
+  
+    .menu-image-large {
+      max-width: 100%;
+    }
+  }
+  

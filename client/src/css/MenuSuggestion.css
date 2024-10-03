@@ -1,0 +1,100 @@
+/* MenuSuggestion.css */
+
+.menu-suggestion-container {
+    padding-left: 40px;
+    padding-right: 40px;
+    background-color: #fdf7f1;
+    min-width: auto;
+    margin: 0 auto;
+    border-radius: 16px;
+    font-family: 'Arial', sans-serif;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-suggestion-container h1 {
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: left; /* Left-align title like in the example */
+    padding-left: 10px; /* Slight padding to match layout */
+}
+
+.menu-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* This ensures the list stretches to fill available space */
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e6e6e6;
+    transition: transform 0.1s;
+}
+
+.menu-item:hover {
+    transform: translateY(-2px);
+}
+
+.menu-image {
+    flex-shrink: 0; /* Prevent the image from shrinking */
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 20px; /* Add some space between the image and the text */
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+}
+
+.menu-details {
+    display: block; /* Ensure the text takes the remaining space */
+    flex-grow: 1; /* Grow to take up available space */
+    overflow: hidden; /* Prevent the text from overflowing */
+    text-align: left; /* Align text to the left */
+}
+
+.menu-details h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 500;
+    color: #222;
+}
+
+.menu-details p {
+    margin: 3px 0;
+    font-size: 18px;
+    color: #777;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 16px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.back-button::before {
+    content: '←';
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.back-button:hover {
+    color: #000;
+}
+
+.menu-suggestion-container button:hover {
+    color: #d12d42;
+}

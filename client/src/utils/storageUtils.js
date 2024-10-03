@@ -17,12 +17,12 @@ export const getIngredientsFromLocalStorage = () => {
 
 // Function to save menu recommendations to localStorage
 export const savePreferencesToLocalStorage = (menu) => {
-  localStorage.setItem('menu', JSON.stringify(menu));  // Changed to use "menu" as key
+  localStorage.setItem('Preferences', JSON.stringify(menu));  // Changed to use "menu" as key
 };
 
 // Function to retrieve menu recommendations from localStorage
 export const getPreferencesFromLocalStorage = () => {
-  const storedMenu = localStorage.getItem('menu');  // Fetching from "menu" instead of "ingredients"
+  const storedMenu = localStorage.getItem('Preferences');  // Fetching from "menu" instead of "ingredients"
   try {
     return storedMenu ? JSON.parse(storedMenu) : [];
   } catch (error) {
@@ -30,6 +30,21 @@ export const getPreferencesFromLocalStorage = () => {
     return [];
   }
 };
+
+export const saveMenuToLocalStorage = (menus) => {
+  localStorage.setItem('menus', JSON.stringify(menus));
+};
+
+export const getMenuFromLocalStorage = () => {
+  const storedMenu = localStorage.getItem('menus');
+  try {
+    return storedMenu ? JSON.parse(storedMenu) : [];  // Return an empty array if there's no data
+  } catch (error) {
+    console.error('Error parsing menu recommendations from localStorage:', error);
+    return [];  // Return empty array in case of error
+  }
+};
+
 
 // Function to print any data from localStorage by key
 export const printData = (ItemName) => {

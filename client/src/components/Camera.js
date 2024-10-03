@@ -3,45 +3,33 @@ import Webcam from 'react-webcam';
 import { saveIngredientsToLocalStorage } from '../utils/storageUtils';
 import IconClose from '../image/nav_icon/close_btn.svg';
 import { FaExclamationTriangle } from 'react-icons/fa'; 
-import FlashOnIcon from '../image/nav_icon/flash_on.svg';
-import FlashOffIcon from '../image/nav_icon/flash_off.svg';
-import IngredientPreview from './IngredientPreview'; // Import IngredientPreview
+import uploadImage from '../image/camera/upload.png';
+import SwapCamera from '../image/camera/swap_camera.svg';
+import CameraButtonDefault from '../image/camera/takecamera_Default.svg';
+import CameraButtonHover from '../image/camera/takecamera_Onpress.svg';
+import RetakeButton from '../image/camera/Retake_Button.svg';
+import NextButton from '../image/camera/Next_Button.svg';
+import IngredientPreview from './IngredientPreview'; 
 import '../css/camera.css';
 import '../css/LoadingPage.css';
 import '../css/PopUpIngedientNotFound.css';
 
 const Camera = ({ onClose }) => {
   const webcamRef = useRef(null);
-  const [isFlashOn, setFlashOn] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [flashVisible, setFlashVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [isIngredientFound, setIsIngredientFound] = useState(false); // Ingredient found state
   const [ingredients, setIngredients] = useState([]); // Store detected ingredients
   const [isIngredientNotFound, setIsIngredientNotFound] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const capture = useCallback(() => {
-    if (isFlashOn) {
-      setFlashVisible(true);
 
-      setTimeout(() => {
-        if (webcamRef.current) {
-          const imageSrc = webcamRef.current.getScreenshot();
-          setCapturedImage(imageSrc);  // Capture and set image from webcam
-        }
-        setFlashVisible(false);
-      }, 200);
-    } else {
       if (webcamRef.current) {
         const imageSrc = webcamRef.current.getScreenshot();
         setCapturedImage(imageSrc);
       }
-    }
-  }, [webcamRef, isFlashOn]);
-
-  const toggleFlash = () => {
-    setFlashOn(!isFlashOn);
-  };
+    }, webcamRef);
 
   const sendImageToBackend = async (imageSrc) => {
     try {
@@ -113,7 +101,6 @@ const Camera = ({ onClose }) => {
         <div className="camera-container">
           {!capturedImage ? (
             <>
-              {flashVisible && <div className="flash-overlay"></div>}
               <Webcam
                 audio={false}
                 ref={webcamRef}
@@ -124,24 +111,65 @@ const Camera = ({ onClose }) => {
                 }}
               />
               <div className="camera-header">
-                <button onClick={toggleFlash} className="flash-button" aria-label="Toggle Flash">
-                  <img src={isFlashOn ? FlashOnIcon : FlashOffIcon} alt={isFlashOn ? "Flash On" : "Flash Off"} />
-                </button>
-                <span>Identify the Ingredient</span>
+                <span className="header-title">Identify the Ingredient</span>
                 <img src={IconClose} className="close-button" alt="Close" onClick={onClose} />
               </div>
-              <button onClick={capture} className="capture-button styled-button">Capture Photo</button>
-              <div className="upload-section">
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="upload-button" />
-                <span>Upload Image</span>
+              <div className='camera-buttom'>
+                <div className='upload-container'>
+                  <img
+                    src={uploadImage} 
+                    alt="Upload"
+                    onClick={() => document.getElementById('fileInput').click()} // Trigger file input on image click
+                    className="upload-image"
+                  />
+                </div>
+                <button 
+                  onClick={capture} 
+                  className="camera-button"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <img 
+                    src={isHovered ? CameraButtonHover : CameraButtonDefault} 
+                    alt="Camera Button" 
+                    className="camera-button-img"
+                  />
+                </button>
+
+                <img
+                  src={SwapCamera} 
+                  alt="Upload"
+                  className="swap-camera"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="upload-button"
+                  id="fileInput"
+                  style={{ display: 'none' }} // Hide the default input
+                />
+                
               </div>
+
+              
             </>
           ) : (
-            <div className="camera-container">
+            <>
+              <div className="camera-header">
+              <span className="header-title">Identify the Ingredient</span>
+                <img src={IconClose} className="close-button" alt="Close" onClick={onClose} />
+              </div>
               <img src={capturedImage} alt="Captured" className="captured-image" />
-              <button onClick={() => setCapturedImage(null)} className="retake-button styled-button">Retake</button>
-              <button onClick={() => sendImageToBackend(capturedImage)} className="send-button styled-button">Send</button>
-            </div>
+              <div className='camera-buttom-preview'>
+              <button onClick={() => setCapturedImage(null)} className="retake-button styled-button">
+                <img src={RetakeButton} alt="Retake" className="button-image" />
+                </button>
+                <button onClick={() => sendImageToBackend(capturedImage)} className="send-button styled-button">
+                  <img src={NextButton} alt="Next" className="button-image" />
+                </button>
+              </div>
+            </>
           )}
 
           

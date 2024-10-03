@@ -8,8 +8,11 @@
   justify-content: space-between;
   align-items: center;
   background-color: #4F4A45;
-  padding: 2em;
-  border-radius: calc(40px + 5vmin);
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 1em;
+  padding-bottom: 0.8em;
+  border-radius: calc(12.5px + 5vmin);
   width: 78%;
   height: 4%;
   margin: auto;
@@ -23,8 +26,8 @@
 }
 
 .nav-item img {
-  width: 3em;
-  height: 3em;
+  width: 1.4em;
+  height: 1.4em;
   transition: transform 0.3s ease, fill 0.3s ease;
 }
 
@@ -40,15 +43,16 @@
   content: '';
   border-radius: calc(40px + 5vmin);
   position: absolute;
-  bottom: -10px; 
+  bottom: -5px; 
   transform: translateX(-50%);
   width: 60%;
-  height: 0.4em;
+  height: 0.15em;
   background-color: #FE9801;
 }
 
 .home.nav-item.nav-item.selected::after {
-  left: 64%;
+  left: 50%;
+  width: 75%;
 }
 .heart.nav-item.nav-item.selected::after {
   left: 50%;
@@ -60,18 +64,9 @@
 
 }
 .account.nav-item.nav-item.selected::after {
-  left: 35%;
-  width: 55%;
+  left: 50%;
+  width: 60%;
 }
-
-.nav-item:first-child {
-  padding-left: 2em;
-}
-
-.nav-item:last-child {
-  padding-right: 2em;
-}
-
 .icon {
   padding: calc(1px + 1vmin);
   font-size: calc(16px + 1vmin);
