@@ -150,7 +150,7 @@ return (
             );
           })}
         </ul>
-        <button className="confirm-btn" onClick={handleConfirm}>Confirm</button>
+        <button className="confirm-btn" onClick={handleConfirm}>CONFIRM</button>
       </div>
     )}
   </>

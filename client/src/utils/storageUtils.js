@@ -45,6 +45,21 @@ export const getMenuFromLocalStorage = () => {
   }
 };
 
+export const saveImageToLocalStorage = (Images_list) => {
+  localStorage.setItem('images', JSON.stringify(Images_list));
+};
+
+
+
+export const getImageFromLocalStorage = () => {
+  const storedImages = localStorage.getItem('images');
+  try {
+    return storedImages ? JSON.parse(storedImages) : { ingredient: {} };  // Return an object with ingredients
+  } catch (error) {
+    console.error('Error parsing images from localStorage:', error);
+    return { ingredient: {} };  // Return an empty object in case of error
+  }
+};
 
 // Function to print any data from localStorage by key
 export const printData = (ItemName) => {

@@ -374,11 +374,15 @@ app.post('/get_ingredient_image', async (req, res) => {
 
     let results = [];
 
-    for (const ingredient of ingredients) {
-      const imageUrl = await getIngredientImage(ingredient);
-      results.push({ ingredient, imageUrl });
-    }
+    // Use the limiter for each ingredient request
+    const promises = ingredients.map((ingredient) => 
+      limiter.schedule(() => getIngredientImage(ingredient))
+        .then((imageUrl) => ({ ingredient, imageUrl }))
+    );
 
+    // Wait for all promises to resolve
+    results = await Promise.all(promises);
+    console.log(`ingredient_image : ${JSON.stringify(results)}`);
     // Send the response
     res.json(results);
   } catch (error) {
@@ -387,24 +391,25 @@ app.post('/get_ingredient_image', async (req, res) => {
   }
 });
 
-// Function to fetch ingredient image from Edamam Food Database API
+
 async function getIngredientImage(ingredient) {
-  const url = 'https://api.edamam.com/api/food-database/v2/parser';
+  const url = `https://api.spoonacular.com/food/ingredients/search`;
+
   const params = {
-    app_id: app_id,
-    app_key: app_key,
-    ingr: ingredient,
+    query: ingredient, // Search for the ingredient
+    apiKey: process.env.SPOONACULAR_API_KEY,
   };
 
   try {
     const response = await axios.get(url, { params });
     const data = response.data;
 
-    if (data.hints && data.hints.length > 0) {
-      const foodItem = data.hints[0].food;
-      const imageUrl = foodItem.image;
+    if (data.results && data.results.length > 0) {
+      // Get the first result and construct image URL
+      const ingredientData = data.results[0];
+      const imageUrl = `https://spoonacular.com/cdn/ingredients_100x100/${ingredientData.image}`;
       console.log(`Found image for ingredient "${ingredient}": ${imageUrl}`);
-      return imageUrl || null;
+      return imageUrl;
     } else {
       console.log(`No image found for ingredient "${ingredient}".`);
       return null;
@@ -414,6 +419,9 @@ async function getIngredientImage(ingredient) {
     return null;
   }
 }
+
+module.exports = { getIngredientImage };
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

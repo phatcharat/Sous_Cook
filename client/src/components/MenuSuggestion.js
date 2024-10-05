@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
 import { getMenuFromLocalStorage } from '../utils/storageUtils';
 import '../css/MenuSuggestion.css'; // Ensure you have the correct CSS for layout and styling
-
+import NotFoundImage from '../image/menu-suggestion/notfound-image.svg';
 const MenuSuggestion = () => {
   const [recommendations, setRecommendations] = useState([]);
   const navigate = useNavigate(); // Initialize navigate hook for back navigation
@@ -28,14 +28,14 @@ const MenuSuggestion = () => {
 
   return (
     <div className="menu-suggestion-container">
-      <button className="back-button" onClick={onBack}>←</button>
+      <button className="back-button" onClick={onBack}></button>
       <h1>Menu Suggestions</h1>
       {recommendations.length > 0 ? (
         <ul className="menu-list">
           {recommendations.map((menu, index) => (
             <li key={index} className="menu-item" onClick={() => navigate(`/menu-detail/${index}`, { state: { menu } })}>
                 <img
-                    src={menu.image || 'placeholder-image-url.jpg'} // Use a default placeholder if image is missing
+                    src={menu.image || NotFoundImage} // Use a default placeholder if image is missing
                     alt={menu.menu_name}
                     className="menu-image"
                 />

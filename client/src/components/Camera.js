@@ -4,7 +4,7 @@ import { saveIngredientsToLocalStorage } from '../utils/storageUtils';
 import IconClose from '../image/nav_icon/close_btn.svg';
 import { FaExclamationTriangle } from 'react-icons/fa'; 
 import uploadImage from '../image/camera/upload.png';
-import SwapCamera from '../image/camera/swap_camera.svg';
+import SwapCamera from '../image/camera/swap_camera.png';
 import CameraButtonDefault from '../image/camera/takecamera_Default.svg';
 import CameraButtonHover from '../image/camera/takecamera_Onpress.svg';
 import RetakeButton from '../image/camera/Retake_Button.svg';
@@ -90,7 +90,7 @@ const Camera = ({ onClose }) => {
     
     <div>
       {/* Show the loading popup when `isLoading` is true */}
-      {isLoading && <LoadingPage />}
+      {isLoading && <LoadingIngredientPage />}
 
       {/* Show the ingredient not found popup when `isIngredientNotFound` is true */}
       {isIngredientNotFound && <PopUpIngredientNotFound />}
@@ -135,12 +135,13 @@ const Camera = ({ onClose }) => {
                     className="camera-button-img"
                   />
                 </button>
-
+                <div className='swap-container'>
                 <img
                   src={SwapCamera} 
                   alt="Upload"
                   className="swap-camera"
                 />
+                </div>
                 <input
                   type="file"
                   accept="image/*"
@@ -179,7 +180,7 @@ const Camera = ({ onClose }) => {
   );
 };
 
-const LoadingPage = () => {
+const LoadingIngredientPage = () => {
   return (
     <div className="loading-overlay">
       <div className="loading-popup">
@@ -203,7 +204,7 @@ const PopUpIngredientNotFound = () => {
     <div className="notfound-overlay">
       <div className="notfound-popup">
         <FaExclamationTriangle className="error-icon" />
-        <p>Ingredient not found! Please try again.</p>
+        <p>Error Please try agian</p>
         <button className="close-button" onClick={handleClose}>Close</button>
       </div>
     </div>

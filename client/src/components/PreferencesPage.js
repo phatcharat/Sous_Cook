@@ -88,7 +88,7 @@ const PreferencesPage = ({ onBack }) => {
 
     return (
     <>
-    {isLoading && <LoadingPage />}
+    {isLoading && <LoadingMenuPage />}
     {isMenuSuggest ? (<MenuSuggestion onBack={handleBackToIngredientPreview} />):(
     <div className="preferences-container">
         <button className="back-button" onClick={onBack}>←</button>
@@ -137,12 +137,12 @@ const PreferencesPage = ({ onBack }) => {
     </>
     );
     };
-    const LoadingPage = () => {
+    const LoadingMenuPage = () => {
     return (
         <div className="loading-overlay">
         <div className="loading-popup">
             <div className="spinner"></div>
-            <p>Suggestion menu, please wait...</p>
+            <p>Creating your menu, just a moment!</p>
         </div>
         </div>
     );
