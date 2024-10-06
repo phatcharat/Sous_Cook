@@ -41,12 +41,12 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Nginx configuration file
-      - ./certbot/conf:/etc/letsencrypt  # SSL certificates location
-      - ./certbot/www:/var/www/certbot   # Certbot webroot for validation
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     ports:
-      - '80:80'   # Expose HTTP
-      - '443:443' # Expose HTTPS
+      - '80:80'
+      - '443:443'
     depends_on:
       - client
       - server
