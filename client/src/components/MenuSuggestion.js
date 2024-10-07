@@ -28,8 +28,11 @@ const MenuSuggestion = () => {
 
   return (
     <div className="menu-suggestion-container">
-      <button className="back-button" onClick={onBack}></button>
-      <h1>Menu Suggestions</h1>
+      <div className='menu-header-container'>
+        <button className="back-button" onClick={onBack}></button>
+        <h1>Menu Suggestions</h1>
+      </div>
+      
       {recommendations.length > 0 ? (
         <ul className="menu-list">
           {recommendations.map((menu, index) => (

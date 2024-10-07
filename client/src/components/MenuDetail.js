@@ -5,6 +5,8 @@ import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLo
 import checkbox from '../image/menu-detail/Checkbox.svg';
 import checkboxOncheck from '../image/menu-detail/Checkbox_check.svg';
 import axios from 'axios';
+import unkonwIngImage from '../image/ingredient/unknow-ingredient.svg';
+import unkonwMenuImage from  '../image/menu-suggestion/notfound-image.svg';
 
 const MenuDetail = () => { 
     const navigate = useNavigate();
@@ -60,77 +62,92 @@ const MenuDetail = () => {
     }
 
     return (
-        <div className="menu-detail-container">
-        <button className="back-button" onClick={() => navigate(-1)}></button>
-        <img
-            src={menu.image || 'placeholder-image-url.jpg'}
-            alt={menu.menu_name}
-            className="menu-image-large"
-        />
+    <div className="menu-detail-container">
+        <div className='image-header'>
+            <button className="back-button" onClick={() => navigate(-1)}></button>
+            <img
+                src={menu.image || unkonwMenuImage}
+                alt={menu.menu_name}
+                className="menu-image-large"
+            />
+        </div>
+
+        
         <div className="text-container">
-        <h2>Ingredients</h2>
-        <p>You can click which one you already have</p>
-
-        <div className="ingredients-container">
-        {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
-            .filter(([ingredientName, _]) => {
-            const ingredientObj = ingredient_type.find(i => i.ingredient_name === ingredientName);
-            return ingredientObj && ingredientObj.ingredient_type !== 'Miscellaneous items';
-            })
-            .map(([ingredientName, quantity], idx) => (
-            <div key={idx} className="ingredient-item">
-                <img
-                src={ingredientImages[ingredientName] || 'placeholder-image-url.jpg'}
-                alt={ingredientName}
-                className="ingredient-image"
-                />
-                <p>{ingredientName}: {quantity}</p>
+            <div className='menu-header'>
+                <h1>{menu.menu_name}</h1>
+                <p>Prep time: {menu.prep_time || 'N/A'}</p>
+                <p>Cooking time: {menu.cooking_time || 'N/A'}</p>
             </div>
-        ))}
-        </div>
-
-        <h2>Seasoning/Dressing</h2>
-        <div className="seasoning-container">
-        {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
-            .filter(([ingredientName, _]) => {
-            const ingredientObj = ingredient_type.find(i => i.ingredient_name === ingredientName);
-            return ingredientObj && ingredientObj.ingredient_type === 'Miscellaneous items';
-            })
-            .map(([ingredientName, quantity], idx) => (
-            <div key={idx} className="ingredient-item">
-                <img
-                src={ingredientImages[ingredientName] || 'placeholder-image-url.jpg'}
-                alt={ingredientName}
-                className="ingredient-image"
-                />
-                <p>{ingredientName}: {quantity}</p>
+            <div className='header'>
+                <h2>Ingredients</h2>
             </div>
-        ))}
-        </div>
+            
 
-
-        <h2>Instructions</h2>
-        <ul className="instructions-list">
-        {menu.steps && menu.steps.map((step, idx) => (
-            <li key={idx} className={checkedSteps.includes(idx) ? 'checked-step' : ''}>
-            <label className="checkbox-label">
-                <input
-                type="checkbox"
-                checked={checkedSteps.includes(idx)}
-                onChange={() => handleCheck(idx)}
-                className="custom-checkbox"
-                />
-                <span className="custom-checkbox-styled">
-                <img 
-                    src={checkedSteps.includes(idx) ? checkboxOncheck : checkbox} 
-                    alt="Checkbox" 
-                />
-                </span>
-                {step}
-            </label>
-            </li>
-        ))}
-        </ul>
+            <div className="ingredients-container">
+            {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
+                .filter(([ingredientName, _]) => {
+                const ingredientObj = ingredient_type.find(i => i.ingredient_name === ingredientName);
+                return ingredientObj && ingredientObj.ingredient_type !== 'Miscellaneous items';
+                })
+                .map(([ingredientName, quantity], idx) => (
+                <div key={idx} className="ingredient-item">
+                    <img
+                    src={ingredientImages[ingredientName] || unkonwIngImage}
+                    alt={ingredientName}
+                    className="ingredient-image"
+                    />
+                    <p className='header'>{ingredientName}</p>
+                    <p> {quantity}</p>
+                </div>
+            ))}
+            </div>
+            <div className='header'>
+                <h2>Seasoning/Dressing</h2>
+            </div>
+            <div className="seasoning-container">
+            {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
+                .filter(([ingredientName, _]) => {
+                const ingredientObj = ingredient_type.find(i => i.ingredient_name === ingredientName);
+                return ingredientObj && ingredientObj.ingredient_type === 'Miscellaneous items';
+                })
+                .map(([ingredientName, quantity], idx) => (
+                <div key={idx} className="ingredient-item">
+                    <img
+                    src={ingredientImages[ingredientName] || unkonwIngImage}
+                    alt={ingredientName}
+                    className="ingredient-image"
+                    />
+                    <p className='header'>{ingredientName}</p>
+                    <p> {quantity}</p>
+                </div>
+            ))}
+            </div>
+            <div className='spliteline'></div>
+            <div className='header'>
+                <h2>Instructions</h2>
+            </div>
+            <ul className="instructions-list">
+            {menu.steps && menu.steps.map((step, idx) => (
+                <li key={idx} className={checkedSteps.includes(idx) ? 'checked-step' : ''}>
+                <label className="checkbox-label">
+                    <input
+                    type="checkbox"
+                    checked={checkedSteps.includes(idx)}
+                    onChange={() => handleCheck(idx)}
+                    className="custom-checkbox"
+                    />
+                    <span className="custom-checkbox-styled">
+                    <img 
+                        src={checkedSteps.includes(idx) ? checkboxOncheck : checkbox} 
+                        alt="Checkbox" 
+                    />
+                    </span>
+                    {step}
+                </label>
+                </li>
+            ))}
+            </ul>
         </div>
     </div>
     );
@@ -138,7 +155,7 @@ const MenuDetail = () => {
 
 const fetchMissingImages = async (menuList, ingredientList) => {
     let storedImages = getImageFromLocalStorage();
-    
+
     if (!Array.isArray(storedImages.menu)) {
         storedImages.menu = [];
       }

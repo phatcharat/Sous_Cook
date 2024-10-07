@@ -1,8 +1,8 @@
 /* MenuSuggestion.css */
 
 .menu-suggestion-container {
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-left: 4.5%;
+    padding-right: 4.5%;
     background-color: #fdf7f1;
     min-width: auto;
     margin: 0 auto;
@@ -13,14 +13,20 @@
 }
 
 .menu-suggestion-container h1 {
-    font-size: 30px;
+    font-size: 2vh;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
+    margin-top: 2vh;
     color: #333;
     text-align: left; /* Left-align title like in the example */
-    padding-left: 10px; /* Slight padding to match layout */
 }
-
+.menu-header-container{
+    padding-top: 2.5vh;
+    padding-bottom: 0.25vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
 .menu-list {
     list-style-type: none;
     padding: 0;
@@ -30,10 +36,11 @@
 
 .menu-item {
     display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e6e6e6;
+    align-items: flex-start;
+    margin-bottom: 2vh;
+    padding-bottom: 2vh;
+    padding-top: 1vh;
+    border-bottom: 1px solid rgba(105, 124, 55, 0.5);
     transition: transform 0.1s;
 }
 
@@ -42,16 +49,18 @@
 }
 
 .menu-image {
+    margin-left: 1.5vh;
     flex-shrink: 0; /* Prevent the image from shrinking */
-    width: 100px;
-    height: 100px;
+    width: 10vh;
+    height: 10vh;
     object-fit: cover;
-    margin-right: 20px; /* Add some space between the image and the text */
-    border-radius: 12px;
+    margin-right: 2vh; /* Add some space between the image and the text */
+    border-radius: 20px;
     border: 1px solid #e6e6e6;
 }
 
 .menu-details {
+    padding-top: 1vh;
     display: block; /* Ensure the text takes the remaining space */
     flex-grow: 1; /* Grow to take up available space */
     overflow: hidden; /* Prevent the text from overflowing */
@@ -60,38 +69,15 @@
 
 .menu-details h2 {
     margin: 0;
-    font-size: 22px;
+    font-size: 1.5vh;
     font-weight: 500;
     color: #222;
 }
 
 .menu-details p {
     margin: 3px 0;
-    font-size: 18px;
+    font-size: 1.2vh;
     color: #777;
-}
-
-.back-button {
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 16px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    margin-bottom: 16px;
-    font-weight: 600;
-}
-
-.back-button::before {
-    content: '←';
-    margin-right: 8px;
-    font-size: 18px;
-}
-
-.back-button:hover {
-    color: #000;
 }
 
 .menu-suggestion-container button:hover {

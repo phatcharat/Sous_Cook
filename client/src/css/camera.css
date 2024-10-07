@@ -110,7 +110,7 @@
     padding: 20px;
 }
 
-.back-button {
+.camera-container .back-button {
     margin-top: 20px;
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
