@@ -22,6 +22,13 @@ const Camera = ({ onClose }) => {
   const [ingredients, setIngredients] = useState([]); // Store detected ingredients
   const [isIngredientNotFound, setIsIngredientNotFound] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [facingMode, setFacingMode] = useState("environment"); // Default to back camera
+
+  const handleSwapCamera = () => {
+    setFacingMode((prevState) =>
+      prevState === "environment" ? "user" : "environment"
+    );
+  };
 
   const capture = useCallback(() => {
 
@@ -135,12 +142,13 @@ const Camera = ({ onClose }) => {
                     className="camera-button-img"
                   />
                 </button>
-                <div className='swap-container'>
-                <img
-                  src={SwapCamera} 
-                  alt="Upload"
-                  className="swap-camera"
-                />
+                <div className="swap-container">
+                  <img
+                    src={SwapCamera}
+                    alt="Swap Camera"
+                    className="swap-camera"
+                    onClick={handleSwapCamera}
+                  />
                 </div>
                 <input
                   type="file"
