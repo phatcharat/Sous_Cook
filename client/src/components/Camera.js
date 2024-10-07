@@ -115,7 +115,7 @@ const Camera = () => {
             />
             <div className="camera-header">
               <span className="header-title">Identify the Ingredient</span>
-              <img src={IconClose} className="close-button" alt="Close" onClick={navigate('/')} />
+              <img src={IconClose} className="close-button" alt="Close" onClick={()=>navigate('/home')} />
             </div>
             <div className='camera-buttom'>
               <div className='upload-container'>
@@ -163,7 +163,7 @@ const Camera = () => {
           <>
             <div className="camera-header">
             <span className="header-title">Identify the Ingredient</span>
-              <img src={IconClose} className="close-button" alt="Close" onClick={navigate('/')} />
+              <img src={IconClose} className="close-button" alt="Close" onClick={()=>navigate('/home')} />
             </div>
             <img src={capturedImage} alt="Captured" className="captured-image" />
             <div className='camera-buttom-preview'>

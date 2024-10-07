@@ -156,7 +156,7 @@
     object-fit: contain;
   }
   .ingredient-item p.header {
-    margin: 0;
+    margin-bottom: 0.5vb;    
     font-size: 4.5vw;
     font-weight: bold;
     text-align: center;

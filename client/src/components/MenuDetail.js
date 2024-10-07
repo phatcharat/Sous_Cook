@@ -96,6 +96,9 @@ const MenuDetail = () => {
                     src={ingredientImages[ingredientName] || unkonwIngImage}
                     alt={ingredientName}
                     className="ingredient-image"
+                    style={{ 
+                        objectFit: ingredientImages[ingredientName] ? "contain" : "scale-down", 
+                      }} 
                     />
                     <p className='header'>{ingredientName}</p>
                     <p> {quantity}</p>
@@ -117,6 +120,9 @@ const MenuDetail = () => {
                     src={ingredientImages[ingredientName] || unkonwIngImage}
                     alt={ingredientName}
                     className="ingredient-image"
+                    style={{ 
+                        objectFit: ingredientImages[ingredientName] ? "contain" : "scale-down", 
+                      }} 
                     />
                     <p className='header'>{ingredientName}</p>
                     <p> {quantity}</p>
