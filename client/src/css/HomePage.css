@@ -1,0 +1,35 @@
+/* ./css/HomePage.css */
+
+.home-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;            /* Full height of the viewport */
+    background-color: #f6f1e5; /* Light background color */
+    text-align: center;
+    padding: 0 20px;
+  }
+  
+  .logo-container {
+    max-width: 500px;         /* Restrict the width */
+    text-align: center;
+    margin-bottom: 25vh;
+
+  }
+  
+  .logo-image {
+    width: 100%;
+    height: auto;
+
+  }
+
+  
+  .description {
+    font-family: 'Quicksand', sans-serif; /* You can use any clean font like Arial */
+    font-size: 1.5vh;
+    color: #666;
+    line-height: 1.6;
+    margin: 0%;
+  }
+  
+  
