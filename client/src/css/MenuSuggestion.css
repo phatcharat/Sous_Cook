@@ -13,16 +13,16 @@
 }
 
 .menu-suggestion-container h1 {
-    font-size: 2vh;
+    font-size: 3vh;
     font-weight: 600;
-    margin-bottom: 2vh;
-    margin-top: 2vh;
+    margin-bottom: 3vh;
+    margin-top: 3vh;
     color: #333;
     text-align: left; /* Left-align title like in the example */
 }
 .menu-header-container{
-    padding-top: 2.5vh;
-    padding-bottom: 0.25vh;
+    padding-top: 3.75vh;
+    padding-bottom: 0.375vh;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -37,9 +37,9 @@
 .menu-item {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 2vh;
-    padding-bottom: 2vh;
-    padding-top: 1vh;
+    margin-bottom: 3vh;
+    padding-bottom: 3vh;
+    padding-top: 1.5vh;
     border-bottom: 1px solid rgba(105, 124, 55, 0.5);
     transition: transform 0.1s;
 }
@@ -51,10 +51,10 @@
 .menu-image {
     margin-left: 1.5vh;
     flex-shrink: 0; /* Prevent the image from shrinking */
-    width: 10vh;
-    height: 10vh;
+    width: 15vh;
+    height: 15vh;
     object-fit: cover;
-    margin-right: 2vh; /* Add some space between the image and the text */
+    margin-right: 3vh; /* Add some space between the image and the text */
     border-radius: 20px;
     border: 1px solid #e6e6e6;
 }
@@ -69,14 +69,14 @@
 
 .menu-details h2 {
     margin: 0;
-    font-size: 1.5vh;
+    font-size: 2.25vh;
     font-weight: 500;
     color: #222;
 }
 
 .menu-details p {
     margin: 3px 0;
-    font-size: 1.2vh;
+    font-size: 1.8vh;
     color: #777;
 }
 

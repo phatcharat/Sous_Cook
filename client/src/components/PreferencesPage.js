@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { getIngredientsFromLocalStorage, savePreferencesToLocalStorage, getPreferencesFromLocalStorage,saveMenuToLocalStorage,printData } from '../utils/storageUtils';
-import MenuSuggestion from './MenuSuggestion'
 import '../css/PreferencesPage.css';
+import { useNavigate } from 'react-router-dom'; 
 
-const PreferencesPage = ({ onBack }) => {
+const PreferencesPage = () => {
     const [selectedCuisines, setSelectedCuisines] = useState([]);
     const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState([]);
     const [selectedMealOccasions, setSelectedMealOccasions] = useState([]);
     const [ingredients, setIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false); // Loading state
-    const [isMenuSuggest, setIsMenuSuggest] = useState(false); // Loading state
-
-    // Function to handle navigation back from PreferencesPage
-    const handleBackToIngredientPreview = () => {
-        setIsMenuSuggest(false); // Navigate back to the IngredientPreview page
-    };
+    const navigate = useNavigate();
   
     // Load stored preferences and ingredients on component mount
     useEffect(() => {
@@ -77,7 +72,7 @@ const PreferencesPage = ({ onBack }) => {
           saveMenuToLocalStorage(data.recommendations);
           printData('menus');
           setIsLoading(false);
-          setIsMenuSuggest(true);
+          navigate('/menu-suggestion')
         } catch (error) {
           console.error('Error getting menu recommendations:', error);
           setIsLoading(false);
@@ -89,11 +84,11 @@ const PreferencesPage = ({ onBack }) => {
     return (
     <>
     {isLoading && <LoadingMenuPage />}
-    {isMenuSuggest ? (<MenuSuggestion onBack={handleBackToIngredientPreview} />):(
     <div className="preferences-container">
-        <button className="back-button" onClick={onBack}>←</button>
-
-        <h1 className="header">Cuisines</h1>
+        <div className='menu-header-container'>
+            <button className="back-button" onClick={()=>navigate('/ingredients-preview')}></button>
+            <h1 className="header">Cuisines</h1>
+        </div>
         <div className="preference-list">
         {cuisines.map(cuisine => (
             <button
@@ -105,6 +100,8 @@ const PreferencesPage = ({ onBack }) => {
             </button>
         ))}
         </div>
+
+        <div className='spliteline'></div>
 
         <h1 className="header">Dietary Preferences <span className="permanent-filter">(This filter is permanent)</span></h1>
         <div className="preference-list">
@@ -118,6 +115,8 @@ const PreferencesPage = ({ onBack }) => {
             </button>
         ))}
         </div>
+
+        <div className='spliteline'></div>
 
         <h1 className="header">Meal Occasions</h1>
         <div className="preference-list">
@@ -133,7 +132,7 @@ const PreferencesPage = ({ onBack }) => {
         </div>
 
         <button className="search-button" onClick={handleConfirm}>SEARCH FOR RECIPE</button>
-    </div>)}
+    </div>
     </>
     );
     };

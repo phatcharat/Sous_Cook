@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage } from '../utils/storageUtils';
 import '../css/IngredientPreview.css';
 import PreferencesPage from './PreferencesPage';
+import { useNavigate } from "react-router-dom";
 
 // Importing SVG icons for different ingredient types
 import EggMilkDairy from '../Icon/Ingredient/Egg, milk, and dairy product.svg';
@@ -22,6 +23,7 @@ const [ingredients, setIngredients] = useState([]);
 const [editIndex, setEditIndex] = useState(null);
 const [editedName, setEditedName] = useState('');
 const [isReferencePage, setIsReferencePage] = useState(false); // State to control page navigation
+const navigate = useNavigate();
 
 // Fetch stored ingredients when the component mounts
 useEffect(() => {
@@ -107,7 +109,10 @@ return (
       <PreferencesPage onBack={handleBackToIngredientPreview} />
     ) : (
       <div className="ingredient-preview-container">
-        <h1 className="ingredient-header">Ingredient List</h1>
+        <div className='menu-header-container'>
+          <button className="back-button" onClick={()=>navigate('/home')}></button>
+          <h1 className="ingredient-header">Ingredient List</h1>
+        </div>
         <ul className="ingredient-list">
           {ingredients.map((ingredient, index) => {
             if (!ingredient || typeof ingredient !== 'object' || !ingredient.ingredient_name || !ingredient.ingredient_type) {

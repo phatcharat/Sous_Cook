@@ -7,7 +7,7 @@ import IconCamera from '../image/nav_icon/icon_camera.svg';
 import IconClock from '../image/nav_icon/icon_history.svg';
 import IconUser from '../image/nav_icon/icon_people.svg';
 
-const Navbar = ({ onCameraClick }) => {
+const Navbar = () => {
     const [selected, setSelected] = useState('home');
     const navigate = useNavigate(); // Initialize navigation hook
 
@@ -20,14 +20,14 @@ const Navbar = ({ onCameraClick }) => {
         <div className="navbar">
             <a className={`home nav-item ${selected === 'home' ? 'selected' : ''}`} 
                onClick={() => handleNavigation('home')}>
-                <img src={IconHome} alt="Home" />
+                <img src={IconHome} alt="home" />
             </a>
             <a className={`heart nav-item ${selected === 'favorites' ? 'selected' : ''}`} 
                onClick={() => handleNavigation('favorites')}>
-                <img src={IconHeart} alt="Favorites" />
+                <img src={IconHeart} alt="favorites" />
             </a>
             <a className={`camera nav-item ${selected === 'camera' ? 'selected' : ''}`} 
-               onClick={onCameraClick}>
+               onClick={() => handleNavigation('camera')}>
                 <img src={IconCamera} alt="camera" />
             </a>
             <a className={`history nav-item ${selected === 'history' ? 'selected' : ''}`} 

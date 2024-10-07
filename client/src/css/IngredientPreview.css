@@ -4,13 +4,17 @@
 .ingredient-preview-container {
   padding: 20px;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 10%;
+  margin-top: 0;
 }
-
+.ingredient-item span{
+  font-size: 1.75vh;
+}
 /* Header styling */
 .ingredient-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
+  font-size: 3vh;
 }
 
 /* Ingredient list styling */
@@ -25,8 +29,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 1vh;
+  margin-bottom: 1vh;
   background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -40,14 +44,14 @@
 
 /* Ingredient icon styling */
 .ingredient-preview-container .ingredient-icon {
-  width: 40px;
-  height: 40px;
+  width: 3.5vh;
+  height: 3.5vh;
   margin-right: 15px;
 }
 
 /* Ingredient name styling */
 .ingredient-preview-container .ingredient-name {
-  font-size: 1.2rem;
+  font-size: 2vh;
   font-weight: 500;
 }
 
@@ -63,11 +67,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.5vh;
 }
 
 /* Confirm button styling */
 .confirm-btn {
+  margin-top: 20%;
   display: block;
   width: 100%;
   padding: 15px;
@@ -76,7 +81,7 @@
   color: white;
   border: none;
   border-radius: 25px;
-  font-size: 1.1rem;
+  font-size: 1.5vh;
   cursor: pointer;
 }
 
@@ -84,28 +89,26 @@
   background-color: #218838; /* Darker green on hover */
 }
 .ingredient-edit-input {
-  padding: 5px;
-  font-size: 16px;
-  margin-right: 10px;
+  padding: 1px;
+  font-size: 1.75vh;
+  margin-right: 1vh;
 }
 
 .save-btn, .cancel-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 2vh;
   margin-left: 5px;
 }
 
 .edit-btn img, .delete-btn img {
-  width: 20px;
-  height: 20px;
+  width: 3.5vh;
+  height: 3.5vh;
 }
 
-
-
 .ingredient-icon {
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
+  width: 3.5vh;
+  height: 3.5vh;
+  margin-right: 10vh;
 }

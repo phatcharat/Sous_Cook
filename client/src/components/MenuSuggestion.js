@@ -1,7 +1,7 @@
 // MenuSuggestion.js
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
+import { useNavigate } from 'react-router-dom'; // Import Link for navigation
 import { getMenuFromLocalStorage } from '../utils/storageUtils';
 import '../css/MenuSuggestion.css'; // Ensure you have the correct CSS for layout and styling
 import NotFoundImage from '../image/menu-suggestion/notfound-image.svg';
@@ -23,7 +23,7 @@ const MenuSuggestion = () => {
   }, []);
 
   const onBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate('/preferences'); // Go back to the previous page
   };
 
   return (

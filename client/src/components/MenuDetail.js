@@ -56,7 +56,7 @@ const MenuDetail = () => {
       return (
         <div className="menu-detail-container">
           <p>No menu details available.</p>
-          <button className="back-button" onClick={() => navigate(-1)}>← Back</button>
+          <button className="back-button" onClick={() => navigate('/menu-suggestion')}>← Back</button>
         </div>
       );
     }
@@ -64,7 +64,7 @@ const MenuDetail = () => {
     return (
     <div className="menu-detail-container">
         <div className='image-header'>
-            <button className="back-button" onClick={() => navigate(-1)}></button>
+            <button className="back-button" onClick={() => navigate('/menu-suggestion')}></button>
             <img
                 src={menu.image || unkonwMenuImage}
                 alt={menu.menu_name}

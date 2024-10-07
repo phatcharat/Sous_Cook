@@ -81,7 +81,7 @@
   /* Ingredients section */
   .menu-detail-container h2 {
     font-weight: 600;
-    font-size: 2vh;
+    font-size: 3vh;
     color: #555;
   }
   
@@ -135,7 +135,7 @@
     justify-content: center;
     background-color: #fff;
     width: 10vh;
-    height: 12vh;
+    height: 16vh;
     padding: 2.5%;
     border-radius: 19px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
@@ -145,19 +145,19 @@
   .ingredient-image {
     width: 10vh;
     height: 10vh;
-    object-fit: inherit;
+    object-fit: contain;
   }
   
   .ingredient-item p {
     margin: 0;
-    font-size: 2vw;
-    font-weight: bold;
+    font-size: 3vw;
+    font-weight: 300;
     text-align: center;
     object-fit: contain;
   }
   .ingredient-item p.header {
     margin: 0;
-    font-size: 3vw;
+    font-size: 4.5vw;
     font-weight: bold;
     text-align: center;
   }
@@ -212,7 +212,7 @@
   }
 
   ul.instructions-list li{
-    font-size: 3vw;
+    font-size: 4.5vw;
     padding: 0%;
     border-bottom: 0px;
     margin-bottom: 2%;

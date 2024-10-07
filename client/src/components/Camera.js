@@ -3,26 +3,25 @@ import Webcam from 'react-webcam';
 import { saveIngredientsToLocalStorage } from '../utils/storageUtils';
 import IconClose from '../image/nav_icon/close_btn.svg';
 import { FaExclamationTriangle } from 'react-icons/fa'; 
+import { useNavigate } from "react-router-dom";
 import uploadImage from '../image/camera/upload.png';
 import SwapCamera from '../image/camera/swap_camera.png';
 import CameraButtonDefault from '../image/camera/takecamera_Default.svg';
 import CameraButtonHover from '../image/camera/takecamera_Onpress.svg';
 import RetakeButton from '../image/camera/Retake_Button.svg';
 import NextButton from '../image/camera/Next_Button.svg';
-import IngredientPreview from './IngredientPreview'; 
 import '../css/camera.css';
 import '../css/LoadingPage.css';
 import '../css/PopUpIngedientNotFound.css';
 
-const Camera = ({ onClose }) => {
+const Camera = () => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false); // Loading state
-  const [isIngredientFound, setIsIngredientFound] = useState(false); // Ingredient found state
-  const [ingredients, setIngredients] = useState([]); // Store detected ingredients
   const [isIngredientNotFound, setIsIngredientNotFound] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [facingMode, setFacingMode] = useState("environment"); // Default to back camera
+  const navigate = useNavigate();
 
   const handleSwapCamera = () => {
     setFacingMode((prevState) =>
@@ -64,8 +63,7 @@ const Camera = ({ onClose }) => {
         if (detectedIngredients.length > 0) {
           // Save ingredients to localStorage and state
           saveIngredientsToLocalStorage(detectedIngredients);
-          setIngredients(detectedIngredients);
-          setIsIngredientFound(true); 
+          navigate("/ingredients-preview");
         } else{
           setIsIngredientNotFound(true);
         }
@@ -102,88 +100,86 @@ const Camera = ({ onClose }) => {
       {/* Show the ingredient not found popup when `isIngredientNotFound` is true */}
       {isIngredientNotFound && <PopUpIngredientNotFound />}
       {/* When ingredients are found, show IngredientPreview */}
-      {isIngredientFound ? (
-        <IngredientPreview ingredients={ingredients} />
-      ) : (
-        <div className="camera-container">
-          {!capturedImage ? (
-            <>
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg" // Capture image in JPEG format
-                className="webcam-view"
-                videoConstraints={{
-                  facingMode: facingMode, // Use the state for camera mode
-                }}
-              />
-              <div className="camera-header">
-                <span className="header-title">Identify the Ingredient</span>
-                <img src={IconClose} className="close-button" alt="Close" onClick={onClose} />
-              </div>
-              <div className='camera-buttom'>
-                <div className='upload-container'>
-                  <img
-                    src={uploadImage} 
-                    alt="Upload"
-                    onClick={() => document.getElementById('fileInput').click()} // Trigger file input on image click
-                    className="upload-image"
-                  />
-                </div>
-                <button 
-                  onClick={capture} 
-                  className="camera-button"
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                >
-                  <img 
-                    src={isHovered ? CameraButtonHover : CameraButtonDefault} 
-                    alt="Camera Button" 
-                    className="camera-button-img"
-                  />
-                </button>
-                <div className="swap-container">
-                  <img
-                    src={SwapCamera}
-                    alt="Swap Camera"
-                    className="swap-camera"
-                    onClick={handleSwapCamera}
-                  />
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="upload-button"
-                  id="fileInput"
-                  style={{ display: 'none' }} // Hide the default input
-                />
-                
-              </div>
 
-              
-            </>
-          ) : (
-            <>
-              <div className="camera-header">
+      <div className="camera-container">
+        {!capturedImage ? (
+          <>
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg" // Capture image in JPEG format
+              className="webcam-view"
+              videoConstraints={{
+                facingMode: facingMode, // Use the state for camera mode
+              }}
+            />
+            <div className="camera-header">
               <span className="header-title">Identify the Ingredient</span>
-                <img src={IconClose} className="close-button" alt="Close" onClick={onClose} />
+              <img src={IconClose} className="close-button" alt="Close" onClick={navigate('/')} />
+            </div>
+            <div className='camera-buttom'>
+              <div className='upload-container'>
+                <img
+                  src={uploadImage} 
+                  alt="Upload"
+                  onClick={() => document.getElementById('fileInput').click()} // Trigger file input on image click
+                  className="upload-image"
+                />
               </div>
-              <img src={capturedImage} alt="Captured" className="captured-image" />
-              <div className='camera-buttom-preview'>
-              <button onClick={() => setCapturedImage(null)} className="retake-button styled-button">
-                <img src={RetakeButton} alt="Retake" className="button-image" />
-                </button>
-                <button onClick={() => sendImageToBackend(capturedImage)} className="send-button styled-button">
-                  <img src={NextButton} alt="Next" className="button-image" />
-                </button>
+              <button 
+                onClick={capture} 
+                className="camera-button"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                <img 
+                  src={isHovered ? CameraButtonHover : CameraButtonDefault} 
+                  alt="Camera Button" 
+                  className="camera-button-img"
+                />
+              </button>
+              <div className="swap-container">
+                <img
+                  src={SwapCamera}
+                  alt="Swap Camera"
+                  className="swap-camera"
+                  onClick={handleSwapCamera}
+                />
               </div>
-            </>
-          )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="upload-button"
+                id="fileInput"
+                style={{ display: 'none' }} // Hide the default input
+              />
+              
+            </div>
 
-          
-        </div>
-      )}
+            
+          </>
+        ) : (
+          <>
+            <div className="camera-header">
+            <span className="header-title">Identify the Ingredient</span>
+              <img src={IconClose} className="close-button" alt="Close" onClick={navigate('/')} />
+            </div>
+            <img src={capturedImage} alt="Captured" className="captured-image" />
+            <div className='camera-buttom-preview'>
+            <button onClick={() => setCapturedImage(null)} className="retake-button styled-button">
+              <img src={RetakeButton} alt="Retake" className="button-image" />
+              </button>
+              <button onClick={() => sendImageToBackend(capturedImage)} className="send-button styled-button">
+                <img src={NextButton} alt="Next" className="button-image" />
+              </button>
+            </div>
+          </>
+        )}
+
+        
+      </div>
+      
     </div>
   );
 };
