@@ -26,7 +26,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 // POST endpoint to handle image uploads
-app.post('/upload', async (req, res) => {
+app.post('/api/upload', async (req, res) => {
   const { image } = req.body;
 
   if (!image) {
@@ -54,7 +54,7 @@ app.post('/upload', async (req, res) => {
 });
 
 // POST endpoint to handle menu recommendations based on ingredients
-app.post('/menu-recommendations', async (req, res) => {
+app.post('/api/menu-recommendations', async (req, res) => {
   const { ingredients, cuisines, dietaryPreferences, mealOccasions } = req.body;
 
   console.log('Received ingredients:', ingredients);
@@ -364,7 +364,7 @@ const fetchImageForMenu = limiter.wrap(async (menuName) => {
 });
 
 // POST endpoint for /get_ingredient_image
-app.post('/get_ingredient_image', async (req, res) => {
+app.post('/api/get_ingredient_image', async (req, res) => {
   try {
     const ingredients = req.body.ingredients;
 
