@@ -21,6 +21,7 @@ function App() {
       )}
 
       <Routes>
+      <Route path="" element={<HomePage />}  />
         <Route path="/" element={<HomePage />}  />
         <Route path="/home" element={<HomePage />}  />
         <Route path="/menu-suggestion" element={<MenuSuggestion />} />

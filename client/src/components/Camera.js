@@ -33,6 +33,7 @@ const Camera = () => {
 
       if (webcamRef.current) {
         const imageSrc = webcamRef.current.getScreenshot();
+        setIsHovered(false);
         setCapturedImage(imageSrc);
       }
     }, [webcamRef]);
