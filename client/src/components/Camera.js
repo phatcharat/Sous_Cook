@@ -111,10 +111,10 @@ const Camera = ({ onClose }) => {
               <Webcam
                 audio={false}
                 ref={webcamRef}
-                screenshotFormat="image/jpeg"  // Capture image in JPEG format
+                screenshotFormat="image/jpeg" // Capture image in JPEG format
                 className="webcam-view"
                 videoConstraints={{
-                  facingMode: "environment",  // Use the back camera
+                  facingMode: facingMode, // Use the state for camera mode
                 }}
               />
               <div className="camera-header">
