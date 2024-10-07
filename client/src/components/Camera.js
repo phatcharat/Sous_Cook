@@ -36,7 +36,7 @@ const Camera = ({ onClose }) => {
         const imageSrc = webcamRef.current.getScreenshot();
         setCapturedImage(imageSrc);
       }
-    }, webcamRef);
+    }, [webcamRef]);
 
   const sendImageToBackend = async (imageSrc) => {
     try {
