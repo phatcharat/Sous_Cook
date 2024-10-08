@@ -294,6 +294,18 @@ async function classifyCroppedImage(imagePath) {
       Cuisines: ${cuisinesList}
       Dietary Preferences: ${dietaryPreferencesList}
       Meal Occasions: ${mealOccasionsList}
+
+      classify them according to the following common ingredient types:
+      
+      - Eggs, milk, and dairy products
+      - Fats and oils
+      - Fruits
+      - Grains, nuts, and baking products
+      - Herbs and spices
+      - Meat, sausages, and fish
+      - Pasta, rice, and pulses
+      - Vegetables
+      - Miscellaneous items
   
       Recommend up to 10 menus that can be prepared from these ingredients, taking into consideration the mentioned cuisines, dietary preferences, and meal occasions. For each menu, provide the following details:
       - Menu name
@@ -313,6 +325,10 @@ async function classifyCroppedImage(imagePath) {
             "steps": ["string", "string", ...],
             "ingredients_quantity": {
               "ingredient_name": "string (quantity and unit)",
+              ...
+            },
+            "ingredients_type" : {
+              "ingredient_name" : "string (ingredient_type)",
               ...
             }
           },
