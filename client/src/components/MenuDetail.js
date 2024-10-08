@@ -82,13 +82,13 @@ const MenuDetail = () => {
             <div className='header'>
                 <h2>Ingredients</h2>
             </div>
-            
 
             <div className="ingredients-container">
             {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                 .filter(([ingredientName, _]) => {
-                const ingredientObj = ingredient_type.find(i => i.ingredient_name === ingredientName);
-                return ingredientObj && ingredientObj.ingredient_type !== 'Miscellaneous items';
+                // Use ingredients_type from the menu to filter out 'Miscellaneous items'
+                const ingredientType = menu.ingredients_type[ingredientName];
+                return ingredientType && ingredientType !== 'Miscellaneous items';
                 })
                 .map(([ingredientName, quantity], idx) => (
                 <div key={idx} className="ingredient-item">
@@ -98,21 +98,24 @@ const MenuDetail = () => {
                     className="ingredient-image"
                     style={{ 
                         objectFit: ingredientImages[ingredientName] ? "contain" : "scale-down", 
-                      }} 
+                    }} 
                     />
                     <p className='header'>{ingredientName}</p>
-                    <p> {quantity}</p>
+                    <p>{quantity}</p>
                 </div>
             ))}
             </div>
+
             <div className='header'>
-                <h2>Seasoning/Dressing</h2>
+            <h2>Seasoning/Dressing</h2>
             </div>
+
             <div className="seasoning-container">
             {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                 .filter(([ingredientName, _]) => {
-                const ingredientObj = ingredient_type.find(i => i.ingredient_name === ingredientName);
-                return ingredientObj && ingredientObj.ingredient_type === 'Miscellaneous items';
+                // Use ingredients_type from the menu to find 'Miscellaneous items'
+                const ingredientType = menu.ingredients_type[ingredientName];
+                return ingredientType && ingredientType === 'Miscellaneous items';
                 })
                 .map(([ingredientName, quantity], idx) => (
                 <div key={idx} className="ingredient-item">
@@ -122,13 +125,14 @@ const MenuDetail = () => {
                     className="ingredient-image"
                     style={{ 
                         objectFit: ingredientImages[ingredientName] ? "contain" : "scale-down", 
-                      }} 
+                    }} 
                     />
                     <p className='header'>{ingredientName}</p>
-                    <p> {quantity}</p>
+                    <p>{quantity}</p>
                 </div>
             ))}
             </div>
+
             <div className='spliteline'></div>
             <div className='header'>
                 <h2>Instructions</h2>
