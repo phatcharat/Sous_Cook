@@ -81,8 +81,7 @@ const MenuDetail = () => {
             </div>
             <div className='header'>
                 <h2>Ingredients</h2>
-            </div>cd ..
-
+            </div>
             <div className="ingredients-container">
             {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                 .filter(([ingredientName, _]) => {
