@@ -11,6 +11,8 @@ import React, { useState } from 'react';
 import './css/App.css';
 import Navbar from './components/Navbar';
 import Camera from './components/Camera';
+import LoginPage from './pages/LoginPage';
+
 function App() {
   const location = useLocation();  // Get the current location
   const route_list = ["/home", "/favorites", "/history", "/account"]; 
@@ -34,6 +36,7 @@ function App() {
         <Route path="/menu-detail" element={<MenuDetail />} />
         <Route path="/preferences" element={<PreferencesPage />} />
         <Route path="/ingredients-preview" element={<IngredientPreview />} />
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </div>
   );
