@@ -1,0 +1,21 @@
+/* ./css/AboutMe2.css */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+.image {
+    width: 254px;
+    height: 254px;
+    object-fit: cover;
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+    border-color: #FE9801;
+    border-width: 7px;
+    border-style: solid;
+}
+
+
+h1 {
+    font-family: 'Manrope', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: bold;
+
+}
