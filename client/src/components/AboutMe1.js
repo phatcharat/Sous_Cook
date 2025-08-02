@@ -1,7 +1,10 @@
 import React from 'react';
 import '../css/AboutMe1.css';  // Import the CSS file
 import logo from '../image/Logo.svg';
+import { useNavigate } from 'react-router-dom';
+
 const AboutMe1 = () => {
+    const navigate = useNavigate();
     return (
       <div className="home-container">
         <div className="logo-container">
@@ -17,7 +20,9 @@ const AboutMe1 = () => {
             <span className="dot"></span>
           </div>
 
-          <button className="get-started-button">GET STARTED</button>
+          <button className="get-started-button" onClick={() => navigate("/home")}>
+            GET STARTED
+          </button>
         </div>
       </div>
     );

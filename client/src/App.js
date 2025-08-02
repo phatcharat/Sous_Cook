@@ -12,6 +12,7 @@ import './css/App.css';
 import Navbar from './components/Navbar';
 import Camera from './components/Camera';
 import LoginPage from './pages/LoginPage';
+import ResetPasswordPage from './pages/ResetPassword'; 
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -37,6 +38,7 @@ function App() {
         <Route path="/preferences" element={<PreferencesPage />} />
         <Route path="/ingredients-preview" element={<IngredientPreview />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
     </div>
   );

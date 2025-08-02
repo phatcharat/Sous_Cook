@@ -1,7 +1,10 @@
 import React from 'react';
 import '../css/AboutMe2.css';  // Import the CSS file
 import picAboutMe2 from '../image/picAboutMe2.jpg';
+import { useNavigate } from 'react-router-dom';
+
 const AboutMe2 = () => {
+    const navigate = useNavigate();
     return (
       <div className="home-container">
         <div className="logo-container">
@@ -19,7 +22,9 @@ minimize food waste."
             <span className="dot"></span>
           </div>
 
-          <button className="get-started-button">GET STARTED</button>
+          <button className="get-started-button" onClick={() => navigate("/home")}>
+            GET STARTED
+          </button>
         </div>
       </div>
     );
