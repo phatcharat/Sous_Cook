@@ -16,3 +16,6 @@ server/yarn.lock
 
 # Google Cloud credentials file
 credentials.json
+
+
+.DS_Store

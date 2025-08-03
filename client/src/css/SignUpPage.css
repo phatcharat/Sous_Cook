@@ -1,0 +1,122 @@
+/* SignUpPage.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: #f6f1e5;
+    text-align: center;
+    font-family: 'Manrope', sans-serif;
+    padding: 0 20px;
+}
+  .logo-image {
+    max-width: 22vh;
+    height: auto;
+  }
+
+  .textlogo-image {
+    max-width: 25vh;
+    height: auto;
+    margin-top: -2rem;
+  }
+
+  .signup-container {
+    width: 24rem;
+    border-radius: 1rem;
+    background-color: #FFF;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  }
+
+    .signup-text {
+      font-family: Manrope;
+      font-size: 30px;
+      font-style: normal;
+      font-weight: 700;
+      text-align: left;
+      margin-left: 1rem;
+    }
+
+    .signup-form {
+      display: flex;
+      flex-direction: column; 
+    }
+
+      .input {
+        height: 3rem;
+        margin-bottom: 1rem;
+        margin-left: 2rem;
+        margin-right: 2rem;
+        padding-left: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+      }
+
+      .summit-button {
+        height: 3.75rem;
+        margin-top: 1.5rem;
+        margin-bottom: 2.5rem;
+        margin-left: 3.5rem;
+        margin-right: 3.5rem;
+        border: 1px solid #FE9801;
+        border-radius: 1rem;
+        background: #FE9801;
+        color:#FFFDF6;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 1.6px;
+      }
+  
+  .guest-text {
+    margin-top: 5rem;
+    color: rgba(0, 0, 0, 0.50);
+    font-size: 15px;
+    font-weight: 300;
+    letter-spacing: 0.75px;
+  }
+
+  .guest-button {
+    width: 22rem;
+    height: 3.75rem;
+    margin-top: -10px;
+    border: 1px solid #FFF;
+    border-radius: 2rem;
+    background: #FFF;
+    color: #FE9801;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+  }
+
+/* ---------------- Responsive ----------------- */
+
+@media (max-width: 480px) {
+    .signup-container {
+      width: 90%;
+    }
+    .guest-button {
+      width: 90%;
+    }
+}
+
+@media (max-height: 750px) {
+    .signup-text {
+      font-size: 1.5rem;
+    }
+
+    .input {
+      height: 2.5rem;
+    }
+
+    .summit-button, .guest-button {
+      height: 3rem;
+    }
+
+    .guest-text {
+      margin-top: 2rem;
+    }
+}
+

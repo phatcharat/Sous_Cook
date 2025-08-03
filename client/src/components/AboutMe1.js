@@ -20,7 +20,7 @@ const AboutMe1 = () => {
             <span className="dot"></span>
           </div>
 
-          <button className="get-started-button" onClick={() => navigate("/home")}>
+          <button className="get-started-button" onClick={() => navigate("/login")}>
             GET STARTED
           </button>
         </div>
