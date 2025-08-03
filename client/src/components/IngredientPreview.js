@@ -134,8 +134,12 @@ return (
                       onChange={(e) => setEditedName(e.target.value)} 
                       className="ingredient-edit-input"
                     />
-                    <button className="save-btn" onClick={() => handleSaveEdit(index)}>💾</button>
-                    <button className="cancel-btn" onClick={handleCancelEdit}>✖️</button>
+                    <button className="save-btn" onClick={() => handleSaveEdit(index)}>
+                      Save
+                    </button>
+                    <button className="cancel-btn" onClick={handleCancelEdit}>
+                      Cancel
+                    </button>
                   </>
                 ) : (
                   // Display Mode: Ingredient name and Edit/Delete buttons

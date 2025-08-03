@@ -9,7 +9,6 @@ const LoginPage = () => {
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [touched, setTouched] = useState({});
@@ -229,7 +228,6 @@ const LoginPage = () => {
               </div>
               {errors.username && (
                 <div id="username-error" className="error-message" role="alert">
-                  "Please enter a valid username."
                   {errors.username}
                 </div>
               )}
