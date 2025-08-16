@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
+.profile-container {
+    display: flex;
+    flex-direction: column; /* จัดเรียงองค์ประกอบในแนวตั้ง */
+    /* gap: 2%; */
+    /* padding: 2%; */
+    height: 25vh;
+    margin: 5%;
+    /* background-color: aqua; */
+    
+}
+
+.userData-container {
+    margin: 5%;
+    padding: 1.5vh;
+    height: 55vh;
+    background-color: #FFFDF6;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #888888;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-pic {
+    
+    display: flex;
+    flex-direction: column;
+    /* background-color: wheat; */
+    height: 80%;
+    border-radius: 10px;
+    /* opacity: 0; */
+}
+
+#pic-border {
+    position: absolute;
+    top: -45%;
+    height: 110%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background-color: black;
+    justify-self: center;
+}
+
+.pic-con {
+    position: relative;
+    height: 85%;
+    background-color: #FFFDF6;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #888888;
+}
+
+.setting-container {
+    margin-top: 2%;
+    height: 13%;
+    justify-content: flex-end;
+    display: flex;
+}
+
+.setting-container img {
+    height: 100%;
+}
+
+.border-box {
+    height: 40%;
+    /* background-color: brown; */
+    opacity: 0;
+}
+
+.nameplace {
+    position: absolute;
+    bottom: 10%;
+    font-size: large;
+    justify-self: center;
+    font-weight: bold;
+}
+
+input {
+    display: none;
+}
+
+#pic-pro {
+    border: 5px solid #FE9801;
+    position: absolute;
+    top: -45%;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 90%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    /* background-color: black; */
+    /* justify-self: center; */
+}
+
+.data-box-top {
+    height: 42.5%;
+    padding: 2%;
+    /* margin-bottom: 2%; */
+}
+
+.data-box-bottom {
+    padding: 2%;
+    height: 42.5%;
+    /* padding: 2%; */
+}
+
+.logout-place {
+    /* background-color: #a9987e; */
+    height: 15%;
+    display: flex;
+    /* justify-items: center; */
+    justify-content: center;
+    margin-bottom: 2%;
+}
+
+.logout-button {
+    width: 60%;
+    background-color: #FE9801;
+    border-radius: 50px;
+    height: 100%;
+    font-size: small;
+    color: #FFFDF6;
+    border: 0;
+    font-weight: bold;
+    
+}
+
+.title {
+    font-size: small;
+    color: #FE9801;
+    font-weight: bold;
+}
+
+.data {
+    font-weight: bold;
+    font-size: small;
+    margin-left: 5%;
+}

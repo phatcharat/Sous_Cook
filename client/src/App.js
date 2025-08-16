@@ -14,18 +14,13 @@ import Camera from './components/Camera';
 import LoginPage from './pages/LoginPage';
 import ResetPasswordPage from './pages/ResetPassword'; 
 import SignUpPage from './components/SignUpPage';
+import UserDataPage from './components/UserDataPage';
 
 function App() {
   const location = useLocation();  // Get the current location
   const route_list = ["/home", "/favorites", "/history", "/account"]; 
   return (
     <div className="App">
-      {route_list.includes(location.pathname) ? (
-        <Navbar />
-      ) : (
-        <></>
-      )}
-
       <Routes>
       <Route path="" element={<AboutMe1 />}  />
         <Route path="/" element={<AboutMe1 />}  />
@@ -41,7 +36,14 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/account" element={<UserDataPage />} />
       </Routes>
+
+      {route_list.includes(location.pathname) ? (
+        <Navbar />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
