@@ -6,7 +6,8 @@ import logo from '../image/Logo.svg';
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -103,7 +104,7 @@ const LoginPage = () => {
         }
       });
     } else {
-      setErrors({ submit: 'Google Sign-In is not ready. Please try again.' });
+      setErrors({ submit: 'Please try again.' });
     }
   };
 
@@ -127,20 +128,25 @@ const LoginPage = () => {
   const validateForm = () => {
     const newErrors = {};
     Object.keys(formData).forEach(key => {
-      const error = validateField(key, formData[key]);
-      if (error) newErrors[key] = error;
+      if (key !== 'rememberMe') {
+        const error = validateField(key, formData[key]);
+        if (error) newErrors[key] = error;
+      }
     });
     return newErrors;
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
     if (touched[name]) {
-      const error = validateField(name, value);
+      const error = validateField(name, type === 'checkbox' ? checked : value);
       setErrors(prev => ({ ...prev, [name]: error }));
     }
   };
@@ -266,8 +272,22 @@ const LoginPage = () => {
               )}
             </div>
 
-            {/* Reset Password */}
+            {/* Remember Me and Reset Password */}
             <div className="Reset-password">
+              <div className="remember-me">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  className="remember-me-checkbox"
+                />
+                <label htmlFor="rememberMe" className="remember-me-label">
+                  Remember Me
+                </label>
+              </div>
               <button
                 type="button"
                 className="reset-password-button"
@@ -303,33 +323,33 @@ const LoginPage = () => {
             </button>
 
             {/* Divider */}
-          <div className="divider">
-            <div className="divider-line">
-              <div className="divider-border"></div>
+            <div className="divider">
+              <div className="divider-line">
+                <div className="divider-border"></div>
+              </div>
+              <div className="divider-content">
+                <span className="divider-text">Or continue with</span>
+              </div>
             </div>
-            <div className="divider-content">
-              <span className="divider-text">Or continue with</span>
+
+            {/* Google Sign-In Button */}
+            <div className="google-signin-container">
+              <div id="google-signin-button"></div>
             </div>
-          </div>
 
-          {/* Google Sign-In Button */}
-          <div className="google-signin-container">
-            <div id="google-signin-button"></div>
-          </div>
-
-              {/* link to Sign Up Page */}
-              <div className="register-link">
-                <p className="register-text">
-                  Don’t have an account?
-                  <button
+            {/* link to Sign Up Page */}
+            <div className="register-link">
+              <p className="register-text">
+                Don’t have an account?
+                <button
                   className="register-button"
                   onClick={() => navigate('/signup')}
                   disabled={isLoading}
-                  >
-                    Sign Up
-                  </button>
-                </p>
-              </div>
+                >
+                  Sign Up
+                </button>
+              </p>
+            </div>
           </form>
         </div>
 

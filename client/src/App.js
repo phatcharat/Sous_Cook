@@ -6,6 +6,7 @@ import IngredientPreview from './components/IngredientPreview';
 import HomePage from './components/HomePage'; 
 import AboutMe1 from './components/AboutMe1';
 import AboutMe2 from './components/AboutMe2';
+import AboutMe3 from './components/AboutMe3';
 import { useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 import './css/App.css';
@@ -15,6 +16,7 @@ import LoginPage from './pages/LoginPage';
 import ResetPasswordPage from './pages/ResetPassword'; 
 import SignUpPage from './components/SignUpPage';
 import UserDataPage from './components/UserDataPage';
+import FavoriteMenu from './components/FavoriteMenu';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -26,6 +28,7 @@ function App() {
         <Route path="/" element={<AboutMe1 />}  />
         <Route path="/AboutMe1" element={<AboutMe1 />}  />
         <Route path="/AboutMe2" element={<AboutMe2 />}  />
+        <Route path="/AboutMe3" element={<AboutMe3 />}  />
         <Route path="/home" element={<HomePage />}  />
         <Route path="/menu-suggestion" element={<MenuSuggestion />} />
         <Route path="/camera" element={<Camera />} />
@@ -37,6 +40,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/account" element={<UserDataPage />} />
+        <Route path="/favorites" element={<FavoriteMenu />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (

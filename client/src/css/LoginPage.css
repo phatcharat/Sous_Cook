@@ -3,7 +3,6 @@
 
 /* Main container */
 .login-container {
-  min-height: 100vh;
   background-color: #FBF6EE;
   display: flex;
   align-items: center;
@@ -13,7 +12,6 @@
 }
 
 .login-wrapper {
-  width: 100%;
   max-width: 28rem;
   background-color: #FBF6EE;
 }
@@ -24,6 +22,7 @@
   margin: auto;
   width: 15rem;
   height: 15rem;
+  margin-top: 1rem;
   margin-bottom: 0.5rem;
   align-items: center;
 }
@@ -167,15 +166,39 @@
   margin-right: 0.5rem;
 }
 
-/* Reset Password */
-.reset-password-button {
+/* Reset Password and Remember Me */
+.Reset-password {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+}
+
+.remember-me-checkbox {
+  margin-right: 0.5rem;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.remember-me-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.reset-password-button {
   background: none;
   border: none;
   color: #FE9801;
   text-decoration: underline;
   font-weight: 600;
   transition: color 0.2s;
+  cursor: pointer;
 }
 
 /* Submit button */
@@ -190,26 +213,15 @@
   outline: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .submit-button:hover:not(:disabled) {
   background-color: #FE9801;
 }
 
-.submit-button:focus {
-  box-shadow: 0 0 0 2px #FE9801, 0 0 0 4px rgba(254, 152, 1, 0.2);
-}
-
 .submit-button:disabled {
   background-color: #93c5fd;
   cursor: not-allowed;
-}
-
-.submit-button .loading-icon {
-  margin-right: 0.5rem;
 }
 
 /* sign up link */

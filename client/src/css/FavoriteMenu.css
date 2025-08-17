@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
+/* FavoriteMenu.css */
+.favorite-menu-container {
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: #FBF6EE;
+  min-height: 100vh;
+  padding-bottom: 5rem; /* Add space for navbar */
+}
+
+.header {
+  padding: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.title {
+  padding-top: 1rem;
+  padding-left: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+}
+
+.meal-list {
+  padding: 0 1.5rem;
+}
+
+.meal-card {
+  background-color: none;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.meal-separator {
+  height: 0.5px;
+  background-color: #000000;
+  margin: 1rem 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #000000;
+  font-size: 1rem;
+}
+
+.meal-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'Manrope', sans-serif;
+}
+
+.meal-image {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.meal-image img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.meal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.meal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
+  margin: 0 0 0.5rem 0;
+  font-family: 'Manrope', sans-serif;
+}
+
+.meal-times {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: 'Manrope', sans-serif;
+}
+
+.time-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+}
+
+.favorite-heart {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding-bottom: 1rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.favorite-heart:hover {
+  background-color: #f3f4f6;
+  transform: scale(1.05);
+}
+
+.favorite-heart:active {
+  transform: scale(0.95);
+}
+
+.heart-icon {
+  width: 2rem;
+  height: 2rem;
+}
