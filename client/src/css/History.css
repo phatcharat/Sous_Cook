@@ -1,0 +1,90 @@
+/* All styles specific to the History screen will go here */
+
+.history-menu-container {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #FBF6EE;
+    min-height: 100vh;
+    padding-bottom: 5rem; /* Add space for navbar */
+}
+
+.header {
+    padding: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.history-list {
+    padding: 1rem;
+}
+
+.recipe-card {
+    background-color: none;
+    padding: 1.5rem 0 0 1.5rem;
+    position: relative;
+}
+
+.meal-content {
+    display: flex;
+    align-items: center; /* Use center here as well */
+    flex-grow: 1;
+}
+
+.meal-image img {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.meal-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.meal-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.card-right-section {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-end;
+    justify-content: center; /* Vertically centers the column within the row */
+    margin-right: 1rem;
+}
+
+.time-ago {
+    font-size: 0.8rem;
+    color: #999;
+    margin: 0;
+}
+
+.like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 5px; /* Add some space above the heart icon */
+}
+
+.heart-icon {
+    font-size: 1.5rem;
+    color: #ccc;
+    transition: color 0.3s ease;
+}
+
+.heart-icon.liked {
+    color: #FE9801; /* A distinct orange color */
+}
+
+/* Nav bar styles will be in a separate file as they are shared */

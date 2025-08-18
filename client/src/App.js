@@ -18,6 +18,7 @@ import SignUpPage from './components/SignUpPage';
 import UserDataPage from './components/UserDataPage';
 import FavoriteMenu from './components/FavoriteMenu';
 import SearchBar from './components/SearchBar';
+import HistoryScreen from './components/History';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -42,6 +43,7 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/account" element={<UserDataPage />} />
         <Route path="/favorites" element={<FavoriteMenu />} />
+        <Route path="/history" element={<HistoryScreen />} />
         <Route path="/search" element={<SearchBar />} />
       </Routes>
 

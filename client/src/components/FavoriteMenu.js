@@ -99,11 +99,8 @@ const FavoriteMenu = () => {
                   className="favorite-heart"
                   onClick={() => handleUnlike(meal.id)}
                 >
-                  <img 
-                    src={Favorite}
-                    alt="Unlike"
-                    className="heart-icon"
-                  />
+                  {/* ✅ Replace the img tag with the i tag */}
+                  <i class="fas fa-heart heart-fav"></i>
                 </button>
               </div>
               {/* Separator line - don't show after last item */}

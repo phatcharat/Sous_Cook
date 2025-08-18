@@ -117,7 +117,9 @@
   transform: scale(0.95);
 }
 
-.heart-icon {
-  width: 2rem;
-  height: 2rem;
+.heart-fav {
+  font-size: 1.5rem;
+  color: #FE9801;
 }
+
+
