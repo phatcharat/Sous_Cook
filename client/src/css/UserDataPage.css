@@ -1,34 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
 .profile-container {
     display: flex;
-    flex-direction: column; /* จัดเรียงองค์ประกอบในแนวตั้ง */
-    /* gap: 2%; */
-    /* padding: 2%; */
-    height: 25vh;
-    margin: 5%;
-    /* background-color: aqua; */
-    
+    flex-direction: column;
+    height: 20vh;
+    margin: 1rem;
 }
 
 .userData-container {
-    margin: 5%;
+    margin: 1rem;
     padding: 1.5vh;
-    height: 55vh;
+    min-height: 60vh;
     background-color: #FFFDF6;
     border-radius: 10px;
-    box-shadow: 5px 5px 10px #888888;
+    box-shadow: 5px 5px 10px #cacaca;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
+    line-height: 1.7;
 }
 
 .profile-pic {
-    
     display: flex;
     flex-direction: column;
-    /* background-color: wheat; */
     height: 80%;
     border-radius: 10px;
-    /* opacity: 0; */
+
 }
 
 #pic-border {
@@ -37,27 +34,48 @@
     height: 110%;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
-    background-color: black;
     justify-self: center;
 }
 
 .pic-con {
     position: relative;
-    height: 85%;
+    height: 70%;
     background-color: #FFFDF6;
     border-radius: 10px;
-    box-shadow: 5px 5px 10px #888888;
+    box-shadow: 5px 5px 10px #cacaca;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+   gap: 0.5rem;
 }
 
 .setting-container {
+    position: relative;
     margin-top: 2%;
     height: 13%;
     justify-content: flex-end;
     display: flex;
+    z-index: 20;
 }
 
 .setting-container img {
     height: 100%;
+    opacity: 80%;
+}
+
+.dropDown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #cacaca;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    height: auto;
+    font-family: 'Manrope', sans-serif;
+    font-size: 1rem;
 }
 
 .border-box {
@@ -67,11 +85,12 @@
 }
 
 .nameplace {
-    position: absolute;
-    bottom: 10%;
-    font-size: large;
+    position: relative;
+    font-size: 1.2rem;
     justify-self: center;
     font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
 }
 
 input {
@@ -79,59 +98,75 @@ input {
 }
 
 #pic-pro {
-    border: 5px solid #FE9801;
-    position: absolute;
-    top: -45%;
-    left: 50%;
-    transform: translateX(-50%);
-    height: 90%;
+    border: 4px solid #FE9801;
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    height: 70%;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
-    /* background-color: black; */
-    /* justify-self: center; */
+    z-index: 1;
+    object-fit: cover;
 }
 
 .data-box-top {
-    height: 42.5%;
-    padding: 2%;
+    padding: 0.5rem 1rem;
     /* margin-bottom: 2%; */
 }
 
 .data-box-bottom {
-    padding: 2%;
-    height: 42.5%;
-    /* padding: 2%; */
+    padding: 0.5rem 1rem;
 }
 
 .logout-place {
     /* background-color: #a9987e; */
-    height: 15%;
+    height: 70%;
     display: flex;
     /* justify-items: center; */
     justify-content: center;
-    margin-bottom: 2%;
+    margin-top: auto;
+    margin-bottom: 1rem;
 }
 
 .logout-button {
     width: 60%;
     background-color: #FE9801;
     border-radius: 50px;
-    height: 100%;
-    font-size: small;
+    height: 50px;
+    font-size: 1rem;
     color: #FFFDF6;
     border: 0;
     font-weight: bold;
+    font-family: 'Manrope', sans-serif;
     
 }
 
-.title {
-    font-size: small;
+.data-box-top .title {
+    font-size: 1rem;
     color: #FE9801;
     font-weight: bold;
+    font-family: 'Manrope', sans-serif;
+}
+
+.data-box-bottom .title {
+    font-size: 1rem;
+    color: #697C37;
+    font-weight: bold;
+    font-family: 'Manrope', sans-serif;
 }
 
 .data {
     font-weight: bold;
-    font-size: small;
-    margin-left: 5%;
+    font-size: 1rem;
+    margin-left: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+}
+
+.separator {
+    height: 1px;
+    background-color: #7d7d7d;
+    margin: 0 auto;
+    width: 90%;
+    flex-shrink: 0;
 }

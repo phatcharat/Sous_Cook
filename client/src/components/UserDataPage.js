@@ -1,59 +1,86 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../css/UserDataPage.css';  // Import the CSS file
 import IconSetting from '../Icon/Button/Setting_btn.png';
 import defaultProfile from '../image/profile.jpg';
 import { useNavigate } from 'react-router-dom';
 const UserDataPage = () => {
     const navigate = useNavigate();
-    
-    // let profilePic = document.getElementById("pic-pro");
-    // let inputPic = document.getElementById("input-img");
+    const [showMenu, setShowMenu] = useState(false);
+   
+    const [profilePic, setProfilePic] = useState(defaultProfile);
 
-    // inputPic.onchange = function(){
-    //     profilePic.src = URL.createObjectURL(inputPic.files[0]);
-    // }
+    const handleLogout = () => {
+        navigate("/login")
+    }
+
+    const toggleMenu = () => {
+        setShowMenu(!showMenu);
+    }
+
+    const changeProfileImage = (event) => {
+        if (event.target.files && event.target.files[0]) {
+        setProfilePic(URL.createObjectURL(event.target.files[0]));
+        }
+    };
+
 
 
     return (
       <div>
-        <div class="profile-container">
-            <div class="setting-container">
-                <a onClick={() => navigate("/home")}><img src={IconSetting}/></a> 
+        <div className="profile-container">
+            {/* setting button */}
+            <div className="setting-container">
+                 <img src={IconSetting} alt="setting" onClick={toggleMenu} style={{ cursor: "pointer" }}/>
+                 { showMenu && (
+                    <div className="dropDown-menu">
+                        <div className="menu-items">
+                            <label htmlFor="input-img" style={{cursor: "pointer"}}>
+                                 Upload profile
+                            </label>
+                             <input type="file" accept="image/jpg, image/png, image/jpeg" id="input-img" onChange={changeProfileImage}></input>
+                        </div>
+                        <hr></hr>
+                        <div className="menu-items" onClick={handleLogout}>
+                        Log out
+                        </div>
+                    </div>
+                 )}
             </div>
-            <div class="profile-pic">
-                <div class="border-box"></div>
-                <div class="pic-con">
-                    <img src={defaultProfile} id="pic-pro"></img>
-                    {/* <div id="pic-border"></div> */}
-                    <div class="nameplace">Name</div>
+            <div className="profile-pic">
+                <div className="border-box"></div>
+                <div className="pic-con">
+                    <img src={profilePic} id="pic-pro" alt="profile"/>
+                    <div id="pic-border"></div>
+                    {/* username */}
+                    <div className="nameplace">user</div>
                 </div> 
             </div>
-            {/* <label for="input-img">upload image</label>
-            <input type="file" accept="image/jpg, image/png, image/jpeg" id="input-img" onChange="loadPic(event)"></input> */}
             
         </div>
 
-        <div class="userData-container">
-            <div class="data-box-top">
-                <div class="title">Email</div>
-                <div class="data">johndoe.000@example.com</div>
-                <div class="title">Phone number</div>
-                <div class="data">081-234-5678</div>
-                <div class="title">Date</div>
-                <div class="data">23/05/2000</div>
-                <div class="title">Country</div>
-                <div class="data">Thailand</div>
+        <div className="userData-container">
+            <div className="data-box-top">
+                <div className="title">Email</div>
+                <div className="data">user.000@example.com</div>
+                <div className="title">Phone number</div>
+                <div className="data">081-234-5678</div>
+                <div className="title">Date</div>
+                <div className="data">23/05/2000</div>
+                <div className="title">Country</div>
+                <div className="data">Thailand</div>
             </div>
-            <div><hr></hr></div>
-            <div class="data-box-bottom">
-                <div class="title">Meal Complete</div>
-                <div class="data">45</div>
-                <div class="title">Frequently Cooked</div>
-                <div class="data">Sandwich</div>
+            <div className="separator"></div>
+            <div className="data-box-bottom">
+                <div className="title">Meal Complete</div>
+                <div className="data">45</div>
+                <div className="title">Frequently Cooked</div>
+                <div className="data">Tuna Salad Sandwich (7)</div>
             </div>
 
-            <div class="logout-place">
-                <button class="logout-button">LOG OUT</button>
+            <div className="logout-place">
+                <button className="logout-button" onClick={handleLogout}>
+                    LOG OUT
+                </button>
             </div>
 
         </div>
