@@ -93,10 +93,6 @@
     margin-bottom: 2rem;
 }
 
-input {
-    display: none;
-}
-
 #pic-pro {
     border: 4px solid #FE9801;
     position: static;
