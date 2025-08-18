@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
+
+.search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: #f6f1e5;
+    text-align: center;
+    font-family: 'Manrope', sans-serif;
+    padding: 0 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+.back-home {
+    display: flex;
+    flex-direction: row;
+    margin-top: 7%;
+    align-self: flex-start;
+    align-items: center;
+    gap: 11px;
+}
+
+.back-icon {
+    height: 26px;
+}
+
+.back-text {
+    color: #000;
+    font-family: 'Manrope';
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.scan-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 360px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(105, 124, 55, 0.10);
+}
+
+.scan-icon {
+    margin-left: 39px;
+}
+
+.scan-text {
+    color: rgba(104, 101, 101, 0.70);
+    text-align: center;
+    font-family: 'Quicksand';
+    font-size: 18px;
+    margin-left: 10px;
+}
+
+.ingredients-container {
+    width: 100%;
+    padding-left: 30px;
+}
+
+.ingredients-text {
+    text-align: left;
+    margin-top: 17px;
+    color: #000;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.cuisine-container,
+.preference-container,
+.occasion-container {
+    width: 100%;
+    padding-left: 30px;
+    padding-right: 30px;
+    box-sizing: border-box;
+}
+
+.cuisine-text,
+.preference-text,
+.occasion-text {
+    text-align: left;
+    color: #000;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.cuisine-list,
+.preference-list,
+.occasion-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.cuisine-item,
+.preferences-item,
+.occasion-item {
+    padding: 10px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    background-color: white;
+    color: black;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease ease-out;
+    user-select: none;
+}
+
+.cuisine-item.active,
+.preferences-item.active,
+.occasion-item.active {
+    background-color: #B0BD39;
+    color: white;
+}
+
+.divider {
+    width: 95%;
+    height: 1px;
+    margin: 22px 0;
+    border-radius: 1px;
+    background: rgba(105, 124, 55, 0.50);
+}
+
+.search-recipe-button {
+    margin-top: 80px;
+    margin-bottom: 20px;
+    width: 250px;
+    height: 58px;
+    border-radius: 29px;
+    background: #FE9801;
+}
+
+.search-recipe-text {
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+}

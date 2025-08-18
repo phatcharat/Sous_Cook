@@ -1,33 +1,109 @@
 /* ./css/HomePage.css */
 
-.home-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;            /* Full height of the viewport */
-    background-color: #f6f1e5; /* Light background color */
-    text-align: center;
-    padding: 0 20px;
-  }
-  
-  .logo-container {
-    max-width: 500px;         /* Restrict the width */
-    text-align: center;
-    margin-bottom: 25vh;
+@import url('https://fonts.googleapis.com/css?family=Questrial');
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
 
-  }
-  
-  .logo-image {
-    width: 100%;
-    height: auto;
 
+.homepage-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background-color: #f6f1e5;
+  padding: 0 20px;
+}
+
+.header-image {
+  max-width: 267px;
+}
+
+.second-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-left: 28px;  
+}
+
+.greet-user {
+  color: #697C37;
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.username {
+  color: #FE9801;
+  font-weight: 700;
+}
+
+.list-icon {
+  width: 51px;
+  margin-left: auto;        
+  margin-right: 40px;  
+}
+
+.question-text {
+  margin-top: 29px;
+  margin-bottom: 5px;
+  color: #686565;
+  text-align: center;
+  font-family: 'Questrial';
+  font-size: 15px;
+  letter-spacing: 3px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  width: 370px;
+  height: 50px;
+  border-radius: 30px;
+  background: rgba(105, 124, 55, 0.10);
+  padding-left: 22px;
+}
+
+.search-icon {
+  width: 25px;
+  height: 25px;
+}
+
+.search-text {
+  color: rgba(104, 101, 101, 0.50);
+  text-align: center;
+  font-family: 'Quicksand';
+  font-size: 18px;
+  padding-left: 20px;
+}
+
+.most-searched {
+  width: 100%;
+  padding-left: 27px;
+}
+
+.most-searched-text {
+  color: #000;
+  font-family: 'Manrope';
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 33px;
+}
+
+.ingredients-scroll {
+  display: flex;
+  gap: 20px;              
+  overflow-x: auto;   
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  height: 124px;
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    width: 86%;
   }
 
-  
-  .description {
-    font-family: 'Quicksand', sans-serif; /* You can use any clean font like Arial */
-    font-size: 1.5vh;
-    color: #666;
-    line-height: 1.6;
-    margin: 0%;
+  .search-text {
+    font-size: 16px;
   }
+
+}

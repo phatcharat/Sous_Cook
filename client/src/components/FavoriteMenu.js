@@ -56,7 +56,7 @@ const FavoriteMenu = () => {
     <div className="favorite-menu-container">
       {/* Header */}
       <div className="header">
-        <h1 className="title">Liked Meals</h1>
+        <h1 className="title-meal">Liked Meals</h1>
       </div>
 
       {/* Meal List */}

@@ -17,6 +17,7 @@ import ResetPasswordPage from './pages/ResetPassword';
 import SignUpPage from './components/SignUpPage';
 import UserDataPage from './components/UserDataPage';
 import FavoriteMenu from './components/FavoriteMenu';
+import SearchBar from './components/SearchBar';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -41,6 +42,7 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/account" element={<UserDataPage />} />
         <Route path="/favorites" element={<FavoriteMenu />} />
+        <Route path="/search" element={<SearchBar />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (
