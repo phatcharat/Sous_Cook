@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../css/SignUpPage.css';
 import logo from '../image/Logo1.svg';
 import textlogo from '../image/TextLogo.svg';
+import axios from 'axios';
 
 const SignUpPage = () => {
     const navigate = useNavigate();
@@ -14,6 +15,8 @@ const SignUpPage = () => {
     });
 
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -40,7 +43,7 @@ const SignUpPage = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         // Validate all fields
@@ -61,11 +64,27 @@ const SignUpPage = () => {
             return;
         }
 
-        // Success
-        setMessage('Account created successfully');
-        setTimeout(() => {
-            navigate('/home');
+        try {
+            const response = await axios.post('http://localhost:5050/signup', formData);
+            // Success
+            setSuccess(response.data.message);
+            setError('');
+
+            setTimeout(() => {
+            navigate('/login');
         }, 1500);
+
+        } catch (err) {
+            if (err.response) {
+                // Error message from server
+                setError(err.response.data.message);
+            } else {
+                setError('Server Error');
+            }
+            setSuccess('');
+        }
+
+        
     };
 
 
@@ -86,6 +105,8 @@ const SignUpPage = () => {
                     <button type="submit" className="summit-button">CREATE AN ACCOUNT</button>
                 </form>
                 {message && <p>{message}</p>}
+                {success && <p className="alert-success">{success}</p>}
+                {error && <p className="alert-error">{error}</p>}
             </div>
             <p className="guest-text">Or you want to take a look first?</p>
             <button className="guest-button" onClick={handleGuestClick}>CONTINUE AS GUEST</button>

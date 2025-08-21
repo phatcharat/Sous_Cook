@@ -9,6 +9,10 @@ const vision = require('@google-cloud/vision');
 const client = new vision.ImageAnnotatorClient();
 const Bottleneck = require('bottleneck');
 
+// db
+const bcrypt = require('bcrypt');
+const pool = require('./db');
+
 const limiter = new Bottleneck({
   minTime: 200,  // Control the time between requests
   maxConcurrent: 10  // Control how many requests run at the same time
@@ -24,6 +28,51 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+
+//route sign up page
+app.post('/signup', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    // check email is already exists
+    const existingEmail = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if (existingEmail.rows.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // insert new users to DB
+    await pool.query(
+      "INSERT INTO users (username, email, hashed_password, created_at) VALUES ($1, $2, $3, NOW())",
+      [username, email, hashedPassword]
+    );
+
+    res.status(201).json({ message: "Sign Up Successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+//GET sign up localhost:5050
+app.get('/signup', async (req, res) => {
+  try {
+    const new_user = await pool.query("SELECT id, username, email, created_at FROM users");
+
+    res.json ({
+          status: 'Success',
+          users: new_user.rows
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Databse error'});
+  }
+});
 
 // POST endpoint to handle image uploads
 app.post('/api/upload', async (req, res) => {
