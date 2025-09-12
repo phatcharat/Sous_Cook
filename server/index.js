@@ -48,7 +48,7 @@ app.post('/signup', async (req, res) => {
 
     // insert new users to DB
     await pool.query(
-      "INSERT INTO users (username, email, hashed_password, created_at) VALUES ($1, $2, $3, NOW())",
+      "INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, NOW())",
       [username, email, hashedPassword]
     );
 
@@ -62,7 +62,7 @@ app.post('/signup', async (req, res) => {
 //GET sign up localhost:5050
 app.get('/signup', async (req, res) => {
   try {
-    const new_user = await pool.query("SELECT id, username, email, created_at FROM users");
+    const new_user = await pool.query("SELECT user_id, username, email, created_at FROM users");
 
     res.json ({
           status: 'Success',
@@ -74,6 +74,9 @@ app.get('/signup', async (req, res) => {
   }
 });
 
+
+//
+//
 // POST endpoint to handle image uploads
 app.post('/api/upload', async (req, res) => {
   const { image } = req.body;
