@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../css/ResetPassword.css';
 import logo from '../image/Logo2.png';
+import axios from 'axios';
 
 const ResetPasswordPage = () => {
   const [formData, setFormData] = useState({ email: '' });
@@ -58,17 +58,23 @@ const ResetPasswordPage = () => {
       setTouched({ email: true });
       return;
     }
+
     setIsLoading(true);
     setErrors({});
     setMessage('');
     try {
-      // Simulate API call for password reset
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setMessage('Password reset link sent to your email!');
+      // ✅ Call API backend reset password
+      const res = await axios.post('/api/auth/reset-password', {
+        email: formData.email,
+      });
+
+      setMessage(res.data?.message || 'Password reset link sent to your email!');
       setFormData({ email: '' });
       setTouched({});
     } catch (error) {
-      setErrors({ submit: 'An error occurred. Please try again.' });
+      setErrors({
+        submit: error.response?.data?.message || 'An error occurred. Please try again.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -82,16 +88,23 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="reset-container">
-      {/* Background Logo */}
-      <div className="reset-background-logo">
-        <img src={logo} alt="Background Logo" className="background-logo-image" />
+      {/* Header */}
+      <div className="logo-header">
+        <img 
+          src={logo} 
+          alt="Company Logo" 
+          className="Logo"
+        />
       </div>
-      
+
       <div className="reset-card">
         <div className="reset-header">
           <h1 className="reset-title">RESET YOUR PASSWORD</h1>
-          <p className="reset-subtitle">Don't worry! It happens. Please enter your email, You will soon receive a Password Reset link.</p>
+          <p className="reset-subtitle">
+            Don't worry! It happens. Please enter your email, you will soon receive a password reset link.
+          </p>
         </div>
+
         <form onSubmit={handleSubmit}>
           {/* Email Field */}
           <label className="reset-label" htmlFor="email">
@@ -132,17 +145,21 @@ const ResetPasswordPage = () => {
           )}
 
           {/* Submit Button */}
-          <button type="submit" className="send-reset-button" disabled={isLoading}>
+          <button 
+            type="submit" 
+            className="send-reset-button" 
+            disabled={!formData.email || !!errors.email || isLoading}
+          >
             {isLoading ? 'Sending...' : 'Send Reset Link'}
           </button>
-
-          {/* Back to Login Link */}
-          <div className="reset-link">
-            <Link to="/login" className="login-link-text">
-              Back to Sign In
-            </Link>
-          </div>
         </form>
+      </div>
+
+      {/* Back to Login Link (outside the card) */}
+      <div className="reset-link" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+        <Link to="/login" className="login-link-text">
+          Back to Sign In
+        </Link>
       </div>
     </div>
   );
