@@ -75,8 +75,6 @@ app.get('/signup', async (req, res) => {
 });
 
 
-//
-//
 // POST endpoint to handle image uploads
 app.post('/api/upload', async (req, res) => {
   const { image } = req.body;
