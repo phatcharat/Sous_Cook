@@ -154,6 +154,11 @@ const LoginPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
       const response = await axios.post('http://localhost:5050/login', formData);
       console.log(response.data);
+
+      if (response.data.user_id) {
+        localStorage.setItem('user_id', response.data.user_id);
+      }
+    
       navigate('/home');
     } catch (error) {
         if (error.response && error.response.status === 401) {

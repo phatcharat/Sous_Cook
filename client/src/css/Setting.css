@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
+
+.setting-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f6f1e5;
+    font-family: 'Manrope', sans-serif;
+}
+
+.back-container {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    align-self: flex-start;
+    align-items: center;
+    gap: 11px;
+    margin-left: 16px;
+}
+
+.back-icon {
+    height: 26px;
+}
+
+.setting-text {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.setting-box {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 1rem;
+    padding: 1.5vh;
+    min-height: 60vh;
+    background-color: #FFFDF6;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #cacaca;
+    line-height: 1.7;
+}
+
+.profile-image-label {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ccda46;
+    margin-bottom: 20px;
+}
+
+.form-setting {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: auto;
+    gap: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+    font-family: 'Quicksand', sans-serif;      
+}
+
+.form-setting label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-setting input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-selected {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: white;
+}
+
+.dropdown-options {
+  position: absolute;
+  width: 100%;
+  max-height: 200px; 
+  overflow-y: auto;  
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+  z-index: 10;     
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.dropdown-option {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-option:hover {
+  background-color: #f0f0f0;
+}
+
+.save-button {
+    display: block;
+    width: 20%;
+    margin-left: auto;
+    margin-right: 20px;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    background-color: #FE9801;
+    border-radius: 50px; 
+    height: 50px;
+    font-size: 1rem;
+    color: #FFFDF6;
+    border: 0;
+    font-weight: bold;
+    font-family: 'Manrope', sans-serif;
+}

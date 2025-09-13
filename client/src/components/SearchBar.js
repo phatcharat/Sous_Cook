@@ -15,9 +15,9 @@ import porkclick from '../image/homepage/PorkClick.svg';
 const SearchBar = () => {
     const navigate = useNavigate();
     const [activeImages, setActiveImages] = useState([bread, tomato, celery, pork]);
-    const [selectedCuisine, setSelectedCuisine] = useState(null);
-    const [selectedPreference, setSelectedPreference] = useState(null);
-    const [selectedOccasion, setSelectedOccasion] = useState(null);
+    const [selectedCuisine, setSelectedCuisine] = useState([]);
+    const [selectedPreference, setSelectedPreference] = useState([]);
+    const [selectedOccasion, setSelectedOccasion] = useState([]);
 
     const toggleImage = (index) => {
         const newImages = [...activeImages];
@@ -39,6 +39,15 @@ const SearchBar = () => {
         }
         setActiveImages(newImages);
     };
+
+    const toggleSelection = (index, selectedArray, setSelectedArray) => {
+        if (selectedArray.includes(index)) {
+            setSelectedArray(selectedArray.filter(i => i !== index));
+        } else {
+            setSelectedArray([...selectedArray, index]);
+        }
+    };
+
 
     const cuisines = [
         "Southeast Asian",
@@ -106,8 +115,8 @@ const SearchBar = () => {
                     {cuisines.map((item, index) => (
                         <div
                             key={index}
-                            className={`cuisine-item ${selectedCuisine === index ? "active" : ""}`}
-                            onClick={() => setSelectedCuisine(selectedCuisine === index ? null : index)}
+                            className={`cuisine-item ${selectedCuisine.includes(index) ? "active" : ""}`}
+                            onClick={() => toggleSelection(index, selectedCuisine, setSelectedCuisine)}
                         >
                             {item}
                         </div>
@@ -121,8 +130,8 @@ const SearchBar = () => {
                     {preferences.map((item, index) => (
                         <div
                             key={index}
-                            className={`preferences-item ${selectedPreference === index ? "active" : ""}`}
-                            onClick={() => setSelectedPreference(selectedPreference === index ? null : index)}
+                            className={`preferences-item ${selectedPreference.includes(index) ? "active" : ""}`}
+                            onClick={() => toggleSelection(index, selectedPreference, setSelectedPreference)}
                         >
                             {item}
                         </div>
@@ -136,17 +145,17 @@ const SearchBar = () => {
                     {occasions.map((item, index) => (
                         <div
                             key={index}
-                            className={`occasion-item ${selectedOccasion === index ? "active" : ""}`}
-                            onClick={() => setSelectedOccasion(selectedOccasion === index ? null : index)}
+                            className={`occasion-item ${selectedOccasion.includes(index) ? "active" : ""}`}
+                            onClick={() => toggleSelection(index, selectedOccasion, setSelectedOccasion)}
                         >
                             {item}
                         </div>
                     ))}
                 </div>
             </div>
-            <dic className="search-recipe-button">
+            <div className="search-recipe-button">
                 <p className="search-recipe-text">SEARCH FOR RECIPE</p>
-            </dic>
+            </div>
         </div>
     );
 

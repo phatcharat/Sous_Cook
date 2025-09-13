@@ -6,6 +6,9 @@ CREATE TABLE users (
   "email" VARCHAR(100) UNIQUE NOT NULL,
   "password_hash" TEXT,
   "avatar"  TEXT,
+  "phone_number" VARCHAR(10),
+  "birth_date" DATE,
+  "country" VARCHAR(50),
   "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updated_at" TIMESTAMP,
   "deleted_at" TIMESTAMP

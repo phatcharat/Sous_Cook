@@ -8,6 +8,7 @@ const sharp = require('sharp');
 const vision = require('@google-cloud/vision');
 const client = new vision.ImageAnnotatorClient();
 const Bottleneck = require('bottleneck');
+const multer = require('multer');
 
 // db
 const bcrypt = require('bcrypt');
@@ -94,7 +95,8 @@ app.post('/login', async (req, res) => {
         const existingPassword =  existingUsername.rows[0].password_hash;
         const checkPassword = await bcrypt.compare(password, existingPassword);
         if (checkPassword) {
-          res.status(200).json({message: "Login Seccessful!"})
+          res.status(200).json({message: "Login Seccessful!", user_id:existingUsername.rows[0].user_id
+          });
         } else {
           res.status(401).json({error: "Invalid username or password. Please try again."})
         };
@@ -105,6 +107,73 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error'});
   }
 });
+
+// GET user info by user_id
+app.get('/api/users/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const result = await pool.query(
+      "SELECT user_id, username, email, created_at, updated_at, deleted_at, avatar, phone_number, birth_date, country FROM users WHERE user_id = $1",
+      [user_id]
+    );
+
+    const user = result.rows[0];
+
+    res.json({
+      status: 'Success',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error.message);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+// PUT user info
+app.put('/api/users/:user_id', upload.single('avatar'), async (req, res) => {
+  const { user_id } = req.params;
+  const { username, email, phone_number, birth_date, country } = req.body;
+
+  try {
+    // เตรียมข้อมูลอัปเดต
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    if (username) { fields.push(`username=$${index++}`); values.push(username); }
+    if (email) { fields.push(`email=$${index++}`); values.push(email); }
+    if (phone_number) { fields.push(`phone_number=$${index++}`); values.push(phone_number); }
+    if (birth_date) { fields.push(`birth_date=$${index++}`); values.push(birth_date); }
+    if (country) { fields.push(`country=$${index++}`); values.push(country); }
+    if (req.file) {
+      const base64Avatar = req.file.buffer.toString('base64');
+      fields.push(`avatar=$${index++}`);
+      values.push(base64Avatar);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No fields provided for update' });
+    }
+
+    const query = `
+      UPDATE users 
+      SET ${fields.join(', ')}, updated_at=NOW()
+      WHERE user_id=$${index}
+      RETURNING *;
+    `;
+    values.push(user_id);
+
+    const result = await pool.query(query, values);
+    res.json({ success: true, user: result.rows[0] });
+
+  } catch (err) {
+    console.error('Error updating user:', err.message);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
 
 //
 //
