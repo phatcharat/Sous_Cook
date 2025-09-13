@@ -39,9 +39,15 @@ app.post('/signup', async (req, res) => {
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
+    const existingUsername = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
     if (existingEmail.rows.length > 0) {
       return res.status(400).json({ message: "Email already exists" });
-    }
+    } else if (existingUsername.rows.length > 0) {
+      return res.status(400).json({ message: "Username already exists" });
+    };
 
     // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -70,10 +76,35 @@ app.get('/signup', async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Databse error'});
+    res.status(500).json({ error: 'Database error'});
   }
 });
 
+
+app.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const existingUsername = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
+    if (existingUsername.rows.length === 0) {
+      return res.status(401).json({ error: "username or password was wrong"})
+    } else {
+        const existingPassword =  existingUsername.rows[0].password_hash;
+        const checkPassword = await bcrypt.compare(password, existingPassword);
+        if (checkPassword) {
+          res.status(200).json({message: "Login Seccessful!"})
+        } else {
+          res.status(401).json({error: "username or password was wrong"})
+        };
+    };
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error'});
+  }
+});
 
 //
 //
