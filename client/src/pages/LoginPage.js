@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/LoginPage.css';
 import logo from '../image/Logo.svg';
+import axios from 'axios';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -18,10 +19,13 @@ const LoginPage = () => {
 
   // Initialize Google Sign-In
   useEffect(() => {
+    console.log('Environment check:');
+    console.log('REACT_APP_GOOGLE_CLIENT_ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
+    console.log('Current origin:', window.location.origin);
     const initializeGoogleSignIn = () => {
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
-          client_id: '214837593363-148416f6vfcgudims78fce6l9h9rup2n.apps.googleusercontent.com',
+          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
           callback: handleGoogleSignIn,
           auto_select: false,
           cancel_on_tap_outside: true,
@@ -72,7 +76,7 @@ const LoginPage = () => {
     }
   };
 
-  // Parse JWT token (client-side for demo purposes only)
+  // Parse JWT token
   const parseJwt = (token) => {
     try {
       const base64Url = token.split('.')[1];
@@ -83,28 +87,6 @@ const LoginPage = () => {
       return JSON.parse(jsonPayload);
     } catch (error) {
       return {};
-    }
-  };
-
-  // Handle Google Sign-In button click
-  const handleGoogleButtonClick = () => {
-    if (isGoogleReady && window.google && window.google.accounts) {
-      window.google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          window.google.accounts.id.renderButton(
-            document.getElementById('google-signin-button'),
-            {
-              theme: 'outline',
-              size: 'large',
-              width: '100%',
-              text: 'signin_with',
-              shape: 'rectangular',
-            }
-          );
-        }
-      });
-    } else {
-      setErrors({ submit: 'Please try again.' });
     }
   };
 
@@ -170,13 +152,16 @@ const LoginPage = () => {
     setErrors({});
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      if (formData.username === 'admin' && formData.password === '1234') {
-        navigate('/home');
-      } else {
-        setErrors({ submit: 'Invalid username or password. Please try again.' });
-      }
+      const response = await axios.post('/login', formData);
+      console.log(response.data);
+      navigate('/home');
     } catch (error) {
-      setErrors({ submit: 'An error occurred. Please try again.' });
+        if (error.response && error.response.status === 401) {
+          setErrors({ submit: 'Invalid username or password. Please try again.' });
+      } else {
+        // Handles all other errors, like network issues.
+          setErrors({ submit: 'An unexpected error occurred. Please try again.' });
+      }
     } finally {
       setIsLoading(false);
     }

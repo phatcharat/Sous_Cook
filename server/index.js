@@ -89,14 +89,14 @@ app.post('/login', async (req, res) => {
       [username]
     );
     if (existingUsername.rows.length === 0) {
-      return res.status(401).json({ error: "username or password was wrong"})
+      return res.status(401).json({ error: "Invalid username or password. Please try again."})
     } else {
         const existingPassword =  existingUsername.rows[0].password_hash;
         const checkPassword = await bcrypt.compare(password, existingPassword);
         if (checkPassword) {
           res.status(200).json({message: "Login Seccessful!"})
         } else {
-          res.status(401).json({error: "username or password was wrong"})
+          res.status(401).json({error: "Invalid username or password. Please try again."})
         };
     };
 
