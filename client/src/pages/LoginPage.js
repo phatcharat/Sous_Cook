@@ -152,7 +152,7 @@ const LoginPage = () => {
     setErrors({});
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const response = await axios.post('/login', formData);
+      const response = await axios.post('http://localhost:5050/login', formData);
       console.log(response.data);
       navigate('/home');
     } catch (error) {
