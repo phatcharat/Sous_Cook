@@ -15,6 +15,7 @@ const LoginPage = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [touched, setTouched] = useState({});
   const [isGoogleReady, setIsGoogleReady] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   // Initialize Google Sign-In
@@ -241,6 +242,7 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   onBlur={handleBlur}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   className={`${getInputClasses('password')} password-input`}
                   aria-describedby={errors.password ? 'password-error' : undefined}
@@ -252,6 +254,7 @@ const LoginPage = () => {
                   type="button"
                   className="password-toggle"
                   disabled={isLoading}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                 </button>
               </div>
