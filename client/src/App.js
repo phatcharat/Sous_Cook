@@ -20,6 +20,7 @@ import FavoriteMenu from './components/FavoriteMenu';
 import SearchBar from './components/SearchBar';
 import HistoryScreen from './components/History';
 import Setting from './components/Setting';
+import Newpassword from './pages/Newpassword';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -47,6 +48,7 @@ function App() {
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
+        <Route path="/Newpassword" element={<Newpassword/>}/>
       </Routes>
 
       {route_list.includes(location.pathname) ? (

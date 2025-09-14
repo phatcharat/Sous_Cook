@@ -88,81 +88,79 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="reset-container">
-      {/* Header */}
-      <div className="logo-header">
-        <img 
-          src={logo} 
-          alt="Company Logo" 
-          className="Logo"
-        />
-      </div>
+  {/* Header */}
+  <div className="logo-header">
+    <img 
+      src={logo} 
+      alt="Company Logo" 
+      className="Logo"
+    />
+  </div>
 
-      <div className="reset-card">
-        <div className="reset-header">
-          <h1 className="reset-title">RESET YOUR PASSWORD</h1>
-          <p className="reset-subtitle">
-            Don't worry! It happens. Please enter your email, you will soon receive a password reset link.
-          </p>
+  <div className="reset-card">
+    <div className="reset-header">
+      <h1 className="reset-title">RESET YOUR PASSWORD</h1>
+      <p className="reset-subtitle">
+        Don't worry! It happens. Please enter your email, you will soon receive a password reset link.
+      </p>
+    </div>
+
+    <form onSubmit={handleSubmit}>
+      {/* Email Field */}
+      <label className="reset-label" htmlFor="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        placeholder="Enter your email"
+        className={getInputClasses('email')}
+        aria-describedby={errors.email ? 'email-error' : undefined}
+        aria-invalid={errors.email ? 'true' : 'false'}
+        autoComplete="email"
+        disabled={isLoading}
+      />
+      {errors.email && (
+        <div id="email-error" className="login-error" role="alert">
+          {errors.email}
         </div>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          {/* Email Field */}
-          <label className="reset-label" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            placeholder="Enter your email"
-            className={getInputClasses('email')}
-            aria-describedby={errors.email ? 'email-error' : undefined}
-            aria-invalid={errors.email ? 'true' : 'false'}
-            autoComplete="email"
-            disabled={isLoading}
-          />
-          {errors.email && (
-            <div id="email-error" className="login-error" role="alert">
-              {errors.email}
-            </div>
-          )}
+      {/* Success Message */}
+      {message && (
+        <div className="login-success" role="alert">
+          {message}
+        </div>
+      )}
 
-          {/* Success Message */}
-          {message && (
-            <div className="login-success" role="alert">
-              {message}
-            </div>
-          )}
+      {/* Submit Error */}
+      {errors.submit && (
+        <div className="login-error" role="alert">
+          {errors.submit}
+        </div>
+      )}
 
-          {/* Submit Error */}
-          {errors.submit && (
-            <div className="login-error" role="alert">
-              {errors.submit}
-            </div>
-          )}
+      {/* Submit Button */}
+      <button 
+        type="submit" 
+        className="send-reset-button" 
+        disabled={!formData.email || !!errors.email || isLoading}
+      >
+        {isLoading ? 'Sending...' : 'Send Reset Link'}
+      </button>
 
-          {/* Submit Button */}
-          <button 
-            type="submit" 
-            className="send-reset-button" 
-            disabled={!formData.email || !!errors.email || isLoading}
-          >
-            {isLoading ? 'Sending...' : 'Send Reset Link'}
-          </button>
-        </form>
-      </div>
-
-      {/* Back to Login Link (outside the card) */}
-      <div className="reset-link" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+      {/* Back to Login Link (now inside the form, under button) */}
+      <div className="reset-link">
         <Link to="/login" className="login-link-text">
           Back to Sign In
         </Link>
       </div>
-    </div>
-  );
+    </form>
+  </div>
+</div>
+);
 };
 
 export default ResetPasswordPage;
