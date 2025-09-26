@@ -1,14 +1,13 @@
-/* ./css/HomePage.css */
+/* HomePage.css */
 
 @import url('https://fonts.googleapis.com/css?family=Questrial');
 @import url('https://fonts.googleapis.com/css?family=Quicksand');
-
 
 .homepage-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f6f1e5;
   padding: 0 20px;
 }
@@ -21,7 +20,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding-left: 28px;  
+  padding-left: 8px;
 }
 
 .greet-user {
@@ -38,8 +37,8 @@
 
 .list-icon {
   width: 51px;
-  margin-left: auto;        
-  margin-right: 40px;  
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 .question-text {
@@ -77,7 +76,7 @@
 
 .most-searched {
   width: 100%;
-  padding-left: 27px;
+  padding-left: 7px;
 }
 
 .most-searched-text {
@@ -90,12 +89,157 @@
 
 .ingredients-scroll {
   display: flex;
-  gap: 20px;              
-  overflow-x: auto;   
+  gap: 20px;
+  overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   height: 124px;
 }
+
+.food-waste-stat {
+  width: 100%;
+  padding-left: 7px;
+  display: flex;            
+  flex-direction: column;  
+  justify-content: center;    
+}
+
+.food-waste-text {
+  font-family: 'Manrope';
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 35px;
+  margin-bottom: 20px;
+}
+
+.chart-box {
+  position: relative;
+  padding-left: 0px;
+  width: 369px;
+  height: 322px;
+  border-radius: 50px;
+  background: #FFF;
+  padding: 25px 20px 20px 20px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  margin: 0 auto;  
+}
+
+.chart-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-svg {
+  width: 100%;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
+.axis-label {
+  font-size: 13px;
+  fill: #6D6C6C;
+  font-family: 'Quicksand';
+}
+
+.x-axis-labels {
+  font-size: 13px;
+  fill: #6D6C6C;
+  font-family: 'Quicksand';
+}
+
+.stat-info {
+  text-align: center;
+  margin-top: 27px;
+  font-family: 'Quicksand';
+}
+
+.stat-text {
+  font-size: 18px;
+  color: #494747;
+  font-family: 'Quicksand';
+}
+
+.highlight-orange {
+  color: #FE9801;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.chart-svg path {
+  animation: drawLine 2s ease-in-out;
+}
+
+.chart-svg circle {
+  transition: all 0.2s ease;
+}
+
+.chart-svg circle:hover {
+  r: 6;
+  cursor: pointer;
+  fill: #7fb428;
+}
+
+.banner-container {
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin-bottom: 28px;
+}
+
+.banner-row {
+  display: flex;
+  gap: 18px;
+}
+
+.banner-scroll {
+  margin-top: 28px;
+  width: 370px;
+  display: inline-flex;
+  height: 130px;
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.random-box {
+  position: relative;
+  display: inline-block;
+}
+
+.random-menu {
+  display: block;
+  width: 369px;
+  height: 400px;
+}
+
+.random-btn {
+  position: absolute;
+  bottom: 28px;
+  width: 183px;
+  height: 43px;
+  left: 25%;
+  background: #D6E168;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: #494747;
+  text-align: center;
+  font-family: 'Manrope';
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.news {
+  width: 429px;
+  height: 603px;
+  margin-bottom: 100px;
+  margin-top: 28px;
+}
+
+
 
 @media (max-width: 480px) {
   .search-box {
@@ -106,4 +250,38 @@
     font-size: 16px;
   }
 
+  .chart-box {
+    width: 320px;
+    height: 280px;
+  }
+
+  .x-axis-labels {
+    padding: 0 30px;
+    font-size: 12px;
+  }
+
+  .stat-text {
+    font-size: 14px;
+  }
+
+  .highlight-orange {
+    font-size: 16px;
+  }
+
+  .axis-label {
+    font-size: 10px;
+  }
+}
+
+
+@keyframes drawLine {
+  0% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+
+  100% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
 }

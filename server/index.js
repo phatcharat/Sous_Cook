@@ -174,6 +174,84 @@ app.put('/api/users/:user_id', upload.single('avatar'), async (req, res) => {
   }
 });
 
+// Random menu endpoint
+app.get('/api/random-menu', async (req, res) => {
+  try {
+
+    // Basic menu
+    const randomIngredients = [
+      ['chicken', 'rice', 'onion'],
+      ['beef', 'potato', 'carrot'],
+      ['pork', 'noodles', 'garlic'],
+      ['tofu', 'mushroom', 'bell pepper'],
+      ['shrimp', 'pasta', 'tomato'],
+      ['egg', 'bread', 'cheese'],
+      ['salmon', 'asparagus', 'spinach'],
+      ['chicken breast', 'broccoli', 'corn'],
+      ['ground pork', 'cabbage', 'eggplant']
+    ];
+
+    // Random ingredients
+    const randomIndex = Math.floor(Math.random() * randomIngredients.length);
+    const selectedIngredients = randomIngredients[randomIndex]
+
+    // Random preference
+    const cuisines = ['Thai', 'Chinese', 'Japanese', 'Western', 'Korean'];
+    const randomCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+
+    // call getMenuRecommendations
+    const recommendations = await getMenuRecommendations(
+      selectedIngredients,
+      [randomCuisine],
+      [], // dietary preferences
+      ['dinner'] // occasions
+    );
+
+    // Select menu from result
+    if (recommendations.menus && recommendations.menus.length > 0) {
+      const randomMenuIndex = Math.floor(Math.random() * recommendations.menus.length);
+      const randomMenu = recommendations.menus[randomMenuIndex]
+
+      res.json({
+        success: true,
+        menu: randomMenu,
+        ingredients: selectedIngredients
+      });
+    } else {
+      // if there is no menu from random
+      res.json({
+        success: true,
+        menu: {
+          menu_name:"Simply Stir Fry",
+          prep_time: "10 minutes",
+          cooking_time: "15 minutes",
+          steps: [
+            "Heat oil in a large pan or wok over high heat",
+            "Add garlic and stir-fry for 30 seconds",
+            "Add main ingredients and cook for 5-7 minutes",
+            "Season with salt, pepper, and soy sauce",
+            "Serve hot with rice"
+          ],
+          ingredients_quantity: {
+            "oil": "2 tablespoons",
+            "garlic": "2 cloves",
+            "main ingredient": "300g",
+            "soy sauce": "2 tablespoons"
+          },
+          image: "default-image-url"
+        },
+        ingredients: selectedIngredients
+      });
+    }
+  } catch (error) {
+    console.error('Error generating random menu:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate random menu'
+    });
+  }
+});
+
 
 //
 //

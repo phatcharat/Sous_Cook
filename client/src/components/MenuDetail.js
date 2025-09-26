@@ -11,7 +11,7 @@ import unkonwMenuImage from  '../image/menu-suggestion/notfound-image.svg';
 const MenuDetail = () => { 
     const navigate = useNavigate();
     const location = useLocation();
-    const { menu } = location.state || {};
+    const { menu, isRandomMenu = false, ingredients } = location.state || {};
     const ingredient_type = getIngredientsFromLocalStorage();
   
     const [checkedSteps, setCheckedSteps] = useState([]);
@@ -25,6 +25,14 @@ const MenuDetail = () => {
       }
     };
     //console.log("ingredient Object:", ingredient_type); // Log the entire menu object
+
+    const handleBackNavigation = () => {
+        if (isRandomMenu) {
+            navigate('/home')
+        } else {
+            navigate('/menu-suggestion')
+        }
+    };
 
     useEffect(() => {
         if (!menu) {
@@ -64,7 +72,7 @@ const MenuDetail = () => {
     return (
     <div className="menu-detail-container">
         <div className='image-header'>
-            <button className="back-button" onClick={() => navigate('/menu-suggestion')}></button>
+            <button className="back-button" onClick={handleBackNavigation}></button>
             <img
                 src={menu.image || unkonwMenuImage}
                 alt={menu.menu_name}
