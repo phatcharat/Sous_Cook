@@ -81,7 +81,6 @@ app.get('/signup', async (req, res) => {
   }
 });
 
-
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -553,6 +552,15 @@ async function classifyCroppedImage(imagePath) {
             "prep_time": "string",
             "cooking_time": "string",
             "steps": ["string", "string", ...],
+            "tips": ["string", "string", ...],
+            "nutrition": {
+                "calories": "string",
+                "protein": "string",
+                "fat": "string",
+                "carbohydrates": "string",
+                "sodium" : "string",
+                "sugar" : "string"
+            },
             "ingredients_quantity": {
               "ingredient_name": "string (quantity and unit)",
               ...
@@ -592,13 +600,14 @@ const addImagesToMenus = async (menus) => {
 
 const fetchImageForMenu = limiter.wrap(async (menuName) => {
   try {
-    const response = await fetch(
-      `https://api.edamam.com/search?q=${menuName}&app_id=${endaman_app_id}&app_key=${endaman_api_key}`
+    const response = await axios.get(
+      `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(menuName)}`
     );
-    const data = await response.json();
+    //const data = await response.json();
+    const data = response.data;
 
-    if (data.hits && data.hits.length > 0) {
-      return data.hits[0].recipe.image;
+    if (data.meals && data.meals.length > 0) {
+      return data.meals[0].strMealThumb;  // image form TheMealDB
     } else {
       console.log(`No image found for menu: ${menuName}`);
       return 'default-image-url';

@@ -265,22 +265,8 @@ const LoginPage = () => {
               )}
             </div>
 
-            {/* Remember Me and Reset Password */}
+            {/* Reset Password */}
             <div className="Reset-password">
-              <div className="remember-me">
-                <input
-                  id="rememberMe"
-                  name="rememberMe"
-                  type="checkbox"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                  className="remember-me-checkbox"
-                />
-                <label htmlFor="rememberMe" className="remember-me-label">
-                  Remember Me
-                </label>
-              </div>
               <button
                 type="button"
                 className="reset-password-button"
@@ -306,13 +292,7 @@ const LoginPage = () => {
               disabled={isLoading}
               className="submit-button"
             >
-              {isLoading ? (
-                <>
-                  Signing in...
-                </>
-              ) : (
-                'Sign In'
-              )}
+                LOGIN
             </button>
 
             {/* Divider */}

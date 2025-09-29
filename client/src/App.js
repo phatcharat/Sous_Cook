@@ -4,9 +4,7 @@ import PreferencesPage from './components/PreferencesPage';
 import MenuSuggestion from './components/MenuSuggestion';
 import IngredientPreview from './components/IngredientPreview'; 
 import HomePage from './components/HomePage'; 
-import AboutMe1 from './components/AboutMe1';
-import AboutMe2 from './components/AboutMe2';
-import AboutMe3 from './components/AboutMe3';
+import AboutMe from './components/AboutMe';
 import { useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 import './css/App.css';
@@ -21,6 +19,7 @@ import SearchBar from './components/SearchBar';
 import HistoryScreen from './components/History';
 import Setting from './components/Setting';
 import Newpassword from './pages/Newpassword';
+import Listpage from './components/Listpage';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -28,11 +27,8 @@ function App() {
   return (
     <div className="App">
       <Routes>
-      <Route path="" element={<AboutMe1 />}  />
-        <Route path="/" element={<AboutMe1 />}  />
-        <Route path="/AboutMe1" element={<AboutMe1 />}  />
-        <Route path="/AboutMe2" element={<AboutMe2 />}  />
-        <Route path="/AboutMe3" element={<AboutMe3 />}  />
+      <Route path="" element={<AboutMe />}  />
+        <Route path="/" element={<AboutMe />}  />
         <Route path="/home" element={<HomePage />}  />
         <Route path="/menu-suggestion" element={<MenuSuggestion />} />
         <Route path="/camera" element={<Camera />} />
@@ -49,6 +45,7 @@ function App() {
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/Newpassword" element={<Newpassword/>}/>
+        <Route path="/shoppinglist" element={<Listpage />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (
