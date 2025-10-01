@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
+/* Container for the entire menu detail */
+.menu-detail-container {
+    background-color: #fdf6e3;
+    color: #333;
+    font-family: 'Manrope';
+}
+
+.menu-header {
+    width: -webkit-fill-available;
+    margin-left: 4%;
+    margin-right: 4%;
+
+}
+
+.menu-header h1{
+    font-weight: 600;
+    font-size: 3vh;
+    margin: 0;
+    padding-bottom: 0.5vh;
+}
+
+.menu-header p{
+    font-weight: 500;
+    font-size: 1.5vh;
+    margin: 0;
+}
+
+.image-header{
+    position: relative; /* Positioning context for absolute positioning */
+    display: inline-block;
+    width: -webkit-fill-available;
+}
+
+.image-header .back-button{
+    position: absolute; /* Position the button absolutely */
+    top: 6%; /* Adjust the vertical position */
+    left: 3%; /* Adjust the horizontal position */
+    background: #fdf6e3; /* Circle background color */
+    border: none; /* Remove default border */
+    color: #000000; /* Text color */
+    padding: 10px; /* Padding to create circular shape */
+    border-radius: 50%; /* Make the button circular */
+    display: flex; /* Use flexbox to center content */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    cursor: pointer;
+}
+
+
+.text-container{
+    display: flex;
+    padding-left: 2%;
+    padding-right: 2%;
+    flex-direction: column;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-family: 'Manrope';
+  }
+
+  div.text-container div.header{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    width: -webkit-fill-available;
+    margin-left: 4%;
+  }
+  .header h2.small{
+    font-size: 1vh;
+    padding-left: 1%;
+    color: rgba(105, 124, 55, 0.5);
+  }
+
+  /* Menu image styling */
+  .menu-image-large {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+  
+  /* Ingredients section */
+  .menu-detail-container h2 {
+    font-weight: 600;
+    font-size: 3vh;
+    color: #555;
+  }
+  
+  .menu-detail-container ul {
+    list-style: none;
+    padding-bottom: 15vh;
+    margin: 0;
+  }
+  
+  .menu-detail-container ul li {
+    font-size: 18px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Steps section */
+  .menu-detail-container ol {
+    padding-left: 20px;
+    margin: 0;
+  }
+  
+  .menu-detail-container ol li {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  
+  /* Add some margin to the ingredients and steps sections */
+  .menu-detail-container h2 + ul, 
+  .menu-detail-container h2 + ol {
+    margin-top: 10px;
+  }
+
+  .ingredients-container, .seasoning-container {
+    display: flex;
+    flex-direction: row;
+    /* grid-gap: revert-layer; */
+    gap: 40px;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin: 4%;
+    margin-top: 0;
+    align-content: space-around;
+    width: -webkit-fill-available;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    height: 200px;
+
+  }
+  
+  .menu-detail-container .ingredient-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    width: 120px;
+    height: 180px;
+    border-radius: 19px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
+
+  }
+  
+  .ingredient-image {
+    width: 8vh;
+    height: 8vh;
+    margin: auto;
+    object-fit: contain;
+    padding-bottom: 0%;
+  }
+  
+  .ingredient-item p {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 300;
+    text-align: center;
+    object-fit: contain;
+  }
+  .ingredient-item p.header {   
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .missing-ingredients {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .missing-text {
+    display: flex;
+    margin: auto;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #717070;
+  }
+
+  .add-to-list-button {
+    background-color: #829b41;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 30px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  }
+
+  .add-to-list-button:hover {
+    background-color: #50622a;
+    transform: scale(1.05);
+  }
+
+  
+  .instructions-list {
+    width: -webkit-fill-available;
+    list-style: none;
+    padding-bottom: 10%;
+    font-family: 'Manrope', sans-serif;
+  }
+  
+  .instructions-list li {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+  }
+  
+  .custom-checkbox {
+    display: none; /* Hide the default checkbox */
+  }
+  
+  /* Style for the custom checkbox using images */
+  .custom-checkbox-styled {
+    display: inline-block;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .custom-checkbox-styled img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Apply strikethrough when step is checked */
+  .checked-step {
+    text-decoration: line-through;
+    color: #888; /* Optional: Change color when checked */
+  }
+  
+
+  .checkbox-label p{
+    font-size: 15px;
+  }
+
+  ul.instructions-list li{
+    font-size: 1rem;
+    padding: 0%;
+    border-bottom: 0px;
+    margin-bottom: 2%;
+  }
+  .spliteline{
+    border-bottom: 1px solid rgba(105, 124, 55, 0.5);
+    padding-top: 4%;
+    margin-left: 4%;
+    margin-right: 4%;
+    width: -webkit-fill-available;
+  }
