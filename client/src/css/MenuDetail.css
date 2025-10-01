@@ -1,38 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
 
 /* Container for the entire menu detail */
 .menu-detail-container {
     background-color: #fdf6e3;
     color: #333;
-    font-family: 'Manrope';
 }
 
 .menu-header {
-    width: 100%;
     margin-left: 4%;
     margin-right: 4%;
 }
 
 .menu-header h1{
-    font-weight: 600;
-    font-size: 2rem;
+    font-weight: 800;
+    font-size: 40px;
     margin: 0;
     padding-bottom: 0.5vh;
 }
 
 .menu-header p{
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 18px;
     margin: 0;
+    padding-bottom: 0.5vh;
 }
 
 .image-header{
     position: relative;
     display: inline-block;
-    width: 100%;
+    width: -webkit-fill-available;
 }
 
-.image-header .back-button{
+.back-button{
     position: absolute;
     top: 6%;
     left: 3%;
@@ -45,8 +45,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
 }
 
 .text-container{
@@ -57,7 +56,8 @@
     align-content: center;
     justify-content: flex-start;
     align-items: flex-start;
-    font-family: 'Manrope';
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
 }
 
 div.text-container div.header{
@@ -65,14 +65,14 @@ div.text-container div.header{
     flex-direction: row;
     align-items: flex-end;
     justify-content: flex-start;
-    width: 100%;
-    margin-left: 4%;
+    width: -webkit-fill-available;
 }
 
-.header h2.small{
-    font-size: 0.75rem;
-    padding-left: 1%;
-    color: rgba(105, 124, 55, 0.5);
+.header h2 {
+    margin-bottom: 0;
+    margin-left: 0;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 800;
 }
 
 /* Menu image styling */
@@ -86,13 +86,13 @@ div.text-container div.header{
 /* Ingredients section */
 .menu-detail-container h2 {
     font-weight: 600;
-    font-size: 1.5rem;
+    font-size: 3vh;
     color: #555;
 }
 
 .menu-detail-container ul {
     list-style: none;
-    padding-bottom: 15vh;
+    /* padding-bottom: 15vh; */
     margin: 0;
 }
 
@@ -113,50 +113,22 @@ div.text-container div.header{
     margin: 10px 0;
 }
 
-/* Add some margin to the ingredients and steps sections */
-.menu-detail-container h2 + ul, 
-.menu-detail-container h2 + ol {
-    margin-top: 10px;
-}
-
-.ingredients-container, .seasoning-container {
-    display: flex;
-    flex-direction: row;
-    gap: 40px;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    margin: 4%;
-    margin-top: 0;
-    align-content: space-around;
-    width: 100%;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-    height: 200px;
-}
-
-/* Hide scrollbar for Chrome/Safari */
-.ingredients-container::-webkit-scrollbar,
-.seasoning-container::-webkit-scrollbar {
-    display: none;
+.ingredientAndSeasoning-container {
+    display: grid;                       /* ใช้ Grid Layout */
+    grid-template-columns: repeat(3, 1fr); /* 3 คอลัมน์เท่าๆ กัน */
+    gap: 15px;                            /* ระยะห่างระหว่างการ์ด */
+    justify-items: center;                /* จัดการ์ดให้อยู่กลางคอลัมน์ */
+    align-items: start;                   /* จัดแนวบน */
+    margin: 0 auto;
+    padding: 0 10px;
 }
 
 .menu-detail-container .ingredient-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #fff;
-    width: 120px;
-    height: 180px;
-    border-radius: 19px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    object-fit: contain;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    flex-shrink: 0;
+    padding: 10px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    text-align: center;
 }
 
 /* Hover effect */
@@ -172,30 +144,27 @@ div.text-container div.header{
     transform: translateY(-2px);
 }
 
-.menu-detail-container .ingredient-item {
-    position: relative;
-}
-
-.ingredient-image {
-    width: 8vh;
-    height: 8vh;
-    margin: auto;
+.ingredients-image {
+    width: 80px;
     object-fit: contain;
-    padding-bottom: 0%;
 }
 
 .ingredient-item p {
     margin: 0;
-    font-size: 0.8rem;
-    font-weight: 300;
+    padding: 2px;
+    font-size: 14px;
+    font-weight: 500;
     text-align: center;
     object-fit: contain;
 }
 
 .ingredient-item p.header {   
-    font-size: 1rem;
+    margin: 0;
+    font-size: 18px;
     font-weight: bold;
     text-align: center;
+    object-fit: contain;
+
 }
 
 /* Enhance text color when selected */
@@ -209,15 +178,16 @@ div.text-container div.header{
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin: 20px 0;
+    margin-top: 40px;
+    width: 100%;
 }
 
 .missing-text {
-    font-family: 'Manrope';
+    font-family: 'Quicksand', sans-serif;
     margin: auto;
     font-size: 16px;
     font-weight: 500;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     color: #717070;
 }
 
@@ -246,17 +216,17 @@ div.text-container div.header{
 }
 
 .instructions-list {
-    width: 100%;
     list-style: none;
-    padding-bottom: 10%;
-    font-family: 'Manrope', sans-serif;
+    padding-right: 5%;
+    font-family: 'Quicksand', sans-serif;
+    margin: 0;
 }
 
 .instructions-list li {
     display: flex;
     align-items: center;
-    font-size: 2rem;
-    margin-bottom: 16px;
+    font-size: 16px;
+    /* margin-bottom: 16px; */
 }
 
 .checkbox-label {
@@ -294,6 +264,7 @@ div.text-container div.header{
 }
 
 ul.instructions-list li{
+    margin-left: 0;
     font-size: 1rem;
     padding: 0%;
     border-bottom: 0px;
@@ -305,7 +276,11 @@ ul.instructions-list li{
     padding-top: 4%;
     margin-left: 4%;
     margin-right: 4%;
-    width: 100%;
+    width: -webkit-fill-available;
+}
+
+.tips-container, .nutrition-container {
+    font-family: 'Quicksand', sans-serif;
 }
 
 /* Responsive design */

@@ -13,7 +13,7 @@ const Listpage = () => {
     <div className="shopping-list-container">
       {/* Header */}
       <div className="shopping-header">
-          <button className="back-button" onClick={()=>navigate('/menu-detail')}></button>
+          <button className="back-button" onClick={() => navigate(-1)}></button>  {/* แก้ไขตรงนี้ ให้มันกลับไปหน้าก่อนหน้า (menu-detail) */}
           <h1 className="ingredient-header">Shopping List</h1>
       </div>
 

@@ -131,16 +131,16 @@ const MenuDetail = () => {
                     <h2>Ingredients</h2>
                 </div>
                 
-                <div className="ingredients-container">
+                <div className="ingredientAndSeasoning-container">
                     {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                         .filter(([ingredientName, _]) => {
-                            const ingredientType = menu.ingredients_type?.[ingredientName];
+                            const ingredientType = menu.ingredients_type[ingredientName];
                             return ingredientType && ingredientType !== 'Miscellaneous items';
                         })
                         .map(([ingredientName, quantity], idx) => (
                             <div 
                                 key={idx} 
-                                className={`ingredient-item ${
+                                className={`ingredient-item${
                                     selectedIngredients.some((item) => item.name === ingredientName)
                                         ? "selected"
                                         : ""
@@ -150,13 +150,13 @@ const MenuDetail = () => {
                                 <img
                                     src={ingredientImages[ingredientName] || unkonwIngImage}
                                     alt={ingredientName}
-                                    className="ingredient-image"
-                                    style={{ 
-                                        objectFit: ingredientImages[ingredientName] ? "contain" : "scale-down", 
-                                    }} 
+                                    className="ingredients-image"
+                                    style={{
+                                        objectFit: ingredientImages[ingredientName],
+                                    }}
                                 />
                                 <p className='header'>{ingredientName}</p>
-                                <p>{quantity}</p>
+                                <p>{abbreviateUnit(quantity)}</p>
                             </div>
                         ))}
                 </div>
@@ -165,16 +165,16 @@ const MenuDetail = () => {
                     <h2>Seasoning/Dressing</h2>
                 </div>
 
-                <div className="seasoning-container">
+                <div className="ingredientAndSeasoning-container">
                     {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                         .filter(([ingredientName, _]) => {
-                            const ingredientType = menu.ingredients_type?.[ingredientName];
+                            const ingredientType = menu.ingredients_type[ingredientName];
                             return ingredientType && ingredientType === 'Miscellaneous items';
                         })
                         .map(([ingredientName, quantity], idx) => (
                             <div 
                                 key={idx} 
-                                className={`ingredient-item ${
+                                className={`ingredient-item${
                                     selectedIngredients.some((item) => item.name === ingredientName)
                                         ? "selected"
                                         : ""
@@ -184,13 +184,13 @@ const MenuDetail = () => {
                                 <img
                                     src={ingredientImages[ingredientName] || unkonwIngImage}
                                     alt={ingredientName}
-                                    className="ingredient-image"
+                                    className="ingredients-image"
                                     style={{ 
-                                        objectFit: ingredientImages[ingredientName] ? "contain" : "scale-down", 
+                                        objectFit: ingredientImages[ingredientName], 
                                     }} 
                                 />
                                 <p className='header'>{ingredientName}</p>
-                                <p>{quantity}</p>
+                                <p>{abbreviateUnit(quantity)}</p>
                             </div>
                         ))}
                 </div>
@@ -278,94 +278,22 @@ const MenuDetail = () => {
 };
 
 const fetchMissingImages = async (menuList, ingredientList) => {
-    let storedImages = getImageFromLocalStorage();
+  const images = {};
 
-    // Initialize with proper structure if not exists
-    if (!storedImages || typeof storedImages !== 'object') {
-        storedImages = { menu: [], ingredient: {} };
-    }
+  ingredientList.forEach(ing => {
+    images[ing] = `https://www.themealdb.com/images/ingredients/${encodeURIComponent(ing)}.png`;
+  });
 
-    if (!Array.isArray(storedImages.menu)) {
-        storedImages.menu = [];
-    }
+  return {
+    menu: menuList,
+    ingredient: images
+  };
+};
 
-    if (!storedImages.ingredient || typeof storedImages.ingredient !== 'object') {
-        storedImages.ingredient = {};
-    }
-
-    const missingMenuItems = menuList.filter(menuItem => 
-        !storedImages.menu.some(storedMenu => storedMenu.name === menuItem.menu_name)
-    );
-
-    const missingIngredients = ingredientList.filter(ingredient => 
-        !(ingredient in storedImages.ingredient)
-    );
-
-    console.log("missingMenuItems:", missingMenuItems);
-    console.log("missingIngredients:", missingIngredients);
-
-    if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
-        try {
-            // Fetch menu images
-            const fetchedMenus = await Promise.all(
-                missingMenuItems.map(async (item) => {
-                    try {
-                        const response = await axios.get(
-                            `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(item.menu_name)}`
-                        );
-                        const data = response.data;
-                        if (data.meals && data.meals.length > 0) {
-                            return {
-                                name: item.menu_name,
-                                image: data.meals[0].strMealThumb,
-                            };
-                        } else {
-                            return { name: item.menu_name, image: "" };
-                        }
-                    } catch (err) {
-                        console.error(`Error fetching image for ${item.menu_name}:`, err);
-                        return { name: item.menu_name, image: "" };
-                    }
-                })
-            );
-
-            // Fetch ingredient images from your backend
-            let fetchedIngredients = [];
-            if (missingIngredients.length > 0) {
-                try {
-                    const response = await axios.post('/api/get_ingredient_image', {
-                        ingredients: missingIngredients
-                    });
-                    fetchedIngredients = response.data || [];
-                } catch (err) {
-                    console.error('Error fetching ingredient images:', err);
-                    // Create default entries for missing ingredients
-                    fetchedIngredients = missingIngredients.map(ingredient => ({
-                        ingredient,
-                        imageUrl: null
-                    }));
-                }
-            }
-
-            const newImages = {
-                menu: [...storedImages.menu, ...fetchedMenus],
-                ingredient: { 
-                    ...storedImages.ingredient, 
-                    ...Object.fromEntries(
-                        fetchedIngredients.map(item => [item.ingredient, item.imageUrl])
-                    ) 
-                },
-            };
-
-            saveImageToLocalStorage(newImages);
-            return newImages;
-        } catch (error) {
-            console.error('Error fetching images:', error);
-            return storedImages;
-        }
-    }
-
-    return storedImages;
+// ฟังก์ชันย่อหน่วย
+const abbreviateUnit = (quantity) => {
+    if (!quantity) return quantity;
+    return quantity.replace(/\btablespoons?\b/gi, "tbsp");
 };
 
 export default MenuDetail;
