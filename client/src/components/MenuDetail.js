@@ -5,8 +5,8 @@ import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLo
 import checkbox from '../image/menu-detail/Checkbox.svg';
 import checkboxOncheck from '../image/menu-detail/Checkbox_check.svg';
 import axios from 'axios';
-import unkonwIngImage from '../image/ingredient/unknow-ingredient.svg';
-import unkonwMenuImage from  '../image/menu-suggestion/notfound-image.svg';
+import unknowIngImage from '../image/ingredient/unknow-ingredient.svg';
+import unknowMenuImage from  '../image/menu-suggestion/notfound-image.svg';
 import tips from '../image/menu-detail/tips.svg'
 
 const MenuDetail = () => { 
@@ -48,7 +48,7 @@ const MenuDetail = () => {
                     {
                         name: ingredientName,
                         quantity,
-                        image: ingredientImages[ingredientName] || unkonwIngImage,
+                        image: ingredientImages[ingredientName] || unknowIngImage,
                     },
                 ];
             }
@@ -114,7 +114,7 @@ const MenuDetail = () => {
             <div className='image-header'>
                 <button className="back-button" onClick={handleBackNavigation}></button>
                 <img
-                    src={menuImage.image || unkonwMenuImage}
+                    src={menuImage.image || unknowMenuImage}
                     alt={menuImage.menu_name}
                     className="menu-image-large"
                 />
@@ -135,7 +135,7 @@ const MenuDetail = () => {
                     {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                         .filter(([ingredientName, _]) => {
                             const ingredientType = menu.ingredients_type[ingredientName];
-                            return ingredientType && ingredientType !== 'miscellaneous items';
+                            return ingredientType && ingredientType !== 'miscellaneous items' && ingredientType !== "Miscellaneous items";
                         })
                         .map(([ingredientName, quantity], idx) => (
                             <div 
@@ -148,14 +148,14 @@ const MenuDetail = () => {
                                 onClick={() => handleSelectIngredient(ingredientName, quantity)}
                             >
                                 <img
-                                    src={ingredientImages[ingredientName] || unkonwIngImage}
+                                    src={ingredientImages[ingredientName] || unknowIngImage}
                                     alt={ingredientName}
                                     className="ingredients-image"
                                     style={{
                                         objectFit: ingredientImages[ingredientName],
                                     }}
                                 />
-                                <p className='header'>{ingredientName}</p>
+                                <p className='header' title={ingredientName}>{ingredientName}</p>
                                 <p>{abbreviateUnit(quantity)}</p>
                             </div>
                         ))}
@@ -169,7 +169,7 @@ const MenuDetail = () => {
                     {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                         .filter(([ingredientName, _]) => {
                             const ingredientType = menu.ingredients_type[ingredientName];
-                            return ingredientType && ingredientType === 'miscellaneous items';
+                            return ingredientType && (ingredientType === 'miscellaneous items' || ingredientType === 'Miscellaneous items');
                         })
                         .map(([ingredientName, quantity], idx) => (
                             <div 
@@ -182,14 +182,14 @@ const MenuDetail = () => {
                                 onClick={() => handleSelectIngredient(ingredientName, quantity)}
                             >
                                 <img
-                                    src={ingredientImages[ingredientName] || unkonwIngImage}
+                                    src={ingredientImages[ingredientName] || unknowIngImage}
                                     alt={ingredientName}
                                     className="ingredients-image"
                                     style={{ 
                                         objectFit: ingredientImages[ingredientName], 
                                     }} 
                                 />
-                                <p className='header'>{ingredientName}</p>
+                                <p className='header' title={ingredientName}>{ingredientName}</p>
                                 <p>{abbreviateUnit(quantity)}</p>
                             </div>
                         ))}

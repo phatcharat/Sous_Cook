@@ -25,7 +25,7 @@
 }
 
 /* Individual ingredient item */
-.ingredient-preview-container .ingredient-item {
+.ingredient-preview-container .ingredient-items {
   display: flex;
   align-items: center;
   justify-content: space-between;

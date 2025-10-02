@@ -41,28 +41,18 @@ useEffect(() => {
 }, [updatedIngredients]);
 
 // Mapping ingredient types to icons
-const getIconForIngredientType = (ingredientType) => {
-  switch (ingredientType) {
-    case 'Eggs, milk, and dairy products':
-      return EggMilkDairy;
-    case 'Fats and oils':
-      return FatsOils;
-    case 'Fruits':
-      return Fruits;
-    case 'Grains, nuts, and baking products':
-      return GrainsNutsBaking;
-    case 'Herbs and spices':
-      return HerbsSpices;
-    case 'Meat, sausages, and fish':
-      return MeatSausagesFish;
-    case 'Pasta, rice, and pulses':
-      return PastaRicePulses;
-    case 'Vegetables':
-      return Vegetables;
-    case 'Miscellaneous items':
-    default:
-      return Miscellaneous;
-  }
+const getIconForIngredientType = (ingredientType = "") => {
+  const type = ingredientType.toLowerCase();
+  if (type.includes("egg") || type.includes("dairy products") || type.includes("milk")) return EggMilkDairy;
+  if (type.includes("fats") || type.includes("oils")) return FatsOils;
+  if (type.includes("fruits")) return Fruits;
+  if (type.includes("grains") || type.includes("nuts") || type.includes("baking")) return GrainsNutsBaking;
+  if (type.includes("herbs") || type.includes("spices")) return HerbsSpices;
+  if (type.includes("meat") || type.includes("sausages") || type.includes("fish")) return MeatSausagesFish;
+  if (type.includes("pasta") || type.includes("rice") || type.includes("pulses")) return PastaRicePulses;
+  if (type.includes("vegetables")) return Vegetables;
+
+  return Miscellaneous; // default
 };
 
 // Handle confirm button click to go to PreferencesPage
@@ -123,7 +113,7 @@ return (
             const iconSrc = getIconForIngredientType(ingredient.ingredient_type);
 
             return (
-              <li key={index} className="ingredient-item">
+              <li key={index} className="ingredient-items">
                 <img src={iconSrc} alt={`${ingredient.ingredient_type} icon`} className="ingredient-icon" />
                 {editIndex === index ? (
                   // Edit Mode: Input field and Save/Cancel buttons
