@@ -12,27 +12,28 @@ import tips from '../image/menu-detail/tips.svg'
 const MenuDetail = () => { 
     const navigate = useNavigate();
     const location = useLocation();
-    const { menu, isRandomMenu = false } = location.state || {};
+    const { menu, menu_id, isRandomMenu = false } = location.state || {};
+    console.log("MenuDetail menu_id:", menu_id);
   
     const [checkedSteps, setCheckedSteps] = useState([]);
     const [ingredientImages, setIngredientImages] = useState({});
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [menuImage, setMenuImage] = useState(menu || {});
-  
+
     const handleCheck = (index) => {
-      if (checkedSteps.includes(index)) {
-        setCheckedSteps(checkedSteps.filter(stepIndex => stepIndex !== index));
-      } else {
-        setCheckedSteps([...checkedSteps, index]);
-      }
+        if (checkedSteps.includes(index)) {
+            setCheckedSteps(checkedSteps.filter(stepIndex => stepIndex !== index));
+        } else {
+            setCheckedSteps([...checkedSteps, index]);
+        }
     };
 
     const handleBackNavigation = () => {
         if (isRandomMenu) {
-            navigate('/home')
+            navigate('/home');
         } else {
-            navigate('/menu-suggestion')
+            navigate('/menu-suggestion');
         }
     };
 
@@ -98,7 +99,27 @@ const MenuDetail = () => {
         return () => {
             isCancelled = true;
         };
-    }, [menu]);      
+    }, [menu]); 
+
+    // save history
+    useEffect(() => {
+        if (!menu_id) {
+            console.error("Menu ID not available");
+            return;
+        }
+        const userId = localStorage.getItem("user_id");
+        if (!userId) {
+            console.error("No user_id in localStorage");
+            return;
+        }
+
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/history`, {
+            user_id: userId,
+            menu_id: menu_id
+        })
+        .then(res => console.log("History saved:", res.data))
+        .catch(err => console.error("Error saving history:", err));
+    }, [menu_id]);
 
     if (!menu) {
         return (

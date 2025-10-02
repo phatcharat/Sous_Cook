@@ -13,6 +13,7 @@ const multer = require('multer');
 // db
 const bcrypt = require('bcrypt');
 const pool = require('./db');
+const { DESTRUCTION } = require('dns');
 
 const limiter = new Bottleneck({
   minTime: 200,  // Control the time between requests
@@ -676,6 +677,158 @@ async function getIngredientImage(ingredient) {
 }
 
 module.exports = { getIngredientImage };
+
+// This is the endpoint called from MenuSuggestion.js
+app.post("/api/menus", async (req, res) => {
+  try {
+    const {
+      menu_name,
+      prep_time,
+      cooking_time,
+      steps,
+      ingredients_quantity,
+      ingredients_type,
+      nutrition,
+      image,
+    } = req.body;
+
+    if (!menu_name) {
+      return res.status(400).json({ error: "menu_name is required" });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, image)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (menu_name) DO NOTHING
+       RETURNING menu_id, menu_name`,
+      [
+        menu_name,
+        prep_time || null,
+        cooking_time || null,
+        JSON.stringify(steps || []),
+        JSON.stringify(ingredients_quantity || []),
+        JSON.stringify(ingredients_type || []),
+        JSON.stringify(nutrition || []),
+        image || null,
+      ]
+    );
+
+    if (result.rows.length > 0) {
+      res
+        .status(201)
+        .json({ message: "Menu saved successfully", menu: result.rows[0] });
+    } else {
+      const existingMenu = await pool.query(
+        `SELECT menu_id, menu_name FROM menus WHERE menu_name = $1`,
+        [menu_name]
+      );
+      res
+        .status(200)
+        .json({ message: "Menu already exists", menu: existingMenu.rows[0] });
+    }
+  } catch (err) {
+    console.error("Error saving menu:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+//Get menu by ID
+app.get('/api/menus/:menuId', async (req, res) => {
+  try {
+    const { menuId } = req.params;
+    const id = parseInt(menuId);
+
+    if (!id) {
+      return res.status(400).json({ error: 'Invalid menuId provided' });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM menus WHERE menu_id = $1`,
+      [id]
+    );
+
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
+    } else {
+      res.status(404).json({ error: 'Menu not found' });
+    }
+  } catch (err) {
+    console.error('Error fetching menu by ID:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get menu by name
+app.get('/api/menus/by-name/:menu_name', async (req, res) => {
+  try {
+    const { menu_name } = req.params;
+
+    const result = await pool.query(
+      'SELECT menu_id, menu_name FROM menus WHERE menu_name = $1',
+      [menu_name]
+    );
+
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Menu not found' });
+
+    res.json(result.rows[0]); // { menu_id, menu_name }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Save history
+app.post('/api/history', async (req, res) => {
+    try {
+        const { user_id, menu_id } = req.body;
+        if (!user_id || !menu_id) {
+            return res.status(400).json({ error: 'user_id and menu_id are required' });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO history (user_id, menu_id, created_at)
+            VALUES ($1, $2, NOW())
+            ON CONFLICT (user_id, menu_id) DO UPDATE
+            SET created_at = EXCLUDED.created_at
+            RETURNING *`,
+            [user_id, menu_id]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error saving history:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get history by user_id
+app.get('/api/history/:user_id', async (req, res) => {
+    try {
+        const { user_id } = req.params;
+
+        const result = await pool.query(
+            `SELECT DISTINCT ON (h.menu_id)
+                h.history_id,
+                h.created_at,
+                m.menu_id,
+                m.menu_name,
+                m.prep_time,
+                m.cooking_time,
+                m.image
+            FROM history h
+            JOIN menus m ON h.menu_id = m.menu_id
+            WHERE h.user_id = $1
+            ORDER BY h.menu_id, h.created_at DESC`,
+            [user_id]
+        );
+
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching history:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 // Start the server
 app.listen(port, () => {
