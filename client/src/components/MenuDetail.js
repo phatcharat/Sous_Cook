@@ -135,7 +135,7 @@ const MenuDetail = () => {
                     {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                         .filter(([ingredientName, _]) => {
                             const ingredientType = menu.ingredients_type[ingredientName];
-                            return ingredientType && ingredientType !== 'Miscellaneous items';
+                            return ingredientType && ingredientType !== 'miscellaneous items';
                         })
                         .map(([ingredientName, quantity], idx) => (
                             <div 
@@ -169,7 +169,7 @@ const MenuDetail = () => {
                     {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
                         .filter(([ingredientName, _]) => {
                             const ingredientType = menu.ingredients_type[ingredientName];
-                            return ingredientType && ingredientType === 'Miscellaneous items';
+                            return ingredientType && ingredientType === 'miscellaneous items';
                         })
                         .map(([ingredientName, quantity], idx) => (
                             <div 
