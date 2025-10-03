@@ -1136,6 +1136,71 @@ app.get('/api/history/:user_id', async (req, res) => {
   }
 });
 
+// เพิ่มเมนูเข้า favorite
+app.post('/api/favorites', async (req, res) => {
+  try {
+    const { user_id, menu_id } = req.body;
+
+    if (!user_id || !menu_id) {
+      return res.status(400).json({ error: "user_id and menu_id required" });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO favorite_menu (user_id, menu_id)
+       VALUES ($1, $2)
+       ON CONFLICT (user_id, menu_id) DO NOTHING
+       RETURNING *`,
+      [user_id, menu_id]
+    );
+
+    res.json(result.rows[0] || { message: "Already in favorites" });
+  } catch (err) {
+    console.error("Error adding favorite:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ลบเมนูออกจาก favorite
+app.delete('/api/favorites', async (req, res) => {
+  try {
+    const { user_id, menu_id } = req.body;
+
+    if (!user_id || !menu_id) {
+      return res.status(400).json({ error: "user_id and menu_id required" });
+    }
+
+    await pool.query(
+      `DELETE FROM favorite_menu WHERE user_id = $1 AND menu_id = $2`,
+      [user_id, menu_id]
+    );
+
+    res.json({ message: "Removed from favorites" });
+  } catch (err) {
+    console.error("Error removing favorite:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ดึงเมนู favorite ของ user
+app.get('/api/favorites/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const result = await pool.query(
+      `SELECT m.* 
+       FROM favorite_menu f 
+       JOIN menus m ON f.menu_id = m.menu_id
+       WHERE f.user_id = $1
+       ORDER BY f.created_at DESC`,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching favorites:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // Start the server
 app.listen(port, () => {
