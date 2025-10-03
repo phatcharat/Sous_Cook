@@ -9,11 +9,89 @@ const vision = require('@google-cloud/vision');
 const client = new vision.ImageAnnotatorClient();
 const Bottleneck = require('bottleneck');
 const multer = require('multer');
+const { OAuth2Client } = require('google-auth-library');
+const bcrypt = require('bcrypt');
+const googleAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // db
-const bcrypt = require('bcrypt');
 const pool = require('./db');
 const { DESTRUCTION } = require('dns');
+
+// File Storage Configuration
+
+// Create folder for avatar
+const UPLOAD_DIR = path.join(__dirname, 'uploads', 'avatars');
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+// Configure Multer for upload file
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, UPLOAD_DIR);
+  },
+  filename: (req, file, cb) => {
+    // Create unique file name
+    const userId = req.params.user_id;
+    const ext = path.extname(file.originalname);
+    const filename = `user_${userId}_${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const avatarUpload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limit 5 MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+// Function for Google avatar URL
+async function downloadGoogleAvatar(avatarUrl, userId) {
+  try {
+    console.log('Downloading Google avatar from:', avatarUrl);
+
+    const response = await axios.get(avatarUrl, {
+      responseType: 'arraybuffer',
+      timeout: 10000 // 10 seconds timeout
+    });
+
+    const filename = `user_${userId}_google_${Date.now()}.jpg`;
+    const filepath = path.join(UPLOAD_DIR, filename);
+
+    fs.writeFileSync(filepath, response.data);
+
+    console.log('Google avatar downloaded successfully:', filename);
+    return filename;
+  } catch (error) {
+    console.error('Error downloading Google avatar:', error.message);
+    return null;
+  }
+}
+
+// Function for delete old avatar
+function deleteOldAvatar(filename) {
+  if (!filename) return;
+
+  const filepath = path.join(UPLOAD_DIR, filename);
+  if (fs.existsSync(filepath)) {
+    try {
+      fs.unlinkSync(filepath);
+      console.log('Delete old avatar:', filename);
+    } catch (error) {
+      console.error('Error deleting old avatar:', error);
+    }
+  }
+}
 
 const limiter = new Bottleneck({
   minTime: 200,  // Control the time between requests
@@ -28,33 +106,48 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5050'],
+  credentials: true,
+}));
 
-//route sign up page
+app.use(express.json({ limit: '50mb' }));
+app.use('/uploads/avatars', express.static(UPLOAD_DIR));
+
+// POST signup
 app.post('/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // check email is already exists
+    // Check email is already exists
     const existingEmail = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL",
       [email]
     );
-    const existingUsername = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
-    if (existingEmail.rows.length > 0) {
-      return res.status(400).json({ message: "Email already exists" });
-    } else if (existingUsername.rows.length > 0) {
-      return res.status(400).json({ message: "Username already exists" });
-    };
 
-    // hash password
+    if (existingEmail.rows.length > 0) {
+      const user = existingEmail.rows[0];
+      if (user.google_id && !user.password_hash) {
+        return res.status(400).json({
+          message: "This email is already registered with Google. Please login with Google."
+        });
+      }
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const existingUsername = await pool.query(
+      "SELECT * FROM users WHERE username = $1 AND deleted_at IS NULL",
+      [username]
+    )
+
+    if (existingUsername.rows.length > 0) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // insert new users to DB
+    // Insert new users to DB
     await pool.query(
       "INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, NOW())",
       [username, email, hashedPassword]
@@ -67,44 +160,214 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-//GET sign up localhost:5050
+
+//GET signup
 app.get('/signup', async (req, res) => {
   try {
-    const new_user = await pool.query("SELECT user_id, username, email, created_at FROM users");
+    const new_user = await pool.query("SELECT user_id, username, email, created_at FROM users WHERE deleted_at IS NULL");
 
-    res.json ({
-          status: 'Success',
-          users: new_user.rows
+    res.json({
+      status: 'Success',
+      users: new_user.rows
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Database error'});
+    res.status(500).json({ error: 'Database error' });
   }
 });
 
+// POST login
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+
     const existingUsername = await pool.query(
-      "SELECT * FROM users WHERE username = $1",
+      "SELECT * FROM users WHERE username = $1 AND deleted_at IS NULL",
       [username]
     );
     if (existingUsername.rows.length === 0) {
-      return res.status(401).json({ error: "Invalid username or password. Please try again."})
+      return res.status(401).json({ error: "Invalid username or password. Please try again." })
+    }
+
+    const user = existingUsername.rows[0];
+
+    // Check Google user
+    if (!user.password_hash && user.google_id) {
+      return res.status(401).json({
+        error: "This account uses Google Sign-In. Please login with Google."
+      });
+    }
+
+    if (!user.password_hash) {
+      return res.status(401).json({ error: "Invalid username or password. Please try again." })
+    }
+
+    const checkPassword = await bcrypt.compare(password, user.password_hash);
+    if (checkPassword) {
+      res.status(200).json({
+        message: "Login Successful",
+        user_id: user.user_id
+      });
     } else {
-        const existingPassword =  existingUsername.rows[0].password_hash;
-        const checkPassword = await bcrypt.compare(password, existingPassword);
-        if (checkPassword) {
-          res.status(200).json({message: "Login Seccessful!", user_id:existingUsername.rows[0].user_id
-          });
-        } else {
-          res.status(401).json({error: "Invalid username or password. Please try again."})
-        };
-    };
+      res.status(401).json({ error: "Invalid username or password. Please try again." })
+
+    }
 
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: 'Server error'});
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST google-auth - Fixed version
+app.post('/google-auth', async (req, res) => {
+  try {
+    const { credential, email, username, avatar, google_id } = req.body;
+
+    console.log('=== Google Auth Request ===');
+    console.log('Email:', email);
+    console.log('Username:', username);
+    console.log('Has Avatar:', !!avatar);
+    console.log('Avatar URL:', avatar);
+
+    // Verify Google Token
+    const ticket = await googleAuthClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    // Check if token is valid
+    if (payload.sub !== google_id || payload.email !== email) {
+      return res.status(401).json({ message: 'Invalid Google Token' });
+    }
+
+    // Check if user exists by email
+    const userCheck = await pool.query(
+      'SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL',
+      [email]
+    );
+
+    let user;
+    let isNewUser = false;
+    let avatarFilename = null;
+
+    if (userCheck.rows.length > 0) {
+      // ผู้ใช้เดิม
+      user = userCheck.rows[0];
+
+      // กรณีที่ user เดิมยังไม่มี google_id (login แบบปกติก่อน แล้วมา login google ทีหลัง)
+      if (!user.google_id) {
+        // Download Google avatar
+        if (avatar) {
+          avatarFilename = await downloadGoogleAvatar(avatar, user.user_id);
+
+          // Delete old avatar if exists
+          if (user.avatar) {
+            deleteOldAvatar(user.avatar);
+          }
+        }
+
+        const updateResult = await pool.query(
+          `UPDATE users
+          SET google_id = $1, avatar = $2, updated_at = NOW()
+          WHERE user_id = $3
+          RETURNING *`,
+          [google_id, avatarFilename, user.user_id]
+        );
+        user = updateResult.rows[0];
+
+        console.log('Updated existing user with Google info');
+      }
+      // กรณีที่มี google_id แล้ว แต่ไม่มีรูป
+      else if (user.google_id && !user.avatar && avatar) {
+        avatarFilename = await downloadGoogleAvatar(avatar, user.user_id);
+
+        const updateResult = await pool.query(
+          'UPDATE users SET avatar = $1, updated_at = NOW() WHERE user_id = $2 RETURNING *',
+          [avatarFilename, user.user_id]
+        );
+        user = updateResult.rows[0];
+
+        console.log('Added avatar to existing Google user');
+      }
+      // กรณีที่มีทั้ง google_id และ avatar แล้ว - อาจจะอัพเดตรูปใหม่
+      else if (user.google_id && avatar) {
+        // เช็คว่ารูป Google เปลี่ยนหรือไม่
+        avatarFilename = await downloadGoogleAvatar(avatar, user.user_id);
+
+        if (avatarFilename) {
+          // Delete old avatar
+          if (user.avatar) {
+            deleteOldAvatar(user.avatar);
+          }
+
+          const updateResult = await pool.query(
+            'UPDATE users SET avatar = $1, updated_at = NOW() WHERE user_id = $2 RETURNING *',
+            [avatarFilename, user.user_id]
+          );
+          user = updateResult.rows[0];
+
+          console.log('Updated Google user avatar');
+        }
+      }
+
+    } else {
+      // ผู้ใช้ใหม่
+      let finalUsername = username || email.split('@')[0];
+
+      // Check if username exists
+      const usernameCheck = await pool.query(
+        'SELECT username FROM users WHERE username = $1',
+        [finalUsername]
+      );
+
+      if (usernameCheck.rows.length > 0) {
+        // Add random number to make unique username
+        finalUsername = `${finalUsername}_${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Download Google avatar for new user
+      if (avatar) {
+        const tempUserId = email.replace(/[@.]/g, '_');
+        avatarFilename = await downloadGoogleAvatar(avatar, tempUserId);
+      }
+
+      const insertResult = await pool.query(
+        `INSERT INTO users (username, email, password_hash, google_id, avatar, created_at)
+        VALUES ($1, $2, NULL, $3, $4, NOW())
+        RETURNING *`,
+        [finalUsername, email, google_id, avatarFilename]
+      );
+
+      user = insertResult.rows[0];
+      isNewUser = true;
+
+      console.log('Created new Google user with avatar');
+    }
+
+    // สร้าง avatar_url
+    if (user.avatar) {
+      user.avatar_url = `http://localhost:5050/uploads/avatars/${user.avatar}`;
+    }
+
+    console.log('Google auth successful:', {
+      user_id: user.user_id,
+      has_avatar: !!user.avatar,
+      avatar_url: user.avatar_url
+    });
+
+    // Return response
+    res.json({
+      user_id: user.user_id,
+      is_new_user: isNewUser,
+      avatar_url: user.avatar_url,
+      message: isNewUser ? 'Account created successfully' : 'Login successfully'
+    });
+
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ message: 'Authentication failed. Please try again.' });
   }
 });
 
@@ -117,11 +380,19 @@ app.get('/api/users/:user_id', async (req, res) => {
       [user_id]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     const user = result.rows[0];
+
+    if (user.avatar) {
+      user.avatar_url = `http://localhost:5050/uploads/avatars/${user.avatar}`;
+    }
 
     res.json({
       status: 'Success',
-      user: result.rows[0]
+      user: user
     });
   } catch (error) {
     console.error('Error fetching user:', error.message);
@@ -129,15 +400,16 @@ app.get('/api/users/:user_id', async (req, res) => {
   }
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
-
 // PUT user info
-app.put('/api/users/:user_id', upload.single('avatar'), async (req, res) => {
+app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) => {
   const { user_id } = req.params;
   const { username, email, phone_number, birth_date, country } = req.body;
 
   try {
-    // เตรียมข้อมูลอัปเดต
+
+    const oldUser = await pool.query('SELECT avatar FROM users WHERE user_id = $1', [user_id]);
+    const oldAvatar = oldUser.rows[0]?.avatar;
+
     const fields = [];
     const values = [];
     let index = 1;
@@ -147,10 +419,14 @@ app.put('/api/users/:user_id', upload.single('avatar'), async (req, res) => {
     if (phone_number) { fields.push(`phone_number=$${index++}`); values.push(phone_number); }
     if (birth_date) { fields.push(`birth_date=$${index++}`); values.push(birth_date); }
     if (country) { fields.push(`country=$${index++}`); values.push(country); }
+
     if (req.file) {
-      const base64Avatar = req.file.buffer.toString('base64');
       fields.push(`avatar=$${index++}`);
-      values.push(base64Avatar);
+      values.push(req.file.filename);
+
+      if (oldAvatar) {
+        deleteOldAvatar(oldAvatar);
+      }
     }
 
     if (fields.length === 0) {
@@ -166,11 +442,42 @@ app.put('/api/users/:user_id', upload.single('avatar'), async (req, res) => {
     values.push(user_id);
 
     const result = await pool.query(query, values);
-    res.json({ success: true, user: result.rows[0] });
+    const updatedUser = result.rows[0];
+
+    if (updatedUser.avatar) {
+      updatedUser.avatar_url = `http://localhost:5050/uploads/avatars/${updatedUser.avatar}`;
+    }
+
+    res.json({ success: true, user: updatedUser });
 
   } catch (err) {
     console.error('Error updating user:', err.message);
     res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
+// DELETE user (soft delete)
+app.delete('/api/users/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Get user data
+    const user = await pool.query('SELECT avatar FROM users WHERE user_id = $1', [user_id]);
+
+    if (user.rows.length > 0 && user.rows[0].avatar) {
+      deleteOldAvatar(user.rows[0].avatar);
+    }
+
+    // Soft delete 
+    await pool.query(
+      'UPDATE users SET deleted_at = NOW() WHERE user_id = $1',
+      [user_id]
+    );
+
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 
@@ -222,7 +529,7 @@ app.get('/api/random-menu', async (req, res) => {
       res.json({
         success: true,
         menu: {
-          menu_name:"Simply Stir Fry",
+          menu_name: "Simply Stir Fry",
           prep_time: "10 minutes",
           cooking_time: "15 minutes",
           steps: [
@@ -380,12 +687,12 @@ async function cropImage(imagePath, object, index) {
 }
 
 async function classifyCroppedImage(imagePath) {
-    try {
-      // Encode the image to base64
-      const base64Image = encodeImage(imagePath);
-  
-      // Define the prompt with the categories and instructions
-      const prompt = `
+  try {
+    // Encode the image to base64
+    const base64Image = encodeImage(imagePath);
+
+    // Define the prompt with the categories and instructions
+    const prompt = `
       You are an AI that classifies ingredients in images based on the image provided.
   
       Given the following image (encoded in base64), identify all the ingredients you can detect and classify them according to the following common ingredient types:
@@ -419,105 +726,105 @@ async function classifyCroppedImage(imagePath) {
       Ensure the response is in valid JSON format and avoid any extraneous explanations or commentary.
   
       `;
-  
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      };
-  
-      // Payload for the OpenAI API
-      const payload = {
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                "type": "text",
-                "text": prompt
-              },
-              {
-                "type": "image_url",
-                "image_url": {
-                  "url": `data:image/jpeg;base64,${base64Image}`
-                }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    };
+
+    // Payload for the OpenAI API
+    const payload = {
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              "type": "text",
+              "text": prompt
+            },
+            {
+              "type": "image_url",
+              "image_url": {
+                "url": `data:image/jpeg;base64,${base64Image}`
               }
-            ]
-          },
-        ],
-        max_tokens: 15000,
-        temperature: 0.2,
-      };
-  
-      // Sending the request to OpenAI
-      const response = await axios.post('https://api.openai.com/v1/chat/completions', payload, { headers });
-      
-      const jsonMatch = response.data.choices[0].message.content.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
-      if (jsonMatch) {
-        const jsonString = jsonMatch[1].trim();
-        const classificationResult = JSON.parse(jsonString);
-        return classificationResult.ingredients;
-      } else {
-        console.error('No valid JSON detected in response.');
-        return [];
-      }
-    } catch (error) {
-      console.error('Error classifying image:', error);
+            }
+          ]
+        },
+      ],
+      max_tokens: 15000,
+      temperature: 0.2,
+    };
+
+    // Sending the request to OpenAI
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', payload, { headers });
+
+    const jsonMatch = response.data.choices[0].message.content.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
+    if (jsonMatch) {
+      const jsonString = jsonMatch[1].trim();
+      const classificationResult = JSON.parse(jsonString);
+      return classificationResult.ingredients;
+    } else {
+      console.error('No valid JSON detected in response.');
       return [];
     }
+  } catch (error) {
+    console.error('Error classifying image:', error);
+    return [];
+  }
+}
+
+async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences, mealOccasions) {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  // Safely map the ingredients list and ensure they have a valid 'name' property
+  const ingredientsList = ingredients;
+
+  if (ingredientsList.length === 0) {
+    throw new Error("No valid ingredients found");
   }
 
-  async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences, mealOccasions) {
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  
-    // Safely map the ingredients list and ensure they have a valid 'name' property
-    const ingredientsList = ingredients;
+  const cuisinesList = cuisines.length === 0 ? 'any' : cuisines.join(', ');
+  const dietaryPreferencesList = dietaryPreferences.length === 0 ? 'any' : dietaryPreferences.join(', ');
+  const mealOccasionsList = mealOccasions.length === 0 ? 'any' : mealOccasions.join(', ');
 
-    if (ingredientsList.length === 0) {
-      throw new Error("No valid ingredients found");
-    }
-  
-    const cuisinesList = cuisines.length === 0 ? 'any' : cuisines.join(', ');
-    const dietaryPreferencesList = dietaryPreferences.length === 0 ? 'any' : dietaryPreferences.join(', ');
-    const mealOccasionsList = mealOccasions.length === 0 ? 'any' : mealOccasions.join(', ');
+  const prompt = createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList);
+  console.log(prompt);
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 10000,
+    });
 
-    const prompt = createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList);
-    console.log(prompt);
-    try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 10000,
-      });
-  
-      const responseContent = response.choices[0].message.content; // Extract the content from the response
-      console.log("GPT-4o-mini response:", responseContent); // Log the full response to debug
-  
-      // Extract JSON between <JSON_START> and <JSON_END>
-      const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
-      if (jsonMatch) {
-        const jsonString = jsonMatch[1].trim();
-        try {
-          const recommendations = JSON.parse(jsonString);
+    const responseContent = response.choices[0].message.content; // Extract the content from the response
+    console.log("GPT-4o-mini response:", responseContent); // Log the full response to debug
 
-          // Add images to the menus
-          recommendations.menus = await addImagesToMenus(recommendations.menus);
+    // Extract JSON between <JSON_START> and <JSON_END>
+    const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
+    if (jsonMatch) {
+      const jsonString = jsonMatch[1].trim();
+      try {
+        const recommendations = JSON.parse(jsonString);
 
-          return recommendations;
-        } catch (error) {
-          console.error('Error parsing JSON:', error);
-        }
-      } else {
-        console.error('No JSON object found in the response.');
+        // Add images to the menus
+        recommendations.menus = await addImagesToMenus(recommendations.menus);
+
+        return recommendations;
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
       }
-    } catch (error) {
-      console.error('Error getting menu recommendations:', error);
+    } else {
+      console.error('No JSON object found in the response.');
     }
+  } catch (error) {
+    console.error('Error getting menu recommendations:', error);
   }
-  
+}
 
-  function createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList) {
-    return `
+
+function createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList) {
+  return `
       You are an AI assistant that provides menu recommendations based on the following details:
   
       Ingredients: ${ingredientsList.join(', ')}
@@ -578,7 +885,7 @@ async function classifyCroppedImage(imagePath) {
   
       Ensure the JSON is properly formatted with no extra explanations or text.
     `;
-  }  
+}
 
 // Function to encode image to base64
 function encodeImage(imagePath) {
@@ -631,7 +938,7 @@ app.post('/api/get_ingredient_image', async (req, res) => {
     let results = [];
 
     // Use the limiter for each ingredient request
-    const promises = ingredients.map((ingredient) => 
+    const promises = ingredients.map((ingredient) =>
       limiter.schedule(() => getIngredientImage(ingredient))
         .then((imageUrl) => ({ ingredient, imageUrl }))
     );
@@ -779,35 +1086,35 @@ app.get('/api/menus/by-name/:menu_name', async (req, res) => {
 
 // Save history
 app.post('/api/history', async (req, res) => {
-    try {
-        const { user_id, menu_id } = req.body;
-        if (!user_id || !menu_id) {
-            return res.status(400).json({ error: 'user_id and menu_id are required' });
-        }
+  try {
+    const { user_id, menu_id } = req.body;
+    if (!user_id || !menu_id) {
+      return res.status(400).json({ error: 'user_id and menu_id are required' });
+    }
 
-        const result = await pool.query(
-            `INSERT INTO history (user_id, menu_id, created_at)
+    const result = await pool.query(
+      `INSERT INTO history (user_id, menu_id, created_at)
             VALUES ($1, $2, NOW())
             ON CONFLICT (user_id, menu_id) DO UPDATE
             SET created_at = EXCLUDED.created_at
             RETURNING *`,
-            [user_id, menu_id]
-        );
+      [user_id, menu_id]
+    );
 
-        res.status(201).json(result.rows[0]);
-    } catch (err) {
-        console.error('Error saving history:', err);
-        res.status(500).json({ error: 'Server error' });
-    }
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error saving history:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Get history by user_id
 app.get('/api/history/:user_id', async (req, res) => {
-    try {
-        const { user_id } = req.params;
+  try {
+    const { user_id } = req.params;
 
-        const result = await pool.query(
-            `SELECT DISTINCT ON (h.menu_id)
+    const result = await pool.query(
+      `SELECT DISTINCT ON (h.menu_id)
                 h.history_id,
                 h.created_at,
                 m.menu_id,
@@ -819,14 +1126,14 @@ app.get('/api/history/:user_id', async (req, res) => {
             JOIN menus m ON h.menu_id = m.menu_id
             WHERE h.user_id = $1
             ORDER BY h.menu_id, h.created_at DESC`,
-            [user_id]
-        );
+      [user_id]
+    );
 
-        res.json(result.rows);
-    } catch (err) {
-        console.error('Error fetching history:', err);
-        res.status(500).json({ error: 'Server error' });
-    }
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching history:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 

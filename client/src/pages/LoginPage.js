@@ -1,28 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/LoginPage.css';
-import logo from '../image/Logo.svg';
+import logo from '../image/Logo1.svg';
+import textlogo from '../image/TextLogo.svg';
 import axios from 'axios';
+import { getUserId, setUserId } from '../utils/auth';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5050';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const timeoutRef = useRef(null);
+
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
-    rememberMe: false
+    password: ''
   });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [touched, setTouched] = useState({});
-  const [isGoogleReady, setIsGoogleReady] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [alert, setAlert] = useState({ type: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
 
   // Initialize Google Sign-In
   useEffect(() => {
-    console.log('Environment check:');
-    console.log('REACT_APP_GOOGLE_CLIENT_ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
-    console.log('Current origin:', window.location.origin);
     const initializeGoogleSignIn = () => {
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
@@ -36,7 +39,7 @@ const LoginPage = () => {
           {
             theme: 'outline',
             size: 'large',
-            width: '100%',
+            width: '300',
             text: 'signin_with',
             shape: 'rectangular',
           }
@@ -58,20 +61,54 @@ const LoginPage = () => {
     }
 
     return () => {
-      // Cleanup if needed
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
   // Handle Google Sign-In response
   const handleGoogleSignIn = async (response) => {
     setIsGoogleLoading(true);
-    setErrors({});
+    setAlert({ type: '', message: '' });
     try {
       const userInfo = parseJwt(response.credential);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      navigate('/home');
+
+      const backendResponse = await axios.post(`${API_URL}/google-auth`, {
+        credential: response.credential,
+        email: userInfo.email,
+        username: userInfo.name,
+        avatar: userInfo.picture,
+        google_id: userInfo.sub
+      }, {
+        timeout: 10000,
+        withCredentials: true
+      });
+
+      if (backendResponse.data.user_id) {
+        setUserId(backendResponse.data.user_id);
+        console.log('Google User ID:', getUserId());
+      }
+
+      const isNewUser = backendResponse.data.is_new_user;
+      setAlert({
+        type: 'success',
+        message: isNewUser
+          ? 'Account created successfully'
+          : 'Login successfully'
+      });
+
+      timeoutRef.current = setTimeout(() => {
+        navigate('/home');
+      }, 1000);
     } catch (error) {
-      setErrors({ submit: 'Google sign-in failed. Please try again.' });
+      let errorMessage = 'Google sign-in failed. Please try again.'
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.request) {
+        errorMessage = 'Cannot connect to server. Please check your connection';
+      }
+      setAlert({ type: 'error', message: errorMessage });
     } finally {
       setIsGoogleLoading(false);
     }
@@ -82,7 +119,7 @@ const LoginPage = () => {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
       return JSON.parse(jsonPayload);
@@ -91,7 +128,25 @@ const LoginPage = () => {
     }
   };
 
-  // Validation rules
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear field error
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
+
+    // Clear alert
+    if (alert.message) {
+      setAlert({ type: '', message: '' });
+    }
+  };
+
+  // Validation
   const validateField = (name, value) => {
     switch (name) {
       case 'username':
@@ -109,230 +164,221 @@ const LoginPage = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
-    Object.keys(formData).forEach(key => {
-      if (key !== 'rememberMe') {
-        const error = validateField(key, formData[key]);
-        if (error) newErrors[key] = error;
-      }
+    const errors = {};
+    ['username', 'password'].forEach(key => {
+      const error = validateField(key, formData[key]);
+      if (error) errors[key] = error;
     });
-    return newErrors;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-    if (touched[name]) {
-      const error = validateField(name, type === 'checkbox' ? checked : value);
-      setErrors(prev => ({ ...prev, [name]: error }));
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: error }));
+    return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formErrors = validateForm();
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors);
-      setTouched({ username: true, password: true });
+
+    // Validate all fields
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setAlert({
+        type: 'error',
+        message: 'Please fix the errors above'
+      });
       return;
     }
-    setIsLoading(true);
-    setErrors({});
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const response = await axios.post('http://localhost:5050/login', formData);
-      console.log(response.data);
 
+    setIsSubmitting(true);
+    setAlert({ type: '', message: '' });
+
+    try {
+      const response = await axios.post(`${API_URL}/login`, {
+        username: formData.username,
+        password: formData.password
+      }, {
+        timeout: 10000,
+        withCredentials: true
+      });
+
+      // Store user data
       if (response.data.user_id) {
-        localStorage.setItem('user_id', response.data.user_id);
+        setUserId(response.data.user_id);
+        console.log('User ID saved:', getUserId());
       }
-    
-      navigate('/home');
-    } catch (error) {
-        if (error.response && error.response.status === 401) {
-          setErrors({ submit: 'Invalid username or password. Please try again.' });
-      } else {
-        // Handles all other errors, like network issues.
-          setErrors({ submit: 'An unexpected error occurred. Please try again.' });
+
+      setAlert({
+        type: 'success',
+        message: response.data.message || 'Login successful'
+      });
+      setFieldErrors({});
+
+      timeoutRef.current = setTimeout(() => {
+        navigate('/home');
+      }, 1000);
+    } catch (err) {
+      let errorMessage = 'An error occured. Please try again.';
+
+      if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage = 'Invalid username or password';
+        } else if (err.response.status === 429) {
+          errorMessage = 'Too many login attempts. Please try again later';
+        } else if (err.response.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.request) {
+        errorMessage = 'Cannot connect to server. Please check your connection';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please try again';
       }
+
+      setAlert({ type: 'error', message: errorMessage });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestClick = () => {
     navigate('/home');
   };
 
-  const getInputClasses = (fieldName) => {
-    const hasError = errors[fieldName];
-    if (hasError) {
-      return 'form-input error';
-    }
-    return 'form-input';
+  const handleSignUpClick = () => {
+    navigate('/signup');
   };
 
+  const handleForgotPasswordClick = () => {
+    navigate('/reset-password');
+  };
+
+  const isAnyLoading = isSubmitting || isGoogleLoading;
+
   return (
-    <div className="login-container">
-      <div className="login-wrapper">
-        {/* Header */}
-        <div className="login-header">
-          <img 
-            src={logo} 
-            alt="Company Logo" 
-            className="login-logo"
-          />
-        </div>
+    <div className="page-container">
+      <img src={logo} alt="Sous Cook Logo" className="logo-image" />
+      <img src={textlogo} alt="Text Logo" className="textlogo-image" />
 
-        {/* Main Card */}
-        <div className="login-card">
-          <p className="login-card-title">Sign in</p>
-          {/* Traditional Login Form */}
-          <form onSubmit={handleSubmit}>
-            {/* Username Field */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="username">
-                Username
-              </label>
-              <div className="input-wrapper">
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  placeholder="Enter your username"
-                  className={getInputClasses('username')}
-                  aria-describedby={errors.username ? 'username-error' : undefined}
-                  aria-invalid={errors.username ? 'true' : 'false'}
-                  autoComplete="username"
-                  disabled={isLoading}
-                />
-              </div>
-              {errors.username && (
-                <div id="username-error" className="error-message" role="alert">
-                  {errors.username}
-                </div>
-              )}
-            </div>
+      <div className="login-container">
+        <p className="login-text">Sign In</p>
+        <form className="login-form" onSubmit={handleSubmit} noValidate>
+          <div className="form-field">
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              className={`input ${fieldErrors.username ? 'input-error' : ''}`}
+              value={formData.username}
+              onChange={handleChange}
+              disabled={isAnyLoading}
+              aria-label="Username"
+              aria-invalid={!!fieldErrors.username}
+              aria-describedby={fieldErrors.username ? "username-error" : undefined}
+              autoComplete="username"
+            />
+            {fieldErrors.username && (
+              <p id="username-error" className="field-error" role="alert">
+                {fieldErrors.username}
+              </p>
+            )}
+          </div>
 
-            {/* Password Field */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="password">
-                Password
-              </label>
-              <div className="input-wrapper">
-                <input
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  className={`${getInputClasses('password')} password-input`}
-                  aria-describedby={errors.password ? 'password-error' : undefined}
-                  aria-invalid={errors.password ? 'true' : 'false'}
-                  autoComplete="current-password"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  disabled={isLoading}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                </button>
-              </div>
-              {errors.password && (
-                <div id="password-error" className="error-message" role="alert">
-                  {errors.password}
-                </div>
-              )}
-            </div>
+          <div className="form-field">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              className={`input ${fieldErrors.password ? 'input-error' : ''}`}
+              value={formData.password}
+              onChange={handleChange}
+              disabled={isAnyLoading}
+              aria-label="Password"
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={fieldErrors.password ? "password-error" : undefined}
+              autoComplete="current-password"
+            />
 
-            {/* Reset Password */}
-            <div className="Reset-password">
+            {formData.password && (
               <button
                 type="button"
-                className="reset-password-button"
-                onClick={() => navigate('/reset-password')}
-                disabled={isLoading}
+                onClick={() => setShowPassword(prev => !prev)}
+                className="show-password-button"
+                tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                disabled={isAnyLoading}
               >
-                Forgot Password?
+                {showPassword ? "Hide" : "Show"}
               </button>
-            </div>
-
-            {/* Submit Error */}
-            {errors.submit && (
-              <div className="submit-error" role="alert">
-                <div className="submit-error-content">
-                  {errors.submit}
-                </div>
-              </div>
             )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="submit-button"
-            >
-                LOGIN
-            </button>
-
-            {/* Divider */}
-            <div className="divider">
-              <div className="divider-line">
-                <div className="divider-border"></div>
-              </div>
-              <div className="divider-content">
-                <span className="divider-text">Or continue with</span>
-              </div>
-            </div>
-
-            {/* Google Sign-In Button */}
-            <div className="google-signin-container">
-              <div id="google-signin-button"></div>
-            </div>
-
-            {/* link to Sign Up Page */}
-            <div className="register-link">
-              <p className="register-text">
-                Don’t have an account?
-                <button
-                  className="register-button"
-                  onClick={() => navigate('/signup')}
-                  disabled={isLoading}
-                >
-                  Sign Up
-                </button>
+            {fieldErrors.password && (
+              <p id="password-error" className="field-error" role="alert">
+                {fieldErrors.password}
               </p>
-            </div>
-          </form>
+            )}
+          </div>
+
+          <div className="form-options">
+            <button
+              type="button"
+              className="forgot-password-link"
+              onClick={handleForgotPasswordClick}
+              disabled={isAnyLoading}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            className="submit-button"
+            disabled={isAnyLoading}
+          >
+            {isSubmitting ? 'SIGNING IN...' : 'SIGN IN'}
+          </button>
+        </form>
+
+        {alert.message && (
+          <div
+            className={`alert alert-${alert.type}`}
+            role="alert"
+            aria-live="polite"
+          >
+            {alert.message}
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="divider-login">
+          <div className="divider-line"></div>
+          <span className="divider-text">Or continue with</span>
         </div>
 
-        <div className="login-footer">
-          <p className="login-footer-text">Or you want to take a look first?</p>
-          <button className="guest-button" onClick={handleGuestLogin}>
-            Continue as Guest
+        {/* Google Sign-In Button */}
+        <div className="google-signin-container">
+          <div id="google-signin-button"></div>
+          {isGoogleLoading && (
+            <div className="google-loading">Signing in with Google...</div>
+          )}
+        </div>
+
+        <div className="signup-link">
+          <span className="signup-text-small">Don't have an account? </span>
+          <button
+            type="button"
+            className="signup-link-button"
+            onClick={handleSignUpClick}
+            disabled={isAnyLoading}
+          >
+            Sign Up
           </button>
         </div>
       </div>
+
+      <p className="guest-text">Or you want to take a look first?</p>
+      <button
+        className="guest-button"
+        onClick={handleGuestClick}
+        disabled={isAnyLoading}
+      >
+        CONTINUE AS GUEST
+      </button>
     </div>
   );
 };

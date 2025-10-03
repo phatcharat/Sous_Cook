@@ -8,6 +8,7 @@ import axios from 'axios';
 import unknowIngImage from '../image/ingredient/unknow-ingredient.svg';
 import unknowMenuImage from  '../image/menu-suggestion/notfound-image.svg';
 import tips from '../image/menu-detail/tips.svg'
+import { getUserId } from '../utils/auth';
 
 const MenuDetail = () => { 
     const navigate = useNavigate();
@@ -93,7 +94,7 @@ const MenuDetail = () => {
     // save history
     useEffect(() => {
         if (!menu_id) return;
-        const userId = localStorage.getItem("user_id");
+        const userId = getUserId();
         if (!userId) return;
 
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/history`, {

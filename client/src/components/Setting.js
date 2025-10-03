@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import '../css/Setting.css';  // Import the CSS file
+import '../css/Setting.css';
 import defaultProfile from '../image/profile.jpg';
 import backicon from '../image/searchbar/Back.svg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { getUserId } from '../utils/auth';
 
 const Setting = () => {
     const navigate = useNavigate();
-    const userIdStr = localStorage.getItem('user_id');
+    const userIdStr = getUserId();
     const userId = parseInt(userIdStr, 10);
     const [userData, setUserData] = useState({
         username: '',
@@ -27,7 +28,7 @@ const Setting = () => {
             navigate('/login');
             return;
         }
-        // ดึงข้อมูล user จาก API
+
         const fetchUserData = async () => {
             try {
                 const response = await axios.get(`http://localhost:5050/api/users/${userId}`);
@@ -35,21 +36,27 @@ const Setting = () => {
 
                 setUserData(user);
 
-                // ตรวจสอบ avatar ว่ามีค่าและไม่เป็น null/empty
-                if (user.avatar && user.avatar.length > 0) {
-                    setProfilePic(`data:image/png;base64,${user.avatar}`);
+                // ตรวจสอบว่ามี avatar_url หรือ avatar
+                if (user.avatar_url) {
+                    setProfilePic(user.avatar_url);
+                } else if (user.avatar && user.avatar.length > 0) {
+                    // กรณีที่ backend ส่งมาเป็นชื่อไฟล์
+                    setProfilePic(`http://localhost:5050/uploads/avatars/${user.avatar}`);
                 } else {
                     setProfilePic(defaultProfile);
                 }
 
             } catch (error) {
                 console.error('Error fetching user data:', error);
-                setProfilePic(defaultProfile); // fallback default
+                setProfilePic(defaultProfile);
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    navigate('/login');
+                }
             }
         };
 
         fetchUserData();
-    }, [userId, navigate]);
+    }, [userId, navigate, userIdStr]);
 
     const handleChange = (e) => {
         let { name, value } = e.target;
@@ -68,8 +75,8 @@ const Setting = () => {
     const handleProfileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            setProfilePic(URL.createObjectURL(file)); // preview
-            setNewProfileFile(file);                  // ไฟล์จริง
+            setProfilePic(URL.createObjectURL(file));
+            setNewProfileFile(file);
         }
     }
 
@@ -83,7 +90,7 @@ const Setting = () => {
             formData.append('country', userData.country || '');
 
             if (newProfileFile) {
-                formData.append('avatar', newProfileFile); // ส่งไฟล์จริง
+                formData.append('avatar', newProfileFile);
             }
 
             const response = await axios.put(
@@ -95,11 +102,17 @@ const Setting = () => {
             const updatedUser = response.data.user;
             setUserData(updatedUser);
 
-            if (updatedUser.avatar && updatedUser.avatar.length > 0) {
-                setProfilePic(`data:image/jpeg;base64,${updatedUser.avatar}`);
+            // อัพเดทรูป profile
+            if (updatedUser.avatar_url) {
+                setProfilePic(updatedUser.avatar_url);
+            } else if (updatedUser.avatar && updatedUser.avatar.length > 0) {
+                setProfilePic(`http://localhost:5050/uploads/avatars/${updatedUser.avatar}`);
             } else {
                 setProfilePic(defaultProfile);
             }
+
+            // Clear newProfileFile หลังจาก save สำเร็จ
+            setNewProfileFile(null);
 
             alert("User info updated successfully");
             navigate("/account");
@@ -133,27 +146,47 @@ const Setting = () => {
         "Vietnam", "Yemen", "Zambia", "Zimbabwe"
     ].sort();
 
-
     return (
         <div className="setting-page">
             <div className="back-container">
-                <img src={backicon} alt="back" className="back-icon" onClick={() => navigate("/account")} style={{ cursor: "pointer" }} />
+                <img 
+                    src={backicon} 
+                    alt="back" 
+                    className="back-icon" 
+                    onClick={() => navigate("/account")} 
+                    style={{ cursor: "pointer" }} 
+                />
                 <p className="back-text">Account Setting</p>
             </div>
 
             <div className="setting-box">
                 <label className="profile-image-label">
                     <img src={profilePic} className="profile-image" alt="profile" />
-                    <input type="file" accept="image/*" onChange={handleProfileChange} style={{ display: 'none' }} />
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleProfileChange} 
+                        style={{ display: 'none' }} 
+                    />
                 </label>
 
                 <div className="form-setting">
                     <label>Username</label>
-                    <input type="text" name="username" value={userData.username} onChange={handleChange} />
+                    <input 
+                        type="text" 
+                        name="username" 
+                        value={userData.username} 
+                        onChange={handleChange} 
+                    />
                 </div>
                 <div className="form-setting">
                     <label>Email</label>
-                    <input type="email" name="email" value={userData.email} onChange={handleChange} />
+                    <input 
+                        type="email" 
+                        name="email" 
+                        value={userData.email} 
+                        onChange={handleChange} 
+                    />
                 </div>
                 <div className="form-setting">
                     <label>Phone number</label>
@@ -167,7 +200,12 @@ const Setting = () => {
                 </div>
                 <div className="form-setting">
                     <label>Date of Birth</label>
-                    <input type="date" name="birth_date" value={userData.birth_date || ''} onChange={handleChange} />
+                    <input 
+                        type="date" 
+                        name="birth_date" 
+                        value={userData.birth_date || ''} 
+                        onChange={handleChange} 
+                    />
                 </div>
                 <div className="form-setting">
                     <label>Country</label>
@@ -202,6 +240,5 @@ const Setting = () => {
         </div>
     );
 };
-
 
 export default Setting;

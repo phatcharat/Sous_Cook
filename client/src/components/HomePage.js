@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import '../css/HomePage.css';  // Import the CSS file
+import { getUserId, isLoggedIn } from '../utils/auth';
 import header from '../image/homepage/Header.svg';
 import listicon from '../image/homepage/List.svg';
 import searchicon from '../image/homepage/Search-Icon.svg'
@@ -21,20 +22,23 @@ import randommenu from '../image/homepage/random-menu/Random-menu.svg';
 import news from '../image/homepage/news/News.svg'
 
 
-
 const HomePage = () => {
   const navigate = useNavigate();
   const [activeImages, setActiveImages] = useState([bread, tomato, celery, pork]);
   const [username, setUsername] = useState("USER");
   const [isLoadingRandom, setIsLoadingRandom] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   useEffect(() => {
-    const userId = localStorage.getItem("user_id")
+    const userId = getUserId();
+    const loggedIn = isLoggedIn();
+    setIsUserLoggedIn(loggedIn);
 
     const fetchUserData = async () => {
       try {
         if (!userId) {
           console.log("No user ID found");
+          setUsername("USER");
           return;
         }
 
@@ -47,6 +51,9 @@ const HomePage = () => {
         }
       } catch (error) {
         console.error("Error fetching user:", error);
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.log("Unauthorized, but allowing guest access");
+        }
       }
     };
     fetchUserData();
@@ -289,7 +296,7 @@ const HomePage = () => {
           <img src={banner4} alt="BANNER4" className="banner-scroll" />
         </div>
       </div>
-      
+
       <div className="random-container">
         <div className="random-box">
           <img src={randommenu} alt="RANDOM" className="random-menu" />

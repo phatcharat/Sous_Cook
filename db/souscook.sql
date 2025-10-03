@@ -4,6 +4,7 @@ CREATE TABLE users (
   "username" VARCHAR(100) NOT NULL,
   "email" VARCHAR(100) UNIQUE NOT NULL,
   "password_hash" TEXT,
+  "google_id" VARCHAR(255) UNIQUE,
   "avatar"  TEXT,
   "phone_number" VARCHAR(10),
   "birth_date" DATE,
@@ -66,7 +67,8 @@ CREATE TABLE history (
     "history_id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
-    "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_user_menu UNIQUE (user_id, menu_id)
 );
 
 -- community

@@ -4,6 +4,7 @@ import '../css/Navbar.css';
 import axios from 'axios';
 import Navbar from '../components/Navbar.js';
 import { useNavigate } from 'react-router-dom';
+import { getUserId } from '../utils/auth.js';
 
 // ฟังก์ชันคำนวณ "time ago"
 const formatTimeAgo = (date) => {
@@ -28,7 +29,7 @@ const HistoryScreen = () => {
 
     useEffect(() => {
         const fetchHistory = async () => {
-            const userId = localStorage.getItem('user_id');
+            const userId = getUserId();
             if (!userId) return;
 
             try {
