@@ -3,6 +3,7 @@ import '../css/History.css';
 import '../css/Navbar.css';
 import axios from 'axios';
 import Navbar from '../components/Navbar.js';
+import { useNavigate } from 'react-router-dom';
 
 // ฟังก์ชันคำนวณ "time ago"
 const formatTimeAgo = (date) => {
@@ -23,6 +24,7 @@ const formatTimeAgo = (date) => {
 const HistoryScreen = () => {
     const [selected, setSelected] = useState('history');
     const [historyItems, setHistoryItems] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -52,6 +54,10 @@ const HistoryScreen = () => {
         fetchHistory();
     }, []);
 
+    const goToMenuDetail = (menu) => {
+        navigate('/menu-detail', { state: { menu_id: menu.menuId } });
+    };
+
     const handleLike = (id) => {
         setHistoryItems(prevItems =>
             prevItems.map(item =>
@@ -74,7 +80,10 @@ const HistoryScreen = () => {
                 <div className="history-list">
                     {historyItems.map((item, index) => (
                         <div key={item.id}>
-                            <div className="recipe-card">
+                            <div 
+                                className="recipe-card clickable" //เพิ่ม class ให้ cursor เป็น pointer
+                                onClick={() => goToMenuDetail(item)} //คลิกแล้วไปหน้า detail
+                            >
                                 <div className="meal-content">
                                     <div className="meal-image">
                                         <img src={item.image} alt={item.alt} />
