@@ -21,6 +21,16 @@ const Setting = () => {
     const [profilePic, setProfilePic] = useState(defaultProfile);
     const [newProfileFile, setNewProfileFile] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
 
     useEffect(() => {
         if (!userId || isNaN(userId)) {
@@ -31,17 +41,21 @@ const Setting = () => {
 
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5050/api/users/${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
                 const user = response.data.user;
 
-                setUserData(user);
+                setUserData({
+                    ...user,
+                    birth_date: formatDateForInput(user.birth_date)
+                });
+
 
                 // ตรวจสอบว่ามี avatar_url หรือ avatar
                 if (user.avatar_url) {
                     setProfilePic(user.avatar_url);
                 } else if (user.avatar && user.avatar.length > 0) {
                     // กรณีที่ backend ส่งมาเป็นชื่อไฟล์
-                    setProfilePic(`http://localhost:5050/uploads/avatars/${user.avatar}`);
+                    setProfilePic(`${process.env.REACT_APP_BASE_URL}/uploads/avatars/${user.avatar}`);
                 } else {
                     setProfilePic(defaultProfile);
                 }
@@ -94,19 +108,22 @@ const Setting = () => {
             }
 
             const response = await axios.put(
-                `http://localhost:5050/api/users/${userId}`,
+                `${process.env.REACT_APP_BACKEND_URL}/users/${userId}`,
                 formData,
                 { headers: { 'Content-Type': 'multipart/form-data' } }
             );
 
             const updatedUser = response.data.user;
-            setUserData(updatedUser);
+            setUserData({
+                ...updatedUser,
+                birth_date: formatDateForInput(updatedUser.birth_date)
+            });
 
             // อัพเดทรูป profile
             if (updatedUser.avatar_url) {
                 setProfilePic(updatedUser.avatar_url);
             } else if (updatedUser.avatar && updatedUser.avatar.length > 0) {
-                setProfilePic(`http://localhost:5050/uploads/avatars/${updatedUser.avatar}`);
+                setProfilePic(`${process.env.REACT_APP_BASE_URL}/uploads/avatars/${updatedUser.avatar}`);
             } else {
                 setProfilePic(defaultProfile);
             }
@@ -149,12 +166,12 @@ const Setting = () => {
     return (
         <div className="setting-page">
             <div className="back-container">
-                <img 
-                    src={backicon} 
-                    alt="back" 
-                    className="back-icon" 
-                    onClick={() => navigate("/account")} 
-                    style={{ cursor: "pointer" }} 
+                <img
+                    src={backicon}
+                    alt="back"
+                    className="back-icon"
+                    onClick={() => navigate("/account")}
+                    style={{ cursor: "pointer" }}
                 />
                 <p className="back-text">Account Setting</p>
             </div>
@@ -162,30 +179,30 @@ const Setting = () => {
             <div className="setting-box">
                 <label className="profile-image-label">
                     <img src={profilePic} className="profile-image" alt="profile" />
-                    <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleProfileChange} 
-                        style={{ display: 'none' }} 
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfileChange}
+                        style={{ display: 'none' }}
                     />
                 </label>
 
                 <div className="form-setting">
                     <label>Username</label>
-                    <input 
-                        type="text" 
-                        name="username" 
-                        value={userData.username} 
-                        onChange={handleChange} 
+                    <input
+                        type="text"
+                        name="username"
+                        value={userData.username}
+                        onChange={handleChange}
                     />
                 </div>
                 <div className="form-setting">
                     <label>Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        value={userData.email} 
-                        onChange={handleChange} 
+                    <input
+                        type="email"
+                        name="email"
+                        value={userData.email}
+                        onChange={handleChange}
                     />
                 </div>
                 <div className="form-setting">
@@ -200,11 +217,11 @@ const Setting = () => {
                 </div>
                 <div className="form-setting">
                     <label>Date of Birth</label>
-                    <input 
-                        type="date" 
-                        name="birth_date" 
-                        value={userData.birth_date || ''} 
-                        onChange={handleChange} 
+                    <input
+                        type="date"
+                        name="birth_date"
+                        value={userData.birth_date || ''}
+                        onChange={handleChange}
                     />
                 </div>
                 <div className="form-setting">

@@ -105,9 +105,10 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const server_ip = process.env.SERVER_IP || '192.168.1.X'
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5050'],
+  origin: ['http://localhost:3000', `http://localhost:${port}`, `http://${server_ip}:3000`, `http://${server_ip}:${port}`],
   credentials: true,
 }));
 
@@ -224,12 +225,6 @@ app.post('/google-auth', async (req, res) => {
   try {
     const { credential, email, username, avatar, google_id } = req.body;
 
-    console.log('=== Google Auth Request ===');
-    console.log('Email:', email);
-    console.log('Username:', username);
-    console.log('Has Avatar:', !!avatar);
-    console.log('Avatar URL:', avatar);
-
     // Verify Google Token
     const ticket = await googleAuthClient.verifyIdToken({
       idToken: credential,
@@ -277,7 +272,6 @@ app.post('/google-auth', async (req, res) => {
         );
         user = updateResult.rows[0];
 
-        console.log('Updated existing user with Google info');
       }
       // กรณีที่มี google_id แล้ว แต่ไม่มีรูป
       else if (user.google_id && !user.avatar && avatar) {
@@ -289,7 +283,6 @@ app.post('/google-auth', async (req, res) => {
         );
         user = updateResult.rows[0];
 
-        console.log('Added avatar to existing Google user');
       }
       // กรณีที่มีทั้ง google_id และ avatar แล้ว - อาจจะอัพเดตรูปใหม่
       else if (user.google_id && avatar) {
@@ -343,19 +336,12 @@ app.post('/google-auth', async (req, res) => {
       user = insertResult.rows[0];
       isNewUser = true;
 
-      console.log('Created new Google user with avatar');
     }
 
     // สร้าง avatar_url
     if (user.avatar) {
-      user.avatar_url = `http://localhost:5050/uploads/avatars/${user.avatar}`;
+      user.avatar_url = `http://${server_ip}:${port}/uploads/avatars/${user.avatar}`;
     }
-
-    console.log('Google auth successful:', {
-      user_id: user.user_id,
-      has_avatar: !!user.avatar,
-      avatar_url: user.avatar_url
-    });
 
     // Return response
     res.json({
@@ -387,7 +373,7 @@ app.get('/api/users/:user_id', async (req, res) => {
     const user = result.rows[0];
 
     if (user.avatar) {
-      user.avatar_url = `http://localhost:5050/uploads/avatars/${user.avatar}`;
+      user.avatar_url = `http://${server_ip}:${port}/uploads/avatars/${user.avatar}`;
     }
 
     res.json({
@@ -445,7 +431,7 @@ app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) =
     const updatedUser = result.rows[0];
 
     if (updatedUser.avatar) {
-      updatedUser.avatar_url = `http://localhost:5050/uploads/avatars/${updatedUser.avatar}`;
+      updatedUser.avatar_url = `http://${server_ip}:${port}/uploads/avatars/${updatedUser.avatar}`;
     }
 
     res.json({ success: true, user: updatedUser });
@@ -1203,6 +1189,6 @@ app.get('/api/favorites/:userId', async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on ${port}`);
 });

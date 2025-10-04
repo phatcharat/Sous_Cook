@@ -42,7 +42,7 @@ const HomePage = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:5050/api/users/${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
         const user = response.data.user;
         console.log("User data:", user);
 
@@ -125,7 +125,7 @@ const HomePage = () => {
 
       console.log('Getting random menu ...');
 
-      const response = await axios.get('http://localhost:5050/api/random-menu');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/random-menu`);
 
       if (response.data.success) {
         const { menu, ingredients } = response.data;

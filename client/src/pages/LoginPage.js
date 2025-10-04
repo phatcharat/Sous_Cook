@@ -6,8 +6,6 @@ import textlogo from '../image/TextLogo.svg';
 import axios from 'axios';
 import { getUserId, setUserId } from '../utils/auth';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5050';
-
 const LoginPage = () => {
   const navigate = useNavigate();
   const timeoutRef = useRef(null);
@@ -74,7 +72,7 @@ const LoginPage = () => {
     try {
       const userInfo = parseJwt(response.credential);
 
-      const backendResponse = await axios.post(`${API_URL}/google-auth`, {
+      const backendResponse = await axios.post(`${process.env.REACT_APP_BASE_URL}/google-auth`, {
         credential: response.credential,
         email: userInfo.email,
         username: userInfo.name,
@@ -190,7 +188,7 @@ const LoginPage = () => {
     setAlert({ type: '', message: '' });
 
     try {
-      const response = await axios.post(`${API_URL}/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/login`, {
         username: formData.username,
         password: formData.password
       }, {

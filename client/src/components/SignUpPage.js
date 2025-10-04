@@ -5,8 +5,6 @@ import logo from '../image/Logo1.svg';
 import textlogo from '../image/TextLogo.svg';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5050';
-
 const SignUpPage = () => {
     const navigate = useNavigate();
     const timeoutRef = useRef(null);
@@ -96,7 +94,7 @@ const SignUpPage = () => {
         setAlert({ type: '', message: '' });
 
         try {
-            const response = await axios.post(`${API_URL}/signup`, formData);
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/signup`, formData);
 
             setAlert({
                 type: 'success',
@@ -113,7 +111,7 @@ const SignUpPage = () => {
             if (err.response?.data?.message){
                 errorMessage = err.response.data.message;
             } else if (err.request) {
-                errorMessage = 'Cannot connect to server. Please chack your connection.';
+                errorMessage = 'Cannot connect to server. Please check your connection.';
             }
 
             setAlert({ type: 'error', message: errorMessage});

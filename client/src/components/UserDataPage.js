@@ -33,7 +33,7 @@ const UserDataPage = () => {
         // ดึงข้อมูล user จาก API
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5050/api/users/${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
                 const user = response.data.user;
 
                 console.log('Fetched user data:', user);
