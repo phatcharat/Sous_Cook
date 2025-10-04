@@ -156,7 +156,7 @@ const HomePage = () => {
       <div className="second-container">
 
         <p className="greet-user">HELLO <span className="username">{username}</span></p>
-        <img src={listicon} alt="List" className="list-icon" style={{ cursor: "pointer" }} />
+        <img src={listicon} alt="List" className="list-icon" onClick={() => navigate("/shoppinglist")} style={{ cursor: "pointer" }} />
       </div>
 
       <p className="question-text">What's on yout mind today chef?</p>

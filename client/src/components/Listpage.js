@@ -15,9 +15,7 @@ const Listpage = () => {
     <div className="shopping-list-container">
       {/* Header */}
       <div className="shopping-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-        </button>
-        <h1 className="ingredient-header">Shopping List</h1>
+        <button className="back-button" onClick={() => navigate(-1)}>Shopping List</button>
       </div>
 
       {/* List Items */}

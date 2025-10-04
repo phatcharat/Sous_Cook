@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
+
 .shopping-list-container {
   background-color: #fdf6e3;
   min-height: 100vh;
@@ -8,12 +11,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.shopping-header h1 {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0;
+  flex-wrap: nowrap;
 }
 
 .back-button {
@@ -21,9 +19,14 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
+  left: 20%;
+  display: flex;
+  white-space: nowrap;
+  gap: 10px;
 }
 
 .shopping-items {
+  padding-top: 2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -55,6 +58,7 @@
 
 /* ปุ่ม Order */
 .order-button {
+  font-family: 'Manrope', sans-serif;
   position: fixed;      
   bottom: 20px;         
   left: 50%;            

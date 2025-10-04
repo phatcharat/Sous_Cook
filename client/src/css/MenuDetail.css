@@ -34,7 +34,7 @@
 
 .back-button{
     position: absolute;
-    top: 6%;
+    top: 12px;
     left: 3%;
     background: #fdf6e3;
     border: none;
@@ -47,6 +47,33 @@
     cursor: pointer;
     
 }
+
+.favorite-button {
+    background-color: #fff;
+    position: absolute;
+    top: 12px;
+    right: 10px;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    z-index: 10;
+}
+
+.favorite-button img {
+    width: 26px;
+    height: 26px;
+}
+
+.favorite-button:hover {
+    transform: scale(1.2);
+}
+
 
 .text-container{
     display: flex;

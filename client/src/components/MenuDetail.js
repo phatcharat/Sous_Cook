@@ -9,6 +9,8 @@ import unknowIngImage from '../image/ingredient/unknow-ingredient.svg';
 import unknowMenuImage from  '../image/menu-suggestion/notfound-image.svg';
 import tips from '../image/menu-detail/tips.svg'
 import { getUserId } from '../utils/auth';
+import favorite from '../image/menu-detail/heart-filled.svg';
+import notfavorite from '../image/menu-detail/heart-outline.svg';
 
 const MenuDetail = () => { 
     const navigate = useNavigate();
@@ -20,6 +22,8 @@ const MenuDetail = () => {
     const [ingredientImages, setIngredientImages] = useState({});
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+
 
     // ย้อนกลับไปหน้าก่อนหน้าเสมอ
     const handleBackNavigation = () => {
@@ -51,6 +55,31 @@ const MenuDetail = () => {
             }
         });
     };
+
+    const handleToggleFavorite = async () => {
+        const userId = getUserId();
+        if (!userId || !menu_id) return;
+
+        try {
+            if (isFavorite) {
+                // Remove favorite
+                await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+                    data: { user_id: userId, menu_id: menu_id }
+                });
+                setIsFavorite(false);
+            } else {
+                // Add favorite
+                await axios.post(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+                    user_id: userId,
+                    menu_id: menu_id
+                });
+                setIsFavorite(true);
+            }
+        } catch (err) {
+            console.error("Error toggling favorite:", err);
+        }
+    };
+
 
     // ถ้ามาจาก History ให้ fetch menu จาก DB
     useEffect(() => {
@@ -105,7 +134,24 @@ const MenuDetail = () => {
         .catch(err => console.error("Error saving history:", err));
     }, [menu_id]);
 
-    
+        // favorite
+    useEffect(() => {
+    const checkFavorite = async () => {
+        const userId = getUserId();
+        if (!userId || !menu_id) return;
+
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/favorites/${userId}`);
+            const favIds = res.data.map(item => item.menu_id);
+            setIsFavorite(favIds.includes(menu_id));
+        } catch (err) {
+            console.error("Error fetching favorites:", err);
+        }
+    };
+
+    checkFavorite();
+    }, [menu_id]);
+
     if (!menuData) {
         return (
             <div className="menu-detail-container">
@@ -119,6 +165,14 @@ const MenuDetail = () => {
         <div className="menu-detail-container">
             <div className='image-header'>
                 <button className="back-button" onClick={handleBackNavigation}></button>
+
+                <button className="favorite-button" onClick={handleToggleFavorite}>
+                    <img 
+                        src={isFavorite ? favorite : notfavorite} 
+                        alt="Favorite"
+                    />
+                </button>
+
                 <img
                     src={menuData.image || unknowMenuImage}
                     alt={menuData.menu_name}
