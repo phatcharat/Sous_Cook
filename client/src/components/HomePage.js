@@ -119,31 +119,23 @@ const HomePage = () => {
 
   // Random menu
   const handleRandomMenu = async () => {
+    setIsLoadingRandom(true);
+
     try {
-
-      setIsLoadingRandom(true);
-
-      console.log('Getting random menu ...');
-
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/random-menu`);
 
-      if (response.data.success) {
-        const { menu, ingredients } = response.data;
-
-        setTimeout(() => {
-          navigate('/menu-detail', {
-            state: {
-              menu: menu,
-              ingredients: ingredients,
-              isRandomMenu: true
-            }
-          });
-        }, 500);
-      } else {
-        console.error('Failed to get random menu');
+      if (response.data.success && response.data.menu?.menu_id) {
+        navigate('/menu-detail', {
+          state: {
+            menu: response.data.menu,
+            menu_id: response.data.menu.menu_id,  // สำคัญ!
+            isRandomMenu: true
+          }
+        });
       }
     } catch (error) {
-      console.error('Error getting random menu', error);
+      console.error('Error:', error);
+      alert("Failed to generate menu. Please try again.");
     } finally {
       setIsLoadingRandom(false);
     }

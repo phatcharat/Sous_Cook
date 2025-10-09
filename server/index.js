@@ -105,7 +105,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-const server_ip = process.env.SERVER_IP || '192.168.1.X'
+const server_ip = process.env.SERVER_IP;
 
 app.use(cors({
   origin: ['http://localhost:3000', `http://localhost:${port}`, `http://${server_ip}:3000`, `http://${server_ip}:${port}`],
@@ -220,7 +220,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// POST google-auth - Fixed version
+// POST google-auth
 app.post('/google-auth', async (req, res) => {
   try {
     const { credential, email, username, avatar, google_id } = req.body;
@@ -471,76 +471,147 @@ app.delete('/api/users/:user_id', async (req, res) => {
 app.get('/api/random-menu', async (req, res) => {
   try {
 
-    // Basic menu
-    const randomIngredients = [
-      ['chicken', 'rice', 'onion'],
-      ['beef', 'potato', 'carrot'],
-      ['pork', 'noodles', 'garlic'],
-      ['tofu', 'mushroom', 'bell pepper'],
-      ['shrimp', 'pasta', 'tomato'],
-      ['egg', 'bread', 'cheese'],
-      ['salmon', 'asparagus', 'spinach'],
-      ['chicken breast', 'broccoli', 'corn'],
-      ['ground pork', 'cabbage', 'eggplant']
-    ];
-
-    // Random ingredients
-    const randomIndex = Math.floor(Math.random() * randomIngredients.length);
-    const selectedIngredients = randomIngredients[randomIndex]
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     // Random preference
-    const cuisines = ['Thai', 'Chinese', 'Japanese', 'Western', 'Korean'];
+    const cuisines = ['Southeast Asian', 'American', 'Italian', 'Maxican', 'Indian', 'Fusion', 'South American', 'Middle Eastern', 'Mediterranean'];
     const randomCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
 
-    // call getMenuRecommendations
-    const recommendations = await getMenuRecommendations(
-      selectedIngredients,
-      [randomCuisine],
-      [], // dietary preferences
-      ['dinner'] // occasions
+    const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Side Dish', 'Party'];
+    const randomMealType = mealTypes[Math.floor(Math.random() * mealTypes.length)];
+
+    // สร้าง prompt สำหรับสุ่มเมนู
+    const prompt = `
+      You are an AI chef that creates random menu recommendations.
+      
+      Generate ONE random ${randomCuisine} ${randomMealType} menu that is delicious and popular.
+      
+      Provide the following details:
+      - Menu name
+      - Preparation time (prep_time)
+      - Cooking time (cooking_time)
+      - Step-by-step cooking instructions
+      - Quantity required for each ingredient
+      - Nutrition information
+      - Cooking tips
+      
+      Classify ingredients according to these types:
+      - Eggs, milk, and dairy products
+      - Fats and oils
+      - Fruits
+      - Grains, nuts, and baking products
+      - Herbs and spices
+      - Meat, sausages, and fish
+      - Pasta, rice, and pulses
+      - Vegetables
+      - Miscellaneous items
+      
+      Return the response in the following JSON format:
+      <JSON_START>
+      {
+        "menu_name": "string",
+        "prep_time": "string",
+        "cooking_time": "string",
+        "steps": ["string", "string", ...],
+        "tips": ["string", "string", ...],
+        "nutrition": {
+          "calories": "string",
+          "protein": "string",
+          "fat": "string",
+          "carbohydrates": "string",
+          "sodium": "string",
+          "sugar": "string"
+        },
+        "ingredients_quantity": {
+          "ingredient_name": "string (quantity and unit)",
+          ...
+        },
+        "ingredients_type": {
+          "ingredient_name": "string (ingredient_type)",
+          ...
+        }
+      }
+      <JSON_END>
+      
+      Ensure the JSON is properly formatted with no extra explanations or text.
+    `;
+
+    console.log(`Generating random ${randomCuisine} ${randomMealType} menu...`);
+
+    // เรียก OpenAI API
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 15000,
+      temperature: 0.9,
+    });
+
+    const responseContent = response.choices[0].message.content;
+    console.log("GPT-4o-mini response received");
+
+    const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
+
+    if (!jsonMatch) {
+      throw new Error('No valid Json found in response');
+    }
+
+    const jsonString = jsonMatch[1].trim();
+    const randomMenu = JSON.parse(jsonString);
+
+    // ดึงรูปภาพจาก Edamam API
+    console.log(`Fetching image for: ${randomMenu.menu_name}`);
+    const imageUrl = await fetchImageForMenu(randomMenu.menu_name);
+    randomMenu.image = imageUrl || 'default-image-url';
+
+    // บันทึกเมนูลง database
+    console.log(`Saving menu to database: ${randomMenu.menu_name}`);
+    const dbResult = await pool.query(
+      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, image)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (menu_name) DO UPDATE
+       SET prep_time = EXCLUDED.prep_time,
+           cooking_time = EXCLUDED.cooking_time,
+           steps = EXCLUDED.steps,
+           ingredients_quantity = EXCLUDED.ingredients_quantity,
+           ingredients_type = EXCLUDED.ingredients_type,
+           nutrition = EXCLUDED.nutrition,
+           image = EXCLUDED.image
+       RETURNING menu_id, menu_name`,
+      [
+        randomMenu.menu_name,
+        randomMenu.prep_time || null,
+        randomMenu.cooking_time || null,
+        JSON.stringify(randomMenu.steps || []),
+        JSON.stringify(randomMenu.ingredients_quantity || {}),
+        JSON.stringify(randomMenu.ingredients_type || {}),
+        JSON.stringify(randomMenu.nutrition || {}),
+        randomMenu.image
+      ]
     );
 
-    // Select menu from result
-    if (recommendations.menus && recommendations.menus.length > 0) {
-      const randomMenuIndex = Math.floor(Math.random() * recommendations.menus.length);
-      const randomMenu = recommendations.menus[randomMenuIndex]
+    const savedMenu = dbResult.rows[0];
+    console.log(`Menu saved with ID: ${savedMenu.menu_id}`);
 
-      res.json({
-        success: true,
-        menu: randomMenu,
-        ingredients: selectedIngredients
-      });
-    } else {
-      // if there is no menu from random
-      res.json({
-        success: true,
-        menu: {
-          menu_name: "Simply Stir Fry",
-          prep_time: "10 minutes",
-          cooking_time: "15 minutes",
-          steps: [
-            "Heat oil in a large pan or wok over high heat",
-            "Add garlic and stir-fry for 30 seconds",
-            "Add main ingredients and cook for 5-7 minutes",
-            "Season with salt, pepper, and soy sauce",
-            "Serve hot with rice"
-          ],
-          ingredients_quantity: {
-            "oil": "2 tablespoons",
-            "garlic": "2 cloves",
-            "main ingredient": "300g",
-            "soy sauce": "2 tablespoons"
-          },
-          image: "default-image-url"
-        },
-        ingredients: selectedIngredients
-      });
-    }
+    // ส่งข้อมูลกลับ
+    res.json({
+      success: true,
+      menu: {
+        ...randomMenu,
+        menu_id: savedMenu.menu_id
+      },
+      cuisine: randomCuisine,
+      meal_type: randomMealType,
+      message: 'Random menu generated and saved successfully'
+    });
+
   } catch (error) {
     console.error('Error generating random menu:', error);
+
+    // กรณี error ส่ง fallback menu
     res.status(500).json({
       success: false,
-      error: 'Failed to generate random menu'
+      error: 'Failed to generate random menu',
+      details: error.message
     });
   }
 });
@@ -895,8 +966,14 @@ const addImagesToMenus = async (menus) => {
 const fetchImageForMenu = limiter.wrap(async (menuName) => {
   try {
     const response = await axios.get(
-      `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(menuName)}`
+      `https://api.edamam.com/api/recipes/v2?type=public&q=${encodeURIComponent(menuName)}&app_id=${endaman_app_id}&app_key=${endaman_api_key}&imageSize=REGULAR`
     );
+
+    if (!response.ok) {
+      console.error(`Image API returned ${response.status}: ${await response.text()}`);
+      return null;
+    }
+
     //const data = await response.json();
     const data = response.data;
 

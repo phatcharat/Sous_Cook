@@ -23,7 +23,8 @@ const MenuDetail = () => {
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
-
+    
+    const actualMenuId = menu_id || menuData?.menu_id;
 
     // ย้อนกลับไปหน้าก่อนหน้าเสมอ
     const handleBackNavigation = () => {
@@ -58,20 +59,24 @@ const MenuDetail = () => {
 
     const handleToggleFavorite = async () => {
         const userId = getUserId();
-        if (!userId || !menu_id) return;
+        if (!userId || !actualMenuId) {
+            console.error("Missing userId or menu_id for favorite");
+            console.log("userId:", userId, "actualMenuId:", actualMenuId);
+            return;
+        }
 
         try {
             if (isFavorite) {
                 // Remove favorite
                 await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
-                    data: { user_id: userId, menu_id: menu_id }
+                    data: { user_id: userId, menu_id: actualMenuId }
                 });
                 setIsFavorite(false);
             } else {
                 // Add favorite
                 await axios.post(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
                     user_id: userId,
-                    menu_id: menu_id
+                    menu_id: actualMenuId
                 });
                 setIsFavorite(true);
             }
@@ -80,12 +85,15 @@ const MenuDetail = () => {
         }
     };
 
-
     // ถ้ามาจาก History ให้ fetch menu จาก DB
     useEffect(() => {
         if (!menuData && menu_id) {
+            console.log("Fetching menu by ID:", menu_id);
             axios.get(`${process.env.REACT_APP_BACKEND_URL}/menus/${menu_id}`)
-                .then(res => setMenuData(res.data))
+                .then(res => {
+                    console.log("Menu fetched:", res.data);
+                    setMenuData(res.data);
+                })
                 .catch(err => console.error("Error fetching menu by ID:", err));
         }
     }, [menu_id, menuData]);
@@ -122,35 +130,53 @@ const MenuDetail = () => {
 
     // save history
     useEffect(() => {
-        if (!menu_id) return;
+        if (!actualMenuId) {
+            console.log("No menu_id available for saving history");
+            return;
+        }
+        
         const userId = getUserId();
-        if (!userId) return;
+        if (!userId) {
+            console.log("No userId available");
+            return;
+        }
 
+        console.log("Saving to history - userId:", userId, "menu_id:", actualMenuId);
+        
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/history`, {
             user_id: userId,
-            menu_id: menu_id
+            menu_id: actualMenuId
         })
-        .then(res => console.log("History saved:", res.data))
-        .catch(err => console.error("Error saving history:", err));
-    }, [menu_id]);
+        .then(res => {
+            console.log("History saved successfully:", res.data);
+        })
+        .catch(err => {
+            console.error("Error saving history:", err.response?.data || err.message);
+        });
+    }, [actualMenuId]);
 
-        // favorite
+    // check favorite - ใช้ actualMenuId
     useEffect(() => {
-    const checkFavorite = async () => {
-        const userId = getUserId();
-        if (!userId || !menu_id) return;
+        const checkFavorite = async () => {
+            const userId = getUserId();
+            if (!userId || !actualMenuId) {
+                console.log("Cannot check favorite - userId:", userId, "actualMenuId:", actualMenuId);
+                return;
+            }
 
-        try {
-            const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/favorites/${userId}`);
-            const favIds = res.data.map(item => item.menu_id);
-            setIsFavorite(favIds.includes(menu_id));
-        } catch (err) {
-            console.error("Error fetching favorites:", err);
-        }
-    };
+            try {
+                const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/favorites/${userId}`);
+                const favIds = res.data.map(item => item.menu_id);
+                const isInFavorites = favIds.includes(actualMenuId);
+                setIsFavorite(isInFavorites);
+                console.log("Favorite status:", isInFavorites, "for menu_id:", actualMenuId);
+            } catch (err) {
+                console.error("Error fetching favorites:", err);
+            }
+        };
 
-    checkFavorite();
-    }, [menu_id]);
+        checkFavorite();
+    }, [actualMenuId]);
 
     if (!menuData) {
         return (
