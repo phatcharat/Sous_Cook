@@ -47,7 +47,7 @@ function App() {
         <Route path="/setting" element={<Setting />} />
         <Route path="/Newpassword" element={<Newpassword/>}/>
         <Route path="/shoppinglist" element={<Listpage />} />
-        <Route path="/review" element={<MenuReview />} />
+        <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (

@@ -252,6 +252,34 @@ app.get('/api/random-menu', async (req, res) => {
 });
 
 
+app.get('/api/menu-detail/:index/reviews', async (req, res) => {
+  const urlIndex = req.params.index;
+  const intIndex = parseInt(urlIndex, 10);
+
+  if (isNaN(intIndex) || intIndex < 0) {
+    return res.status(400).send({message: "Invalid index provide."});
+  }
+  try {
+    const menu_result = await pool.query("SELECT recipe_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
+    if (menu_result.rows.length === 0) {
+      return res.status(404).send({message: "Menu not found at this index."});
+    }
+    const actual_menu_id = parseInt(menu_result.rows[0].menu_id, 10);
+    const review_result = await pool.query(`SELECT r.*, u.username, u.avatar
+                                            FROM review r JOIN users u ON r.user_id = u.user_id
+                                            WHERE recipe_id = $1;`, [actual_menu_id]);
+    return res.json({
+      // menu_id: actual_menu_id,
+      // reviews_count: review_result.rows.length,
+      reviews: review_result.rows
+    });
+
+  } catch {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error'});
+  }
+});
+
 //
 //
 // POST endpoint to handle image uploads
