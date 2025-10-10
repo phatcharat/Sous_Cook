@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
+
 .shopping-list-container {
   background-color: #fdf6e3;
   min-height: 100vh;
@@ -8,12 +11,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.shopping-header h1 {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0;
+  flex-wrap: nowrap;
 }
 
 .back-button {
@@ -21,9 +19,14 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
+  left: 20%;
+  display: flex;
+  white-space: nowrap;
+  gap: 10px;
 }
 
 .shopping-items {
+  padding-top: 2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -53,17 +56,85 @@
   margin-top: 40px;
 }
 
-.sponsor-button {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #ff9500;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+/* ปุ่ม Order */
+.order-button {
+  font-family: 'Manrope', sans-serif;
+  position: fixed;      
+  bottom: 20px;         
+  left: 50%;            
+  transform: translateX(-50%); 
+  padding: 12px 80px;
+  border-radius: 20px;
+  font-weight: bold;
+  background-color: #FE9801;
+  color: white;
   border: none;
-  border-radius: 24px;
-  padding: 14px 40px;
+  cursor: pointer;
+  z-index: 1000;  
+}
+
+/* Popup overlay */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Popup content */
+.popup-content {
+  font-family: 'Manrope', sans-serif;
+  color: #9c9a98;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  width: 300px;
+}
+
+.popup-buttons {
+  margin: auto;
+  font-family: 'Manrope', sans-serif;
+  flex-direction: column;
+  display: flex;
+  gap: 20px;
+  padding: 12px 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+}
+
+.sponsor-button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  color: white;
+  border: none;
   cursor: pointer;
 }
+
+.sponsor-button.lineman {
+  background-color: #00b900; /* LINE MAN */
+}
+
+.sponsor-button.grab {
+  background-color: #00a86b; /* Grab */
+}
+
+.close-button {
+  font-family: 'Manrope', sans-serif;
+  background: gray;
+  color: white;
+  padding: 8px 30px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+
+

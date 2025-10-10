@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage } from '../utils/storageUtils';
-import '../css/SearchBar.css';
+import '../css/SearchBar.css';  // Import the CSS file
 import backicon from '../image/searchbar/Back.svg';
 import scanicon from '../image/searchbar/Scan.svg';
 import bread from '../image/homepage/Bread.svg';
@@ -12,8 +11,7 @@ import breadclick from '../image/homepage/BreadClick.svg';
 import tomatoclick from '../image/homepage/TomatoClick.svg';
 import celeryclick from '../image/homepage/CeleryClick.svg';
 import porkclick from '../image/homepage/PorkClick.svg';
-import IconCamera from '../image/searchbar/Scan.svg';
-import listicon from '../image/homepage/List.svg';
+import IconCamera from '../image/nav_icon/icon_camera.svg';
 
 const SearchBar = () => {
 
@@ -23,24 +21,13 @@ const SearchBar = () => {
     const [selectedPreference, setSelectedPreference] = useState([]);
     const [selectedOccasion, setSelectedOccasion] = useState([]);
     const [searchText, setSearchText] = useState("");
-    const [selectedIngredients, setSelectedIngredients] = useState([]);
 
     // Handle ingredient search
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchText.trim()) {
-            // Add ingredient to selected list
-            const newIngredient = {
-                ingredient_name: searchText.trim(),
-                ingredient_type: "Other" // Default type, can be changed based on your logic
-            };
-            
-            // Add to selected ingredients
-            const updatedIngredients = [...selectedIngredients, newIngredient];
-            setSelectedIngredients(updatedIngredients);
-            
-            // Clear search text
-            setSearchText("");
+            // You can navigate or call API here
+            navigate(`/search?ingredient=${encodeURIComponent(searchText.trim())}`);
         }
     };
 
@@ -49,26 +36,8 @@ const SearchBar = () => {
         navigate("/camera");
     };
 
-    // Handle the main search for recipe button
-    const handleSearchRecipe = () => {
-        // Get existing ingredients from localStorage
-        const existingIngredients = getIngredientsFromLocalStorage();
-        
-        // Combine existing with newly selected ingredients
-        const allIngredients = [...existingIngredients, ...selectedIngredients];
-        
-        // Save to localStorage
-        saveIngredientsToLocalStorage(allIngredients);
-        
-        // Navigate to ingredient preview or recipe results
-        navigate('/ingredient-preview');
-    };
-
     const toggleImage = (index) => {
         const newImages = [...activeImages];
-        const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
-        const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
-        
         switch (index) {
             case 0:
                 newImages[0] = newImages[0] === bread ? breadclick : bread;
@@ -86,22 +55,6 @@ const SearchBar = () => {
                 break;
         }
         setActiveImages(newImages);
-        
-        // Toggle ingredient selection
-        const ingredientName = ingredientNames[index];
-        const ingredientType = ingredientTypes[index];
-        const isSelected = selectedIngredients.some(ing => ing.ingredient_name === ingredientName);
-        
-        if (isSelected) {
-            // Remove ingredient
-            setSelectedIngredients(selectedIngredients.filter(ing => ing.ingredient_name !== ingredientName));
-        } else {
-            // Add ingredient
-            setSelectedIngredients([...selectedIngredients, {
-                ingredient_name: ingredientName,
-                ingredient_type: ingredientType
-            }]);
-        }
     };
 
     const toggleSelection = (index, selectedArray, setSelectedArray) => {
@@ -155,7 +108,7 @@ const SearchBar = () => {
                 <p className="back-text">Searching</p>
             </div>
             {/* Google-style search bar with camera icon */}
-            <form className="search-bar" onSubmit={handleSearch}>
+            <form className="search-bar-google" onSubmit={handleSearch}>
                 <input
                     type="text"
                     className="search-input"
@@ -168,14 +121,7 @@ const SearchBar = () => {
                 </button>
                 <button type="submit" className="search-btn" style={{display: 'none'}}></button>
             </form>
-            
-            {/* Show selected ingredients count */}
-            {selectedIngredients.length > 0 && (
-                <div className="selected-ingredients-badge">
-                    <p>{selectedIngredients.length} ingredient(s) selected</p>
-                </div>
-            )}
-            
+            {/* ...existing code... */}
             <div className="ingredients-container">
                 <p className="ingredients-text">Ingredients</p>
                 <div className="ingredients-scroll">
@@ -190,7 +136,7 @@ const SearchBar = () => {
                     ))}
                 </div>
             </div>
-            
+            {/* ...existing code for cuisines, preferences, occasions, and search button... */}
             <div className="cuisine-container">
                 <p className="cuisine-text">Cuisines</p>
                 <div className="cuisine-list">
@@ -206,7 +152,6 @@ const SearchBar = () => {
                 </div>
                 <div className="divider"></div>
             </div>
-            
             <div className="preference-container">
                 <p className="preference-text">Dietary Preferences</p>
                 <div className="preference-list">
@@ -222,7 +167,6 @@ const SearchBar = () => {
                 </div>
                 <div className="divider"></div>
             </div>
-            
             <div className="occasion-container">
                 <p className="occasion-text">Meal Occasions</p>
                 <div className="occasion-list">
@@ -237,14 +181,8 @@ const SearchBar = () => {
                     ))}
                 </div>
             </div>
-            
-            <div className="search-recipe-row">
-                <div className="search-recipe-button" onClick={handleSearchRecipe}>
-                    <p className="search-recipe-text">SEARCH FOR RECIPE</p>
-                </div>
-                <button className="list-icon-btn" onClick={() => navigate('/ingredient-preview')} style={{background: 'none', border: 'none', cursor: 'pointer'}}>
-                    <img src={listicon} alt="Ingredient List" />
-                </button>
+            <div className="search-recipe-button">
+                <p className="search-recipe-text">SEARCH FOR RECIPE</p>
             </div>
         </div>
     );

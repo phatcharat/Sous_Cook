@@ -4,6 +4,7 @@ import IconSetting from '../Icon/Button/Setting_btn.png';
 import defaultProfile from '../image/profile.jpg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { getUserId, removeUserId } from '../utils/auth';
 
 const UserDataPage = () => {
     const navigate = useNavigate();
@@ -11,13 +12,15 @@ const UserDataPage = () => {
         username: '',
         email: '',
         avatar: '',
-        avatar_url: defaultProfile,
+        avatar_url: '',
         phone_number: '',
         birth_date: '',
         country: ''
     });
 
-    const userIdStr = localStorage.getItem('user_id');
+    const [profileImage, setProfileImage] = useState(defaultProfile);
+
+    const userIdStr = getUserId();
     const userId = parseInt(userIdStr, 10);
 
 
@@ -30,21 +33,32 @@ const UserDataPage = () => {
         // ดึงข้อมูล user จาก API
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5050/api/users/${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
                 const user = response.data.user;
+
+                console.log('Fetched user data:', user);
+                console.log('Avatar URL:', user.avatar_url);
 
                 if (user.birth_date) {
                     user.birth_date = user.birth_date.split('T')[0];
                 }
 
                 setUserData(user);
+
+                if (user.avatar_url) {
+                    setProfileImage(`${user.avatar_url}?t=${Date.now()}`);
+                } else {
+                    setProfileImage(defaultProfile);
+                }
+
             } catch (error) {
                 console.error('Error fetching user data:', error);
+                setProfileImage(defaultProfile);
             }
         };
 
         fetchUserData();
-    }, [userId, navigate]);
+    }, [userId, navigate, userIdStr]);
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
@@ -57,13 +71,18 @@ const UserDataPage = () => {
 
 
     const handleLogout = () => {
-        localStorage.clear();
+        removeUserId();
         navigate("/login");
     }
 
     const handleSetting = () => {
         navigate("/setting")
     }
+
+    const handleImageError = () => {
+        console.error('Failed to load avatar image');
+        setProfileImage(defaultProfile);
+    };
 
     return (
         <div>
@@ -76,12 +95,10 @@ const UserDataPage = () => {
                     <div className="border-box"></div>
                     <div className="pic-con">
                         <img
-                            src={userData.avatar
-                                ? `data:image/jpeg;base64,${userData.avatar}`
-                                : defaultProfile
-                            }
+                            src={profileImage}
                             id="pic-pro"
                             alt="avatar"
+                            onError={handleImageError}
                         />
                         <div id="pic-border"></div>
                         <div className="nameplace">{userData.username}</div>

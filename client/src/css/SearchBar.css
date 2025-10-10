@@ -1,3 +1,44 @@
+/* Google-style search bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 32px auto 24px auto;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 5px 8px;
+    height: 48px;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    background: transparent;
+    padding: 0 8px;
+    font-family: 'Manrope', 'Quicksand', sans-serif;
+}
+
+.camera-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+}
+
+.camera-icon {
+    width: 25px;
+    height: 25px;
+}
+.camera-icon-btn:hover .camera-icon {
+    filter: none;
+}
 @import url('https://fonts.googleapis.com/css?family=Quicksand');
 
 .search-container {
@@ -127,13 +168,29 @@
     background: rgba(105, 124, 55, 0.50);
 }
 
-.search-recipe-button {
+.search-recipe-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     margin-top: 80px;
     margin-bottom: 20px;
+    width: 100%;
+    padding: 0 20px;
+    position: relative;
+}
+
+.search-recipe-button {
     width: 250px;
     height: 58px;
     border-radius: 29px;
     background: #FE9801;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-recipe-button:hover {
+    background: #ff8c00;
 }
 
 .search-recipe-text {
@@ -142,4 +199,24 @@
     font-size: 16px;
     font-weight: 800;
     letter-spacing: 1.6px;
+}
+
+.list-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    transition: transform 0.2s;
+    position: absolute;
+    right: 20px;
+}
+
+.list-icon-btn:hover {
+    transform: scale(1.1);
+}
+
+.list-icon-btn img {
+    width: 40px;
+    height: 40px;
 }

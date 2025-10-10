@@ -1,156 +1,145 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import '../css/History.css';
 import '../css/Navbar.css';
-import IconHome from '../image/nav_icon/icon_home.svg';
-import IconHeart from '../image/nav_icon/icon_like.svg';
-import IconCamera from '../image/nav_icon/icon_camera.svg';
-import IconClock from '../image/nav_icon/icon_history.svg';
-import IconUser from '../image/nav_icon/icon_people.svg';
-import Satay from '../image/Satay.jpg';
-import TomYum from '../image/TomYum.jpg';
-import Sandwich from '../image/Sandwich.jpg';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { getUserId } from '../utils/auth.js';
+
+// ฟังก์ชันคำนวณ "time ago"
+const formatTimeAgo = (date) => {
+    const now = new Date();
+    const then = new Date(date);
+    let seconds = Math.floor((now - then) / 1000);
+    if (seconds < 0) seconds = 0; // ไม่ให้ติดลบ
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+};
 
 const HistoryScreen = () => {
     const [selected, setSelected] = useState('history');
-    const [historyItems, setHistoryItems] = useState([
-        // {
-        //     id: 1,
-        //     title: "Pork Fried Rice",
-        //     prepTime: "10 - 15 mins",
-        //     cookingTime: "15 - 20 mins",
-        //     image: PorkFriedRice,
-        //     alt: "Pork Fried Rice",
-        //     timeAgo: "2 hours ago",
-        //     isLiked: false
-        // },
-        {
-            id: 2,
-            title: "Chicken Satay Skewer with Peanut Sauce",
-            prepTime: "15 - 20 mins",
-            cookingTime: "30 - 45 mins",
-            image: Satay,
-            alt: "Chicken satay skewers with peanut sauce",
-            timeAgo: "1 day ago",
-            isLiked: true // Example of an already liked item
-        },
-        {
-            id: 3,
-            title: "Thai Tom Yum Soup with Shrimp",
-            prepTime: "15 - 20 mins",
-            cookingTime: "30 - 45 mins",
-            image: TomYum,
-            alt: "Thai Tom Yum soup with shrimp",
-            timeAgo: "1 day ago",
-            isLiked: false
-        },
-        {
-            id: 4,
-            title: "Tuna Salad Sandwich",
-            prepTime: "5 - 10 mins",
-            cookingTime: "-",
-            image: Sandwich,
-            alt: "Tuna salad sandwich",
-            timeAgo: "2 days ago",
-            isLiked: true
-        },
-        // {
-        //     id: 5,
-        //     title: "Pasta with Pesto",
-        //     prepTime: "5 - 10 mins",
-        //     cookingTime: "8 - 12 mins",
-        //     image: PastaPesto,
-        //     alt: "Pasta with Pesto",
-        //     timeAgo: "2 days ago",
-        //     isLiked: false
-        // },
-        {
-            id: 6,
-            title: "Tuna Salad Sandwich",
-            prepTime: "5 - 10 mins",
-            cookingTime: "-",
-            image: Sandwich,
-            alt: "Tuna salad sandwich",
-            timeAgo: "3 days ago",
-            isLiked: false
-        }
-    ]);
-
+    const [historyItems, setHistoryItems] = useState([]);
     const navigate = useNavigate();
 
-    const handleNavigation = (page) => {
-        setSelected(page);
-        navigate(`/${page}`);
+    useEffect(() => {
+        const fetchHistory = async () => {
+            const userId = getUserId();
+            if (!userId) return;
+
+            try {
+                const userFavorites = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/favorites/${userId}`);
+                const favoriteMenuIds = userFavorites.data.map(f => f.menu_id);
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/history/${userId}`);
+                const formattedHistory = response.data
+                    .map(item => ({
+                        id: item.history_id,
+                        menuId: item.menu_id,
+                        title: item.menu_name,
+                        prepTime: item.prep_time,
+                        cookingTime: item.cooking_time,
+                        image: item.image,
+                        alt: item.menu_name,
+                        createdAt: new Date(item.created_at), // เก็บเป็น Date object
+                        isLiked: favoriteMenuIds.includes(item.menu_id),
+                    }))
+                    .sort((a, b) => b.createdAt - a.createdAt) // เรียงล่าสุดก่อน
+                    .map(item => ({
+                        ...item,
+                        timeAgo: formatTimeAgo(item.createdAt)
+                    }));
+
+                setHistoryItems(formattedHistory);
+            } catch (error) {
+                console.error('Failed to fetch history:', error);
+            }
+        };
+
+        fetchHistory();
+    }, []);
+
+    const goToMenuDetail = (menu) => {
+        navigate('/menu-detail', { state: { menu_id: menu.menuId } });
     };
 
-    const handleLike = (id) => {
-        setHistoryItems(prevItems =>
-            prevItems.map(item =>
-                item.id === id ? { ...item, isLiked: !item.isLiked } : item
-            )
-        );
+   const handleLike = async (item) => {
+        const userId = localStorage.getItem('user_id');
+        if (!userId) return;
+
+        try {
+            if (!item.isLiked) {
+                // ถ้ายังกด like → เพิ่มเข้า favorites
+                await axios.post(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+                    user_id: userId,
+                    menu_id: item.menuId
+                });
+            } else {
+                // ถ้าเคย like แล้วกดอีกครั้ง → ลบออก
+                await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+                    data: { user_id: userId, menu_id: item.menuId }
+                });
+            }
+
+            // อัปเดต state
+            setHistoryItems(prevItems =>
+                prevItems.map(his =>
+                    his.id === item.id ? { ...his, isLiked: !his.isLiked } : his
+                )
+            );
+        } catch (error) {
+            console.error("Error toggling favorite:", error);
+        }
     };
+
 
     return (
-        <div className="history-menu-container"> {/* ✅ Updated container class name */}
-            {/* Header */}
+        <div className="history-menu-container">
             <div className="header">
                 <h1 className="title-meal">History</h1>
             </div>
 
-            {/* History Item List */}
-            <div className="history-list"> {/* ✅ Updated list class name */}
-                {historyItems.map((item, index) => (
-                    <div key={item.id}>
-                        <div className="recipe-card">
-                            <div className="meal-content">
-                                {/* Item Image */}
-                                <div className="meal-image">
-                                    <img src={item.image} alt={item.alt} />
-                                </div>
-                                {/* Item Info */}
-                                <div className="meal-info">
-                                    <h3>{item.title}</h3>
-                                    <p>Prep time: {item.prepTime}</p>
-                                    <p>Cooking time: {item.cookingTime}</p>
+            {historyItems.length === 0 ? (
+                <div className="no-history-message">
+                    <p>No history found. Start exploring some menus!</p>
+                </div>
+            ) : (
+                <div className="history-list">
+                    {historyItems.map((item, index) => (
+                        <div key={item.id}>
+                            <div 
+                                onClick={() => goToMenuDetail(item)} //คลิกแล้วไปหน้า detail
+                            >
+                                <div className="meal-content">
+                                    <div className="meal-image">
+                                        <img src={item.image} alt={item.alt} />
+                                    </div>
+                                    <div className="meal-info">
+                                        <h3>{item.title}</h3>
+                                        <p>Prep time: {item.prepTime}</p>
+                                        <p>Cooking time: {item.cookingTime}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Time Ago and Heart Icon */}
                             <div className="card-right-section">
-                                <button className="like-button" onClick={() => handleLike(item.id)}>
+                                <button className="like-button" onClick={() => handleLike(item)}>
                                     <i className={`fas fa-heart heart-icon ${item.isLiked ? 'liked' : ''}`}></i>
                                 </button>
                                 <p className="time-ago">{item.timeAgo}</p>
                             </div>
-
-                        {index < historyItems.length - 1 && <div className="meal-separator"></div>}
-                    </div>
-                ))}
-            </div>
-
-
-            {/* Navigation Bar */}
-            <div className="navbar">
-                <a className={`home nav-item ${selected === 'home' ? 'selected' : ''}`} onClick={() => handleNavigation('home')}>
-                    <img src={IconHome} alt="home" />
-                </a>
-                <a className={`heart nav-item ${selected === 'favorites' ? 'selected' : ''}`} onClick={() => handleNavigation('favorites')}>
-                    <img src={IconHeart} alt="favorites" />
-                </a>
-                <a className={`camera nav-item ${selected === 'camera' ? 'selected' : ''}`} onClick={() => handleNavigation('camera')}>
-                    <img src={IconCamera} alt="camera" />
-                </a>
-                <a className={`history nav-item ${selected === 'history' ? 'selected' : ''}`} onClick={() => handleNavigation('history')}>
-                    <img src={IconClock} alt="history" />
-                </a>
-                <a className={`account nav-item ${selected === 'account' ? 'selected' : ''}`} onClick={() => handleNavigation('account')}>
-                    <img src={IconUser} alt="account" />
-                </a>
-            </div>
+                            {index < historyItems.length - 1 && <div className="meal-separator"></div>}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
-}
+};
 
 export default HistoryScreen;

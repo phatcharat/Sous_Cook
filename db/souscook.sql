@@ -1,10 +1,10 @@
-
 -- users
 CREATE TABLE users (
   "user_id" SERIAL PRIMARY KEY,
   "username" VARCHAR(100) NOT NULL,
   "email" VARCHAR(100) UNIQUE NOT NULL,
   "password_hash" TEXT,
+  "google_id" VARCHAR(255) UNIQUE,
   "avatar"  TEXT,
   "phone_number" VARCHAR(10),
   "birth_date" DATE,
@@ -14,13 +14,17 @@ CREATE TABLE users (
   "deleted_at" TIMESTAMP
 );
 
--- recipes
-CREATE TABLE recipes (
-    "recipe_id" SERIAL PRIMARY KEY,
-    "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    "title"   VARCHAR(100) NOT NULL,
-    "description" TEXT,
-    "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+-- menus
+CREATE TABLE menus (
+    "menu_id" SERIAL PRIMARY KEY,
+    "menu_name"   VARCHAR(225) NOT NULL UNIQUE,
+    "prep_time" VARCHAR(50),
+    "cooking_time" VARCHAR(50),
+    "steps" JSONB,
+    "ingredients_quantity" JSONB,
+    "ingredients_type" JSONB,
+    "nutrition" JSONB,
+    "image" TEXT
 );
 
 -- ingredients
@@ -30,61 +34,62 @@ CREATE TABLE ingredients (
     "unit" VARCHAR(100)
 );
 
--- recipes_ingredients
-CREATE TABLE recipes_ingredients (
-    "recipe_id" INT NOT NULL REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+-- menus_ingredients
+CREATE TABLE menus_ingredients (
+    "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
     "ingredient_id" INT NOT NULL REFERENCES ingredients(ingredient_id) ON DELETE CASCADE,
     "quantity"  NUMERIC(12,3),
-    PRIMARY KEY (recipe_id, ingredient_id)
+    PRIMARY KEY (menu_id, ingredient_id)
 );
 
 -- favorite menu
 CREATE TABLE favorite_menu (
     "favorite_id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    "recipe_id" INT NOT NULL REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+    "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
-    UNIQUE (user_id, recipe_id)
+    UNIQUE (user_id, menu_id)
 );
 
 -- review
 CREATE TABLE review (
     "review_id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    "recipe_id" INT NOT NULL REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+    "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
     "rating"   SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     "comment"  TEXT,
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
-    UNIQUE (user_id, recipe_id)
+    UNIQUE (user_id, menu_id)
 );
 
 -- history
 CREATE TABLE history (
     "history_id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    "recipe_id" INT NOT NULL REFERENCES recipes(recipe_id) ON DELETE CASCADE,
-    "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+    "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_user_menu UNIQUE (user_id, menu_id)
 );
 
 -- community
 CREATE TABLE community (
     "post_id" SERIAL PRIMARY KEY,
     "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    "recipe_id" INT NOT NULL REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+    "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
     "image"   TEXT,
     "caption" TEXT,
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- nutrition
-CREATE TABLE nutrition (
-    "nutrition_id" SERIAL PRIMARY KEY,
-    "recipe_id" INT NOT NULL REFERENCES recipes(recipe_id) ON DELETE CASCADE,
-    "calories"  NUMERIC(10,2),
-    "fat"  NUMERIC(10,2),
-    "sodium"  NUMERIC(10,2),
-    "carbs"  NUMERIC(10,2),
-    "sugar"  NUMERIC(10,2),
-    "protein"  NUMERIC(10,2),
-    UNIQUE (recipe_id)
-);
+-- CREATE TABLE nutrition (
+--     "nutrition_id" SERIAL PRIMARY KEY,
+--     "menu_id" INT NOT NULL REFERENCES menus(menu_id) ON DELETE CASCADE,
+--     "calories"  NUMERIC(10,2),
+--     "fat"  NUMERIC(10,2),
+--     "sodium"  NUMERIC(10,2),
+--     "carbs"  NUMERIC(10,2),
+--     "sugar"  NUMERIC(10,2),
+--     "protein"  NUMERIC(10,2),
+--     UNIQUE (menu_id)
+-- );

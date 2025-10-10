@@ -168,7 +168,7 @@ const AboutMe = () => {
 
               <button
                 className="get-started-btn"
-                onClick={() => navigate('/signup')}
+                onClick={() => navigate('/login')}
               >
                 GET STARTED
               </button>

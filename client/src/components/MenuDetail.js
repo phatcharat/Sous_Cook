@@ -5,38 +5,40 @@ import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLo
 import checkbox from '../image/menu-detail/Checkbox.svg';
 import checkboxOncheck from '../image/menu-detail/Checkbox_check.svg';
 import axios from 'axios';
-import unkonwIngImage from '../image/ingredient/unknow-ingredient.svg';
-import unkonwMenuImage from  '../image/menu-suggestion/notfound-image.svg';
+import unknowIngImage from '../image/ingredient/unknow-ingredient.svg';
+import unknowMenuImage from  '../image/menu-suggestion/notfound-image.svg';
 import tips from '../image/menu-detail/tips.svg'
+import { getUserId } from '../utils/auth';
+import favorite from '../image/menu-detail/heart-filled.svg';
+import notfavorite from '../image/menu-detail/heart-outline.svg';
 
 const MenuDetail = () => { 
     const navigate = useNavigate();
     const location = useLocation();
-    const { menu, isRandomMenu = false } = location.state || {};
-  
+    const { menu, menu_id, isRandomMenu = false } = location.state || {};
+
+    const [menuData, setMenuData] = useState(menu || null);
     const [checkedSteps, setCheckedSteps] = useState([]);
     const [ingredientImages, setIngredientImages] = useState({});
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [menuImage, setMenuImage] = useState(menu || {});
-  
-    const handleCheck = (index) => {
-      if (checkedSteps.includes(index)) {
-        setCheckedSteps(checkedSteps.filter(stepIndex => stepIndex !== index));
-      } else {
-        setCheckedSteps([...checkedSteps, index]);
-      }
+    const [isFavorite, setIsFavorite] = useState(false);
+    
+    const actualMenuId = menu_id || menuData?.menu_id;
+
+    // ย้อนกลับไปหน้าก่อนหน้าเสมอ
+    const handleBackNavigation = () => {
+        navigate(-1);
     };
 
-    const handleBackNavigation = () => {
-        if (isRandomMenu) {
-            navigate('/home')
+    const handleCheck = (index) => {
+        if (checkedSteps.includes(index)) {
+            setCheckedSteps(checkedSteps.filter(stepIndex => stepIndex !== index));
         } else {
-            navigate('/menu-suggestion')
+            setCheckedSteps([...checkedSteps, index]);
         }
     };
 
-    // select object to shopping list
     const handleSelectIngredient = (ingredientName, quantity) => {
         setSelectedIngredients((prev) => {
             const alreadySelected = prev.find((item) => item.name === ingredientName);
@@ -48,27 +50,60 @@ const MenuDetail = () => {
                     {
                         name: ingredientName,
                         quantity,
-                        image: ingredientImages[ingredientName] || unkonwIngImage,
+                        image: ingredientImages[ingredientName] || unknowIngImage,
                     },
                 ];
             }
         });
     };
 
+    const handleToggleFavorite = async () => {
+        const userId = getUserId();
+        if (!userId || !actualMenuId) {
+            console.error("Missing userId or menu_id for favorite");
+            console.log("userId:", userId, "actualMenuId:", actualMenuId);
+            return;
+        }
+
+        try {
+            if (isFavorite) {
+                // Remove favorite
+                await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+                    data: { user_id: userId, menu_id: actualMenuId }
+                });
+                setIsFavorite(false);
+            } else {
+                // Add favorite
+                await axios.post(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+                    user_id: userId,
+                    menu_id: actualMenuId
+                });
+                setIsFavorite(true);
+            }
+        } catch (err) {
+            console.error("Error toggling favorite:", err);
+        }
+    };
+
+    // ถ้ามาจาก History ให้ fetch menu จาก DB
     useEffect(() => {
-        if (!menu) {
-            console.error("Menu is not available.");
-            return;
+        if (!menuData && menu_id) {
+            console.log("Fetching menu by ID:", menu_id);
+            axios.get(`${process.env.REACT_APP_BACKEND_URL}/menus/${menu_id}`)
+                .then(res => {
+                    console.log("Menu fetched:", res.data);
+                    setMenuData(res.data);
+                })
+                .catch(err => console.error("Error fetching menu by ID:", err));
         }
+    }, [menu_id, menuData]);
 
-        if (!menu.ingredients_quantity || typeof menu.ingredients_quantity !== 'object') {
-            console.error("Ingredients are not available or not an object.");
-            console.log("menu.ingredients_quantity:", menu.ingredients_quantity);
-            return;
-        }
+    // โหลดรูป ingredient และ menu
+    useEffect(() => {
+        if (!menuData || !menuData.ingredients_quantity) return;
 
-        const ingredientList = Object.keys(menu.ingredients_quantity);
-        const menuList = [menu];
+        const ingredientList = Object.keys(menuData.ingredients_quantity);
+        const menuList = [menuData];
         let isCancelled = false;
 
         const fetchImages = async () => {
@@ -77,34 +112,77 @@ const MenuDetail = () => {
                 const images = await fetchMissingImages(menuList, ingredientList);
                 if (!isCancelled) {
                     setIngredientImages(images.ingredient || {});
-
-                    const foundMenu = images.menu.find(m => m.name === menu.menu_name);
+                    const foundMenu = images.menu.find(m => m.menu_name === menuData.menu_name);
                     if (foundMenu && foundMenu.image) {
-                        setMenuImage(prev => ({ ...prev, image: foundMenu.image }));
+                        setMenuData(prev => ({ ...prev, image: foundMenu.image }));
                     }
                 }
             } catch (error) {
                 console.error('Error fetching images:', error);
             } finally {
-                if (!isCancelled) {
-                    setIsLoading(false);
-                }
+                if (!isCancelled) setIsLoading(false);
             }
         };
 
         fetchImages();
+        return () => { isCancelled = true; };
+    }, [menuData]); 
 
-        // Cleanup function
-        return () => {
-            isCancelled = true;
+    // save history
+    useEffect(() => {
+        if (!actualMenuId) {
+            console.log("No menu_id available for saving history");
+            return;
+        }
+        
+        const userId = getUserId();
+        if (!userId) {
+            console.log("No userId available");
+            return;
+        }
+
+        console.log("Saving to history - userId:", userId, "menu_id:", actualMenuId);
+        
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/history`, {
+            user_id: userId,
+            menu_id: actualMenuId
+        })
+        .then(res => {
+            console.log("History saved successfully:", res.data);
+        })
+        .catch(err => {
+            console.error("Error saving history:", err.response?.data || err.message);
+        });
+    }, [actualMenuId]);
+
+    // check favorite - ใช้ actualMenuId
+    useEffect(() => {
+        const checkFavorite = async () => {
+            const userId = getUserId();
+            if (!userId || !actualMenuId) {
+                console.log("Cannot check favorite - userId:", userId, "actualMenuId:", actualMenuId);
+                return;
+            }
+
+            try {
+                const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/favorites/${userId}`);
+                const favIds = res.data.map(item => item.menu_id);
+                const isInFavorites = favIds.includes(actualMenuId);
+                setIsFavorite(isInFavorites);
+                console.log("Favorite status:", isInFavorites, "for menu_id:", actualMenuId);
+            } catch (err) {
+                console.error("Error fetching favorites:", err);
+            }
         };
-    }, [menu]);      
 
-    if (!menu) {
+        checkFavorite();
+    }, [actualMenuId]);
+
+    if (!menuData) {
         return (
             <div className="menu-detail-container">
-                <p>No menu details available.</p>
-                <button className="back-button" onClick={() => navigate('/menu-suggestion')}>← Back</button>
+                <p>Loading menu details...</p>
+                <button className="back-button" onClick={handleBackNavigation}>← Back</button>
             </div>
         );
     }
@@ -113,83 +191,71 @@ const MenuDetail = () => {
         <div className="menu-detail-container">
             <div className='image-header'>
                 <button className="back-button" onClick={handleBackNavigation}></button>
+
+                <button className="favorite-button" onClick={handleToggleFavorite}>
+                    <img 
+                        src={isFavorite ? favorite : notfavorite} 
+                        alt="Favorite"
+                    />
+                </button>
+
                 <img
-                    src={menuImage.image || unkonwMenuImage}
-                    alt={menuImage.menu_name}
+                    src={menuData.image || unknowMenuImage}
+                    alt={menuData.menu_name}
                     className="menu-image-large"
                 />
             </div>
 
             <div className="text-container">
                 <div className='menu-header'>
-                    <h1>{menu.menu_name}</h1>
-                    <p>Prep time: {menu.prep_time || 'N/A'}</p>
-                    <p>Cooking time: {menu.cooking_time || 'N/A'}</p>
+                    <h1>{menuData.menu_name}</h1>
+                    <p>Prep time: {menuData.prep_time || 'N/A'}</p>
+                    <p>Cooking time: {menuData.cooking_time || 'N/A'}</p>
                 </div>
                 
-                <div className='header'>
-                    <h2>Ingredients</h2>
-                </div>
-                
+                <h2>Ingredients</h2>
                 <div className="ingredientAndSeasoning-container">
-                    {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
-                        .filter(([ingredientName, _]) => {
-                            const ingredientType = menu.ingredients_type[ingredientName];
-                            return ingredientType && ingredientType !== 'Miscellaneous items';
+                    {menuData.ingredients_quantity && Object.entries(menuData.ingredients_quantity)
+                        .filter(([name]) => {
+                            const type = menuData.ingredients_type?.[name];
+                            return type && type.toLowerCase() !== 'miscellaneous items';
                         })
-                        .map(([ingredientName, quantity], idx) => (
+                        .map(([name, quantity], idx) => (
                             <div 
                                 key={idx} 
-                                className={`ingredient-item${
-                                    selectedIngredients.some((item) => item.name === ingredientName)
-                                        ? "selected"
-                                        : ""
-                                }`}
-                                onClick={() => handleSelectIngredient(ingredientName, quantity)}
+                                className={`ingredient-item${selectedIngredients.some(i => i.name === name) ? ' selected' : ''}`}
+                                onClick={() => handleSelectIngredient(name, quantity)}
                             >
                                 <img
-                                    src={ingredientImages[ingredientName] || unkonwIngImage}
-                                    alt={ingredientName}
+                                    src={ingredientImages[name] || unknowIngImage}
+                                    alt={name}
                                     className="ingredients-image"
-                                    style={{
-                                        objectFit: ingredientImages[ingredientName],
-                                    }}
                                 />
-                                <p className='header'>{ingredientName}</p>
+                                <p className='header' title={name}>{name}</p>
                                 <p>{abbreviateUnit(quantity)}</p>
                             </div>
                         ))}
                 </div>
 
-                <div className='header'>
-                    <h2>Seasoning/Dressing</h2>
-                </div>
-
+                <h2>Seasoning/Dressing</h2>
                 <div className="ingredientAndSeasoning-container">
-                    {menu.ingredients_quantity && Object.entries(menu.ingredients_quantity)
-                        .filter(([ingredientName, _]) => {
-                            const ingredientType = menu.ingredients_type[ingredientName];
-                            return ingredientType && ingredientType === 'Miscellaneous items';
+                    {menuData.ingredients_quantity && Object.entries(menuData.ingredients_quantity)
+                        .filter(([name]) => {
+                            const type = menuData.ingredients_type?.[name];
+                            return type && type.toLowerCase() === 'miscellaneous items';
                         })
-                        .map(([ingredientName, quantity], idx) => (
+                        .map(([name, quantity], idx) => (
                             <div 
                                 key={idx} 
-                                className={`ingredient-item${
-                                    selectedIngredients.some((item) => item.name === ingredientName)
-                                        ? "selected"
-                                        : ""
-                                }`}
-                                onClick={() => handleSelectIngredient(ingredientName, quantity)}
+                                className={`ingredient-item${selectedIngredients.some(i => i.name === name) ? ' selected' : ''}`}
+                                onClick={() => handleSelectIngredient(name, quantity)}
                             >
                                 <img
-                                    src={ingredientImages[ingredientName] || unkonwIngImage}
-                                    alt={ingredientName}
+                                    src={ingredientImages[name] || unknowIngImage}
+                                    alt={name}
                                     className="ingredients-image"
-                                    style={{ 
-                                        objectFit: ingredientImages[ingredientName], 
-                                    }} 
                                 />
-                                <p className='header'>{ingredientName}</p>
+                                <p className='header' title={name}>{name}</p>
                                 <p>{abbreviateUnit(quantity)}</p>
                             </div>
                         ))}
@@ -210,14 +276,9 @@ const MenuDetail = () => {
                     </button>
                 </div>
 
-                <div className='spliteline'></div>
-                
-                <div className='header'>
-                    <h2>Instructions</h2>
-                </div>
-                
+                <h2>Instructions</h2>
                 <ul className="instructions-list">
-                    {menu.steps && menu.steps.map((step, idx) => (
+                    {menuData.steps?.map((step, idx) => (
                         <li key={idx} className={checkedSteps.includes(idx) ? 'checked-step' : ''}>
                             <label className="checkbox-label">
                                 <input
@@ -238,56 +299,40 @@ const MenuDetail = () => {
                     ))}
                 </ul>
 
-                <div className='header'>
-                    <h2>Tips</h2>
-                </div>
-                
+                <h2>Tips</h2>
                 <div className="tips-container">
-                    {menu.tips && menu.tips.length > 0 ? (
+                    {menuData.tips?.length > 0 ? (
                         <ul>
-                        {menu.tips.map((tip, idx) => (
-                            <li key={idx}>{tip}</li>
-                        ))}
+                            {menuData.tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
                         </ul>
-                    ) : (
-                        <p>No tips available.</p>
-                    )}
+                    ) : <p>No tips available.</p>}
                 </div>
 
-                <div className='header'>
-                    <h2>Nutrition (per serving)</h2>
-                </div>
-
+                <h2>Nutrition (per serving)</h2>
                 <div className="nutrition-container">
-                    {menu.nutrition ? (
+                    {menuData.nutrition ? (
                         <ul>
-                        <li>Calories: {menu.nutrition.calories || 'N/A'}</li>
-                        <li>Protein: {menu.nutrition.protein || 'N/A'}</li>
-                        <li>Fat: {menu.nutrition.fat || 'N/A'}</li>
-                        <li>Carbohydrates: {menu.nutrition.carbohydrates || 'N/A'}</li>
-                        <li>Sodium: {menu.nutrition.sodium || 'N/A'}</li>
-                        <li>Sugar: {menu.nutrition.sugar || 'N/A'}</li>
+                            <li>Calories: {menuData.nutrition.calories || 'N/A'}</li>
+                            <li>Protein: {menuData.nutrition.protein || 'N/A'}</li>
+                            <li>Fat: {menuData.nutrition.fat || 'N/A'}</li>
+                            <li>Carbohydrates: {menuData.nutrition.carbohydrates || 'N/A'}</li>
+                            <li>Sodium: {menuData.nutrition.sodium || 'N/A'}</li>
+                            <li>Sugar: {menuData.nutrition.sugar || 'N/A'}</li>
                         </ul>
-                    ) : (
-                        <p>No nutrition data available.</p>
-                    )}
+                    ) : <p>No nutrition data available.</p>}
                 </div>
             </div>
         </div>
     );
 };
 
+// โหลดรูป ingredient จาก external source
 const fetchMissingImages = async (menuList, ingredientList) => {
-  const images = {};
-
-  ingredientList.forEach(ing => {
-    images[ing] = `https://www.themealdb.com/images/ingredients/${encodeURIComponent(ing)}.png`;
-  });
-
-  return {
-    menu: menuList,
-    ingredient: images
-  };
+    const images = {};
+    ingredientList.forEach(ing => {
+        images[ing] = `https://www.themealdb.com/images/ingredients/${encodeURIComponent(ing)}.png`;
+    });
+    return { menu: menuList, ingredient: images };
 };
 
 // ฟังก์ชันย่อหน่วย
