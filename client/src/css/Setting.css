@@ -3,9 +3,10 @@
 .setting-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #f6f1e5;
     font-family: 'Manrope', sans-serif;
+    overflow-y: auto;
 }
 
 .back-container {
@@ -81,10 +82,11 @@
 .dropdown-container {
   position: relative;
   width: 100%;
+  font-family: 'Manrope', sans-serif;
 }
 
 .dropdown-selected {
-  padding: 8px 12px;
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;

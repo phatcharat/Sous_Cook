@@ -9,6 +9,7 @@ CREATE TABLE users (
   "phone_number" VARCHAR(10),
   "birth_date" DATE,
   "country" VARCHAR(50),
+  "allergies" TEXT[] DEFAULT '{}',
   "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updated_at" TIMESTAMP,
   "deleted_at" TIMESTAMP

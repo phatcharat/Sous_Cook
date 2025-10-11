@@ -362,7 +362,7 @@ app.get('/api/users/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
     const result = await pool.query(
-      "SELECT user_id, username, email, created_at, updated_at, deleted_at, avatar, phone_number, birth_date, country FROM users WHERE user_id = $1",
+      "SELECT user_id, username, email, created_at, updated_at, deleted_at, avatar, phone_number, birth_date, country, allergies FROM users WHERE user_id = $1",
       [user_id]
     );
 
@@ -389,7 +389,7 @@ app.get('/api/users/:user_id', async (req, res) => {
 // PUT user info
 app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) => {
   const { user_id } = req.params;
-  const { username, email, phone_number, birth_date, country } = req.body;
+  const { username, email, phone_number, birth_date, country, allergies } = req.body;
 
   try {
 
@@ -405,6 +405,13 @@ app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) =
     if (phone_number) { fields.push(`phone_number=$${index++}`); values.push(phone_number); }
     if (birth_date) { fields.push(`birth_date=$${index++}`); values.push(birth_date); }
     if (country) { fields.push(`country=$${index++}`); values.push(country); }
+
+    if (allergies !== undefined) {
+      fields.push(`allergies=$${index++}`);
+      
+      const allergiesArray = typeof allergies === 'string' ? JSON.parse(allergies) : allergies;
+      values.push(Array.isArray(allergiesArray) ? allergiesArray : []);
+    }
 
     if (req.file) {
       fields.push(`avatar=$${index++}`);

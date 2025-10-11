@@ -17,11 +17,13 @@ const Setting = () => {
         phone_number: '',
         birth_date: '',
         country: '',
+        allergies: [],
     });
     const [profilePic, setProfilePic] = useState(defaultProfile);
     const [newProfileFile, setNewProfileFile] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    
+    const [allergyInput, setAllergyInput] = useState('');
+
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -30,7 +32,6 @@ const Setting = () => {
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
-
 
     useEffect(() => {
         if (!userId || isNaN(userId)) {
@@ -46,15 +47,15 @@ const Setting = () => {
 
                 setUserData({
                     ...user,
-                    birth_date: formatDateForInput(user.birth_date)
+                    birth_date: formatDateForInput(user.birth_date),
+                    allergies: user.allergies || []
                 });
 
+                setAllergyInput((user.allergies || []).join(', '));
 
-                // ตรวจสอบว่ามี avatar_url หรือ avatar
                 if (user.avatar_url) {
                     setProfilePic(user.avatar_url);
                 } else if (user.avatar && user.avatar.length > 0) {
-                    // กรณีที่ backend ส่งมาเป็นชื่อไฟล์
                     setProfilePic(`${process.env.REACT_APP_BASE_URL}/uploads/avatars/${user.avatar}`);
                 } else {
                     setProfilePic(defaultProfile);
@@ -80,6 +81,11 @@ const Setting = () => {
             if (value.length > 10) value = value.slice(0, 10);
         }
 
+        if (name === "allergies") {
+            setAllergyInput(value);
+            return;
+        }
+
         setUserData({
             ...userData,
             [name]: value,
@@ -96,12 +102,18 @@ const Setting = () => {
 
     const handleSave = async () => {
         try {
+            const allergiesArray = allergyInput
+                .split(',')
+                .map(a => a.trim().toLowerCase())
+                .filter(a => a.length > 0);
+
             const formData = new FormData();
             formData.append('username', userData.username);
             formData.append('email', userData.email);
             formData.append('phone_number', userData.phone_number || '');
             formData.append('birth_date', userData.birth_date || '');
             formData.append('country', userData.country || '');
+            formData.append('allergies', JSON.stringify(allergiesArray));
 
             if (newProfileFile) {
                 formData.append('avatar', newProfileFile);
@@ -116,10 +128,12 @@ const Setting = () => {
             const updatedUser = response.data.user;
             setUserData({
                 ...updatedUser,
-                birth_date: formatDateForInput(updatedUser.birth_date)
+                birth_date: formatDateForInput(updatedUser.birth_date),
+                allergies: updatedUser.allergies || []
             });
 
-            // อัพเดทรูป profile
+            setAllergyInput((updatedUser.allergies || []).join(', '));
+
             if (updatedUser.avatar_url) {
                 setProfilePic(updatedUser.avatar_url);
             } else if (updatedUser.avatar && updatedUser.avatar.length > 0) {
@@ -128,7 +142,6 @@ const Setting = () => {
                 setProfilePic(defaultProfile);
             }
 
-            // Clear newProfileFile หลังจาก save สำเร็จ
             setNewProfileFile(null);
 
             alert("User info updated successfully");
@@ -139,6 +152,7 @@ const Setting = () => {
             alert("Failed to update user info.");
         }
     };
+
 
     const countries = [
         "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
@@ -252,6 +266,18 @@ const Setting = () => {
                         )}
                     </div>
                 </div>
+
+                <div className="form-setting">
+                    <label>Allergies</label>
+                    <input
+                        type="text"
+                        name="allergies"
+                        value={allergyInput}
+                        onChange={handleChange}
+                        placeholder="Enter allergies separated by comma"
+                    />
+                </div>
+
                 <button className="save-button" onClick={handleSave}>Save</button>
             </div>
         </div>
