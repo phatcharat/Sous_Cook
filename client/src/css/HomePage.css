@@ -19,6 +19,7 @@
 .second-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   padding-left: 8px;
 }
@@ -113,9 +114,9 @@
 .food-waste-stat {
   width: 100%;
   padding-left: 7px;
-  display: flex;            
-  flex-direction: column;  
-  justify-content: center;    
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .food-waste-text {
@@ -130,12 +131,12 @@
   position: relative;
   padding-left: 0px;
   width: 369px;
-  height: 322px;
+  height: 340px;
   border-radius: 50px;
   background: #FFF;
   padding: 25px 20px 20px 20px;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-  margin: 0 auto;  
+  margin: 0 auto;
 }
 
 .chart-area {
@@ -146,6 +147,8 @@
 
 .chart-svg {
   width: 100%;
+  height: 240px;
+  /* เพิ่มความสูงของ SVG */
   background: #fff;
   margin-bottom: 10px;
 }
@@ -164,7 +167,7 @@
 
 .stat-info {
   text-align: center;
-  margin-top: 27px;
+  margin-top: 15px;
   font-family: 'Quicksand';
 }
 
@@ -172,6 +175,7 @@
   font-size: 18px;
   color: #494747;
   font-family: 'Quicksand';
+  margin: 5px 0;
 }
 
 .highlight-orange {
@@ -253,6 +257,34 @@
   margin-top: 28px;
 }
 
+@keyframes drawLine {
+  0% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+
+  100% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
+.chart-svg circle {
+  transition: all 0.2s ease;
+}
+
+.chart-svg circle:hover {
+  r: 6;
+  cursor: pointer;
+  fill: #7fb428;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 480px) {
   .search-box {
     width: 86%;
@@ -264,7 +296,11 @@
 
   .chart-box {
     width: 320px;
-    height: 280px;
+    height: 291px;
+  }
+
+  .chart-svg {
+    height: 200px;
   }
 
   .x-axis-labels {
@@ -282,18 +318,5 @@
 
   .axis-label {
     font-size: 10px;
-  }
-}
-
-
-@keyframes drawLine {
-  0% {
-    stroke-dasharray: 1000;
-    stroke-dashoffset: 1000;
-  }
-
-  100% {
-    stroke-dasharray: 1000;
-    stroke-dashoffset: 0;
   }
 }
