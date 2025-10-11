@@ -19,6 +19,10 @@
     color: #333;
 }
 
+.no-history-message {
+  text-align: center;
+}
+
 .history-list {
     padding: 1rem;
 }

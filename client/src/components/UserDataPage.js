@@ -4,7 +4,7 @@ import IconSetting from '../Icon/Button/Setting_btn.png';
 import defaultProfile from '../image/profile.jpg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { getUserId, removeUserId } from '../utils/auth';
+import { getUserId, logout } from '../utils/auth';
 
 const UserDataPage = () => {
     const navigate = useNavigate();
@@ -116,7 +116,7 @@ const UserDataPage = () => {
 
 
     const handleLogout = () => {
-        removeUserId();
+        logout();
         navigate("/login");
     }
 

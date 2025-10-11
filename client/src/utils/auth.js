@@ -21,14 +21,17 @@ export const setUserId = (userId) => {
   }
 };
 
-export const removeUserId = () => {
-  try {
-    localStorage.removeItem('user_id');
-  } catch (error) {
-    console.error('Failed to remove userId:', error);
-  }
-};
-
 export const isLoggedIn = () => {
   return getUserId() !== null;
+};
+
+export const logout = () => {
+  try {
+    localStorage.removeItem('user_id');
+    console.log('User logged out successfully');
+    return true;
+  } catch (error) {
+    console.error('Failed to logout:', error);
+    return false;
+  }
 };

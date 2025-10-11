@@ -4,7 +4,7 @@ import defaultProfile from '../image/profile.jpg';
 import backicon from '../image/searchbar/Back.svg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { getUserId } from '../utils/auth';
+import { getUserId, logout } from '../utils/auth';
 
 const Setting = () => {
     const navigate = useNavigate();
@@ -23,6 +23,7 @@ const Setting = () => {
     const [newProfileFile, setNewProfileFile] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [allergyInput, setAllergyInput] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
@@ -153,6 +154,21 @@ const Setting = () => {
         }
     };
 
+    const handleDeleteAccount = async () => {
+        try {
+            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
+
+            logout();
+
+            alert("Account deleted successfully");
+            navigate("/login");
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            alert("Failed to delete account. Please try again.");
+        } finally {
+            setShowDeleteModal(false);
+        }
+    };
 
     const countries = [
         "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
@@ -280,6 +296,35 @@ const Setting = () => {
 
                 <button className="save-button" onClick={handleSave}>Save</button>
             </div>
+            <button
+                className="delete-button"
+                onClick={() => setShowDeleteModal(true)}
+            >
+                Delete Account
+            </button>
+
+            {showDeleteModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Delete Account</h2>
+                        <p>Are you sure you want to delete your account?</p>
+                        <div className="modal-buttons">
+                            <button
+                                className="cancel-button"
+                                onClick={() => setShowDeleteModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-delete-button"
+                                onClick={handleDeleteAccount}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
