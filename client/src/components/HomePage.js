@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import '../css/HomePage.css';  // Import the CSS file
 import { getUserId, isLoggedIn } from '../utils/auth';
+import { getShoppingListFromStorage } from '../utils/storageUtils';
 import header from '../image/homepage/Header.svg';
 import listicon from '../image/homepage/List.svg';
 import searchicon from '../image/homepage/Search-Icon.svg'
@@ -28,6 +29,7 @@ const HomePage = () => {
   const [username, setUsername] = useState("USER");
   const [isLoadingRandom, setIsLoadingRandom] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [shoppingListCount, setShoppingListCount] = useState(0);
 
   const logSafeUserEvent = (event, details = {}) => {
     // Create safe copy of details, removing sensitive data
@@ -78,6 +80,19 @@ const HomePage = () => {
       }
     };
     fetchUserData();
+  }, []);
+
+  // Add useEffect to load shopping list count
+  useEffect(() => {
+    const loadShoppingList = () => {
+      const list = getShoppingListFromStorage();
+      setShoppingListCount(list.length);
+    };
+
+    loadShoppingList();
+    window.addEventListener('storage', loadShoppingList);
+    
+    return () => window.removeEventListener('storage', loadShoppingList);
   }, []);
 
   const toggleImage = (index) => {
@@ -162,6 +177,11 @@ const HomePage = () => {
     }
   };
 
+  // Update list icon click handler
+  const handleListIconClick = () => {
+    const shoppingList = getShoppingListFromStorage();
+    navigate("/shoppinglist", { state: { missingIngredients: shoppingList } });
+  };
 
   return (
     <div className="homepage-container">
@@ -169,7 +189,18 @@ const HomePage = () => {
       <div className="second-container">
 
         <p className="greet-user">HELLO <span className="username">{username}</span></p>
-        <img src={listicon} alt="List" className="list-icon" onClick={() => navigate("/shoppinglist")} style={{ cursor: "pointer" }} />
+        <div className="list-icon-container">
+          <img 
+            src={listicon} 
+            alt="List" 
+            className="list-icon" 
+            onClick={handleListIconClick}
+            style={{ cursor: "pointer" }} 
+          />
+          {shoppingListCount > 0 && (
+            <span className="list-badge">{shoppingListCount}</span>
+          )}
+        </div>
       </div>
 
       <p className="question-text">What's on your mind today chef?</p>

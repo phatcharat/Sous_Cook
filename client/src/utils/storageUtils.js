@@ -112,3 +112,21 @@ export const addDeletedIngredient = (ingredientName) => {
         }
     } catch (error) {}
 };
+
+export const getShoppingListFromStorage = (userId) => {
+    try {
+        const list = localStorage.getItem(`shoppingList_${userId}`);
+        return list ? JSON.parse(list) : [];
+    } catch (error) {
+        console.error('Error getting shopping list:', error);
+        return [];
+    }
+};
+
+export const saveShoppingListToStorage = (userId, items) => {
+    try {
+        localStorage.setItem(`shoppingList_${userId}`, JSON.stringify(items));
+    } catch (error) {
+        console.error('Error saving shopping list:', error);
+    }
+};

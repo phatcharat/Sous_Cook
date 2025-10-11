@@ -19,7 +19,7 @@ import SearchBar from './components/SearchBar';
 import HistoryScreen from './components/History';
 import Setting from './components/Setting';
 import Newpassword from './pages/Newpassword';
-import Listpage from './components/Listpage';
+import ShoppingList from './components/ShoppingList';
 import CameraSearch from './components/cameraSearch';
 
 function App() {
@@ -47,7 +47,7 @@ function App() {
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/Newpassword" element={<Newpassword/>}/>
-        <Route path="/shoppinglist" element={<Listpage />} />
+        <Route path="/shoppinglist" element={<ShoppingList />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (

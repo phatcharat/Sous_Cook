@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/MenuDetail.css';
-import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLocalStorage } from '../utils/storageUtils';
+import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLocalStorage, saveShoppingListToStorage, getShoppingListFromStorage } from '../utils/storageUtils';
 import checkbox from '../image/menu-detail/Checkbox.svg';
 import checkboxOncheck from '../image/menu-detail/Checkbox_check.svg';
 import axios from 'axios';
@@ -25,6 +25,11 @@ const MenuDetail = () => {
     const [isFavorite, setIsFavorite] = useState(false);
     const [mealCompleted, setMealCompleted] = useState(false);
 
+    // Add new state for allergies and alerts
+    const [userAllergies, setUserAllergies] = useState([]);
+    const [allergyAlerts, setAllergyAlerts] = useState([]);
+    const [showAllergyAlert, setShowAllergyAlert] = useState(false);
+    const [hasAcknowledgedAllergy, setHasAcknowledgedAllergy] = useState(false);
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
@@ -57,10 +62,7 @@ const MenuDetail = () => {
                     });
 
                     setMealCompleted(true);
-
-                    // Optional: Show a success message
                     console.log('Congratulations! Meal completed!');
-                    // You could add a toast notification here
 
                 } catch (err) {
                     console.error('Error saving meal completion:', err);
@@ -91,19 +93,16 @@ const MenuDetail = () => {
         const userId = getUserId();
         if (!userId || !actualMenuId) {
             console.error("Missing userId or menu_id for favorite");
-            console.log("userId:", userId, "actualMenuId:", actualMenuId);
             return;
         }
 
         try {
             if (isFavorite) {
-                // Remove favorite
                 await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
                     data: { user_id: userId, menu_id: actualMenuId }
                 });
                 setIsFavorite(false);
             } else {
-                // Add favorite
                 await axios.post(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
                     user_id: userId,
                     menu_id: actualMenuId
@@ -113,6 +112,43 @@ const MenuDetail = () => {
         } catch (err) {
             console.error("Error toggling favorite:", err);
         }
+    };
+
+    // Fetch user allergies with useCallback to prevent infinite loops
+    const fetchUserAllergies = useCallback(async () => {
+        const userId = getUserId();
+        if (!userId) return;
+
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
+            const allergies = response.data.user.allergies || [];
+            setUserAllergies(allergies.map(a => a.toLowerCase()));
+        } catch (error) {
+            console.error('Error fetching user allergies:', error);
+        }
+    }, []);
+
+    // Check allergies with useCallback
+    const checkAllergies = useCallback(() => {
+        if (!menuData?.ingredients_quantity || userAllergies.length === 0) return;
+
+        const alerts = [];
+        Object.keys(menuData.ingredients_quantity).forEach(ingredient => {
+            const ingredientLower = ingredient.toLowerCase();
+            if (userAllergies.some(allergy => ingredientLower.includes(allergy))) {
+                alerts.push(ingredient);
+            }
+        });
+
+        if (alerts.length > 0 && !hasAcknowledgedAllergy) {
+            setAllergyAlerts(alerts);
+            setShowAllergyAlert(true);
+        }
+    }, [menuData, userAllergies, hasAcknowledgedAllergy]);
+
+    const handleAllergyAcknowledge = () => {
+        setShowAllergyAlert(false);
+        setHasAcknowledgedAllergy(true);
     };
 
     // ถ้ามาจาก History ให้ fetch menu จาก DB
@@ -156,20 +192,14 @@ const MenuDetail = () => {
 
         fetchImages();
         return () => { isCancelled = true; };
-    }, [menuData]);
+    }, [menuData?.menu_name]); // Only depend on menu_name to prevent infinite loop
 
     // save history
     useEffect(() => {
-        if (!actualMenuId) {
-            console.log("No menu_id available for saving history");
-            return;
-        }
+        if (!actualMenuId) return;
 
         const userId = getUserId();
-        if (!userId) {
-            console.log("No userId available");
-            return;
-        }
+        if (!userId) return;
 
         console.log("Saving to history - userId:", userId, "menu_id:", actualMenuId);
 
@@ -185,21 +215,17 @@ const MenuDetail = () => {
             });
     }, [actualMenuId]);
 
-    // check favorite - ใช้ actualMenuId
+    // check favorite
     useEffect(() => {
         const checkFavorite = async () => {
             const userId = getUserId();
-            if (!userId || !actualMenuId) {
-                console.log("Cannot check favorite - userId:", userId, "actualMenuId:", actualMenuId);
-                return;
-            }
+            if (!userId || !actualMenuId) return;
 
             try {
                 const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/favorites/${userId}`);
                 const favIds = res.data.map(item => item.menu_id);
                 const isInFavorites = favIds.includes(actualMenuId);
                 setIsFavorite(isInFavorites);
-                console.log("Favorite status:", isInFavorites, "for menu_id:", actualMenuId);
             } catch (err) {
                 console.error("Error fetching favorites:", err);
             }
@@ -207,6 +233,34 @@ const MenuDetail = () => {
 
         checkFavorite();
     }, [actualMenuId]);
+
+    // Fetch allergies once on mount
+    useEffect(() => {
+        fetchUserAllergies();
+    }, [fetchUserAllergies]);
+
+    // Check allergies when menuData or userAllergies change
+    useEffect(() => {
+        checkAllergies();
+    }, [checkAllergies]);
+
+    const handleAddToList = () => {
+        const userId = getUserId();
+        if (!userId) {
+            navigate('/login');
+            return;
+        }
+
+        if (selectedIngredients.length > 0) {
+            const currentList = getShoppingListFromStorage(userId);
+            const updatedList = [...currentList, ...selectedIngredients];
+            saveShoppingListToStorage(userId, updatedList);
+            
+            navigate("/shoppinglist", {
+                state: { missingIngredients: selectedIngredients }
+            });
+        }
+    };
 
     if (!menuData) {
         return (
@@ -235,6 +289,28 @@ const MenuDetail = () => {
                     className="menu-image-large"
                 />
             </div>
+
+            {showAllergyAlert && allergyAlerts.length > 0 && (
+                <div className="allergy-popup-overlay">
+                    <div className="allergy-popup">
+                        <div className="allergy-popup-content">
+                            <h2>⚠️ Food Allergy Alert</h2>
+                            <p>This recipe contains:</p>
+                            <ul className="allergy-list">
+                                {allergyAlerts.map((ingredient, index) => (
+                                    <li key={index}><strong>{ingredient}</strong></li>
+                                ))}
+                            </ul>
+                            <button 
+                                className="allergy-confirm-btn"
+                                onClick={handleAllergyAcknowledge}
+                            >
+                                I Understand
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="text-container">
                 <div className='menu-header'>
@@ -295,11 +371,7 @@ const MenuDetail = () => {
                     <p className="missing-text">Missing some ingredients?</p>
                     <button
                         className="add-to-list-button"
-                        onClick={() =>
-                            navigate("/shoppinglist", {
-                                state: { missingIngredients: selectedIngredients },
-                            })
-                        }
+                        onClick={handleAddToList}
                         disabled={selectedIngredients.length === 0}
                     >
                         Add to list
@@ -335,7 +407,7 @@ const MenuDetail = () => {
                         <ul>
                             {menuData.tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
                         </ul>
-                    ) : <p>No tips available.</p>}
+                    ) : <p>No tips needed, just follow along and bon appétit!</p>}
                 </div>
 
                 <h2>Nutrition (per serving)</h2>

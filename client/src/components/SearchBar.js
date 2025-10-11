@@ -30,6 +30,7 @@ const SearchBar = () => {
     const [searchText, setSearchText] = useState("");
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [allIngredients, setAllIngredients] = useState([]);
+    const [showAddedMessage, setShowAddedMessage] = useState(false);
 
     // filter duplicate ingredient names
     const getUniqueIngredients = (ingredients) => {
@@ -70,10 +71,16 @@ const SearchBar = () => {
             setSelectedIngredients(updatedIngredients);
             setSearchText("");
             
-            // Also save to localStorage immediately and update count
+            // Save to localStorage and update count
             const existingIngredients = getIngredientsFromLocalStorage();
             saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
             loadAllIngredients();
+
+            // Show popup
+            setShowAddedMessage(true);
+            setTimeout(() => {
+                setShowAddedMessage(false);
+            }, 2000);
         }
     };
 
@@ -202,7 +209,6 @@ const SearchBar = () => {
             ...cameraIngredients
         ];
         
-        // Fix: Changed route from 'ingredients-preview' to 'ingredient-preview'
         navigate('/ingredient-preview', {
             state: { 
                 currentIngredients,
@@ -231,13 +237,6 @@ const SearchBar = () => {
                 </button>
                 <button type="submit" className="search-btn" style={{display: 'none'}}></button>
             </form>
-            
-            {/* Show selected ingredients count (ไม่นับชื่อซ้ำ) */}
-            {allIngredients.length > 0 && (
-                <div className="selected-ingredients-badge">
-                    <p>{allIngredients.length} total ingredient(s)</p>
-                </div>
-            )}
             
             <div className="ingredients-container">
                 <p className="ingredients-text">Ingredients</p>
@@ -317,6 +316,12 @@ const SearchBar = () => {
                     )}
                 </button>
             </div>
+
+            {showAddedMessage && (
+                <div className="ingredient-added-popup">
+                    <p>Ingredient added.</p>
+                </div>
+            )}
         </div>
     );
 };

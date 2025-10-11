@@ -125,13 +125,6 @@ const IngredientPreview = ({ updatedIngredients }) => {
     navigate('/search');
   };
 
-  // Add source indicator for ingredients
-  const getIngredientSource = (ingredient) => {
-    if (!ingredient || !ingredient.source) return '';
-    return ingredient.source === 'camera' ? ' (Camera)' : 
-           ingredient.source === 'manual' ? ' (Manual)' : '';
-  };
-
   // Handle back button - save changes before going back
   const handleBack = () => {
     saveIngredientsToLocalStorage(ingredients);
@@ -177,12 +170,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
                     </>
                   ) : (
                     <>
-                      <span>
-                        {ingredient.ingredient_name}
-                        <span style={{fontSize: '0.8em', color: '#888'}}>
-                          {getIngredientSource(ingredient)}
-                        </span>
-                      </span>
+                      <span>{ingredient.ingredient_name}</span>
                       <div className='ingredient-actions'>
                         <button className="edit-btn" onClick={() => handleEdit(index)}>
                           <img src={editBtn} alt="Edit" />
