@@ -23,6 +23,12 @@ const UserDataPage = () => {
     const userIdStr = getUserId();
     const userId = parseInt(userIdStr, 10);
 
+    const [mealStats, setMealStats] = useState({
+        total_completed: null,
+        most_cooked: null
+    });
+
+
 
     useEffect(() => {
         if (!userId || isNaN(userId)) {
@@ -59,6 +65,26 @@ const UserDataPage = () => {
 
         fetchUserData();
     }, [userId, navigate, userIdStr]);
+
+    useEffect(() => {
+        if (!userId || isNaN(userId)) {
+            return;
+        }
+
+        const fetchMealStats = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.REACT_APP_BACKEND_URL}/users/${userId}/meal-stats`
+                );
+                setMealStats(response.data);
+                console.log('Meal stats:', response.data);
+            } catch (error) {
+                console.error('Error fetching meal stats:', error);
+            }
+        };
+
+        fetchMealStats();
+    }, [userId]);
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
@@ -121,9 +147,19 @@ const UserDataPage = () => {
                 <div className="separator"></div>
                 <div className="data-box-bottom">
                     <div className="title">Meal Complete</div>
-                    <div className="data">-</div>
+                    <div className="data">
+                        {mealStats.total_completed !== null && mealStats.total_completed > 0
+                            ? mealStats.total_completed
+                            : '-'
+                        }
+                    </div>
                     <div className="title">Frequently Cooked</div>
-                    <div className="data">-</div>
+                    <div className="data">
+                        {mealStats.most_cooked
+                            ? `${mealStats.most_cooked.menu_name} (${mealStats.most_cooked.cook_count})`
+                            : '-'
+                        }
+                    </div>
                 </div>
 
                 <div className="logout-place">

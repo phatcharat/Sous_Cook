@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import '../css/MenuDetail.css'; 
+import '../css/MenuDetail.css';
 import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLocalStorage } from '../utils/storageUtils';
 import checkbox from '../image/menu-detail/Checkbox.svg';
 import checkboxOncheck from '../image/menu-detail/Checkbox_check.svg';
 import axios from 'axios';
 import unknowIngImage from '../image/ingredient/unknow-ingredient.svg';
-import unknowMenuImage from  '../image/menu-suggestion/notfound-image.svg';
+import unknowMenuImage from '../image/menu-suggestion/notfound-image.svg';
 import tips from '../image/menu-detail/tips.svg'
 import { getUserId } from '../utils/auth';
 import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
 
-const MenuDetail = () => { 
+const MenuDetail = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { menu, menu_id, isRandomMenu = false } = location.state || {};
@@ -23,7 +23,9 @@ const MenuDetail = () => {
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
-    
+    const [mealCompleted, setMealCompleted] = useState(false);
+
+
     const actualMenuId = menu_id || menuData?.menu_id;
 
     // ย้อนกลับไปหน้าก่อนหน้าเสมอ
@@ -31,11 +33,39 @@ const MenuDetail = () => {
         navigate(-1);
     };
 
-    const handleCheck = (index) => {
+    const handleCheck = async (index) => {
+        let newCheckedSteps;
+
         if (checkedSteps.includes(index)) {
-            setCheckedSteps(checkedSteps.filter(stepIndex => stepIndex !== index));
+            newCheckedSteps = checkedSteps.filter(stepIndex => stepIndex !== index);
         } else {
-            setCheckedSteps([...checkedSteps, index]);
+            newCheckedSteps = [...checkedSteps, index];
+        }
+
+        setCheckedSteps(newCheckedSteps);
+
+        // Check if all steps are now checked
+        const totalSteps = menuData.steps?.length || 0;
+        if (newCheckedSteps.length === totalSteps && totalSteps > 0 && !mealCompleted) {
+            // All steps completed! Save to database
+            const userId = getUserId();
+            if (userId && actualMenuId) {
+                try {
+                    await axios.post(`${process.env.REACT_APP_BACKEND_URL}/meal-completions`, {
+                        user_id: userId,
+                        menu_id: actualMenuId
+                    });
+
+                    setMealCompleted(true);
+
+                    // Optional: Show a success message
+                    console.log('Congratulations! Meal completed!');
+                    // You could add a toast notification here
+
+                } catch (err) {
+                    console.error('Error saving meal completion:', err);
+                }
+            }
         }
     };
 
@@ -126,7 +156,7 @@ const MenuDetail = () => {
 
         fetchImages();
         return () => { isCancelled = true; };
-    }, [menuData]); 
+    }, [menuData]);
 
     // save history
     useEffect(() => {
@@ -134,7 +164,7 @@ const MenuDetail = () => {
             console.log("No menu_id available for saving history");
             return;
         }
-        
+
         const userId = getUserId();
         if (!userId) {
             console.log("No userId available");
@@ -142,17 +172,17 @@ const MenuDetail = () => {
         }
 
         console.log("Saving to history - userId:", userId, "menu_id:", actualMenuId);
-        
+
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/history`, {
             user_id: userId,
             menu_id: actualMenuId
         })
-        .then(res => {
-            console.log("History saved successfully:", res.data);
-        })
-        .catch(err => {
-            console.error("Error saving history:", err.response?.data || err.message);
-        });
+            .then(res => {
+                console.log("History saved successfully:", res.data);
+            })
+            .catch(err => {
+                console.error("Error saving history:", err.response?.data || err.message);
+            });
     }, [actualMenuId]);
 
     // check favorite - ใช้ actualMenuId
@@ -193,8 +223,8 @@ const MenuDetail = () => {
                 <button className="back-button" onClick={handleBackNavigation}></button>
 
                 <button className="favorite-button" onClick={handleToggleFavorite}>
-                    <img 
-                        src={isFavorite ? favorite : notfavorite} 
+                    <img
+                        src={isFavorite ? favorite : notfavorite}
                         alt="Favorite"
                     />
                 </button>
@@ -212,7 +242,7 @@ const MenuDetail = () => {
                     <p>Prep time: {menuData.prep_time || 'N/A'}</p>
                     <p>Cooking time: {menuData.cooking_time || 'N/A'}</p>
                 </div>
-                
+
                 <h2>Ingredients</h2>
                 <div className="ingredientAndSeasoning-container">
                     {menuData.ingredients_quantity && Object.entries(menuData.ingredients_quantity)
@@ -221,8 +251,8 @@ const MenuDetail = () => {
                             return type && type.toLowerCase() !== 'miscellaneous items';
                         })
                         .map(([name, quantity], idx) => (
-                            <div 
-                                key={idx} 
+                            <div
+                                key={idx}
                                 className={`ingredient-item${selectedIngredients.some(i => i.name === name) ? ' selected' : ''}`}
                                 onClick={() => handleSelectIngredient(name, quantity)}
                             >
@@ -245,8 +275,8 @@ const MenuDetail = () => {
                             return type && type.toLowerCase() === 'miscellaneous items';
                         })
                         .map(([name, quantity], idx) => (
-                            <div 
-                                key={idx} 
+                            <div
+                                key={idx}
                                 className={`ingredient-item${selectedIngredients.some(i => i.name === name) ? ' selected' : ''}`}
                                 onClick={() => handleSelectIngredient(name, quantity)}
                             >
@@ -288,9 +318,9 @@ const MenuDetail = () => {
                                     className="custom-checkbox"
                                 />
                                 <span className="custom-checkbox-styled">
-                                    <img 
-                                        src={checkedSteps.includes(idx) ? checkboxOncheck : checkbox} 
-                                        alt="Checkbox" 
+                                    <img
+                                        src={checkedSteps.includes(idx) ? checkboxOncheck : checkbox}
+                                        alt="Checkbox"
                                     />
                                 </span>
                                 {step}

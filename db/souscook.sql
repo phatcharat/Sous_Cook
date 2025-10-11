@@ -81,6 +81,15 @@ CREATE TABLE community (
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- meal completion
+CREATE TABLE meal_completions (
+    "completion_id" SERIAL PRIMARY KEY,
+    "user_id" INTEGER NOT NULL REFERENCES users(user_id),
+    "menu_id" INTEGER NOT NULL REFERENCES menus(menu_id),
+    "completed_at" TIMESTAMP DEFAULT NOW(),
+    UNIQUE(user_id, menu_id, completed_at)
+);
+
 -- nutrition
 -- CREATE TABLE nutrition (
 --     "nutrition_id" SERIAL PRIMARY KEY,

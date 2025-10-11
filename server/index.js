@@ -616,6 +616,64 @@ app.get('/api/random-menu', async (req, res) => {
   }
 });
 
+// POST meal completion
+app.post('/api/meal-completions', async (req, res) => {
+  try {
+    const { user_id, menu_id } = req.body;
+
+    if (!user_id || !menu_id) {
+      return res.status(400).json({ error: 'user_id and menu_id are required' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO meal_completions (user_id, menu_id, completed_at)
+       VALUES ($1, $2, NOW())
+       RETURNING *`,
+      [user_id, menu_id]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error saving meal completion:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET meal statistics
+app.get('/api/users/:user_id/meal-stats', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Get total completed meals
+    const completedResult = await pool.query(
+      `SELECT COUNT(*) as total_completed
+       FROM meal_completions
+       WHERE user_id = $1`,
+      [user_id]
+    );
+
+    // Get most frequently cooked menu
+    const frequentResult = await pool.query(
+      `SELECT m.menu_name, COUNT(*) as cook_count
+       FROM meal_completions mc
+       JOIN menus m ON mc.menu_id = m.menu_id
+       WHERE mc.user_id = $1
+       GROUP BY m.menu_id, m.menu_name
+       ORDER BY cook_count DESC
+       LIMIT 1`,
+      [user_id]
+    );
+
+    res.json({
+      total_completed: completedResult.rows[0].total_completed || 0,
+      most_cooked: frequentResult.rows[0] || null
+    });
+  } catch (err) {
+    console.error('Error fetching meal stats:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 //
 //
