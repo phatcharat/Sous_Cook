@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage } from '../utils/storageUtils';
+import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage, addDeletedIngredient, getDeletedIngredients } from '../utils/storageUtils';
 import '../css/IngredientPreview.css';
 import PreferencesPage from './PreferencesPage';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Importing SVG icons for different ingredient types
 import EggMilkDairy from '../Icon/Ingredient/Egg, milk, and dairy product.svg';
@@ -20,24 +20,41 @@ import deleteBtn from '../Icon/Button/Delete_btn.png';
 import addBtn from '../Icon/Button/Add_btn.svg';
 
 const IngredientPreview = ({ updatedIngredients }) => {
+  const location = useLocation();
   const [ingredients, setIngredients] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editedName, setEditedName] = useState('');
   const [isReferencePage, setIsReferencePage] = useState(false);
   const navigate = useNavigate();
 
+  // filter ingredients name
+  const getUniqueIngredients = (ingredients) => {
+    const seen = new Set();
+    const deleted = getDeletedIngredients();
+    return ingredients.filter(ing => {
+      const name = ing.ingredient_name?.trim();
+      if (!name || seen.has(name) || deleted.includes(name.toLowerCase())) return false;
+      seen.add(name);
+      return true;
+    });
+  };
+
   // Fetch stored ingredients when the component mounts
   useEffect(() => {
-    const storedIngredients = getIngredientsFromLocalStorage();
-    setIngredients(storedIngredients);
-  }, []);
+    let allIngredients = [];
+    if (location.state?.currentIngredients) {
+      allIngredients = location.state.currentIngredients;
+    } else {
+      allIngredients = getIngredientsFromLocalStorage();
+    }
+    setIngredients(getUniqueIngredients(allIngredients));
+  }, [location.state]);
 
-  // Update ingredients when a new image is processed
   useEffect(() => {
     if (updatedIngredients) {
       const newIngredientsList = [...ingredients, ...updatedIngredients];
-      setIngredients(newIngredientsList);
-      saveIngredientsToLocalStorage(newIngredientsList);
+      setIngredients(getUniqueIngredients(newIngredientsList));
+      saveIngredientsToLocalStorage(getUniqueIngredients(newIngredientsList));
     }
   }, [updatedIngredients]);
 
@@ -72,13 +89,20 @@ const IngredientPreview = ({ updatedIngredients }) => {
     setEditedName(ingredients[index].ingredient_name);
   };
 
+  // Updated saveIngredients function - ALWAYS save to localStorage
+  const saveIngredients = (updatedList) => {
+    setIngredients(updatedList);
+    // Always save to localStorage so SearchBar can pick up changes
+    saveIngredientsToLocalStorage(updatedList);
+  };
+
   // Handle saving the edited ingredient
   const handleSaveEdit = (index) => {
     const updatedIngredients = [...ingredients];
     updatedIngredients[index].ingredient_name = editedName;
-    setIngredients(updatedIngredients);
-    saveIngredientsToLocalStorage(updatedIngredients);
+    saveIngredients(updatedIngredients);
     setEditIndex(null);
+    setEditedName('');
   };
 
   // Handle canceling the edit
@@ -88,13 +112,29 @@ const IngredientPreview = ({ updatedIngredients }) => {
 
   // Handle deleting an ingredient
   const handleDelete = (index) => {
+    const deletedName = ingredients[index].ingredient_name;
+    addDeletedIngredient(deletedName);
     const updatedList = ingredients.filter((_, i) => i !== index);
-    setIngredients(updatedList);
-    saveIngredientsToLocalStorage(updatedList);
+    saveIngredients(updatedList);
   };
 
-  // Handle adding new ingredient - navigate to SearchBar
+  // Handle adding new ingredient - navigate back to SearchBar
   const handleAddIngredient = () => {
+    // Save current ingredients before navigating
+    saveIngredientsToLocalStorage(ingredients);
+    navigate('/search');
+  };
+
+  // Add source indicator for ingredients
+  const getIngredientSource = (ingredient) => {
+    if (!ingredient || !ingredient.source) return '';
+    return ingredient.source === 'camera' ? ' (Camera)' : 
+           ingredient.source === 'manual' ? ' (Manual)' : '';
+  };
+
+  // Handle back button - save changes before going back
+  const handleBack = () => {
+    saveIngredientsToLocalStorage(ingredients);
     navigate('/search');
   };
 
@@ -105,7 +145,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
       ) : (
         <div className="ingredient-preview-container">
           <div className='menu-header-container'>
-            <button className="back-button" onClick={() => navigate('/home')}></button>
+            <button className="back-button" onClick={handleBack}></button>
             <h1 className="ingredient-header">Ingredient List</h1>
           </div>
           <ul className="ingredient-list">
@@ -137,7 +177,12 @@ const IngredientPreview = ({ updatedIngredients }) => {
                     </>
                   ) : (
                     <>
-                      <span>{ingredient.ingredient_name}</span>
+                      <span>
+                        {ingredient.ingredient_name}
+                        <span style={{fontSize: '0.8em', color: '#888'}}>
+                          {getIngredientSource(ingredient)}
+                        </span>
+                      </span>
                       <div className='ingredient-actions'>
                         <button className="edit-btn" onClick={() => handleEdit(index)}>
                           <img src={editBtn} alt="Edit" />

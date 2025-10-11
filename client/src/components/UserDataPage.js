@@ -23,21 +23,44 @@ const UserDataPage = () => {
     const userIdStr = getUserId();
     const userId = parseInt(userIdStr, 10);
 
+    const [mealStats, setMealStats] = useState({
+        total_completed: null,
+        most_cooked: null
+    });
+
+    // Add this utility function after the imports
+    const logUserAction = (action, details = {}) => {
+        // Create a sanitized copy of details
+        const safeDetails = { ...details };
+        
+        // Remove or mask sensitive fields
+        if (safeDetails.userId) safeDetails.userId = '****';
+        if (safeDetails.email) safeDetails.email = '****@****.***';
+        if (safeDetails.username) safeDetails.username = '****';
+        if (safeDetails.phone_number) safeDetails.phone_number = '****';
+        
+        console.log(`UserData - ${action}:`, safeDetails);
+    };
 
     useEffect(() => {
         if (!userId || isNaN(userId)) {
-            console.error('Invalid userId:', userIdStr);
+            logUserAction('auth_check_failed', { valid: false });
             navigate('/login');
             return;
         }
-        // ดึงข้อมูล user จาก API
+
         const fetchUserData = async () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
                 const user = response.data.user;
 
-                console.log('Fetched user data:', user);
-                console.log('Avatar URL:', user.avatar_url);
+                // Replace direct console.logs with safe logging
+                logUserAction('data_fetch_success', {
+                    hasAvatar: !!user.avatar_url,
+                    hasBirthDate: !!user.birth_date,
+                    hasPhoneNumber: !!user.phone_number,
+                    hasCountry: !!user.country
+                });
 
                 if (user.birth_date) {
                     user.birth_date = user.birth_date.split('T')[0];
@@ -52,13 +75,36 @@ const UserDataPage = () => {
                 }
 
             } catch (error) {
-                console.error('Error fetching user data:', error);
+                logUserAction('data_fetch_error', {
+                    status: error.response?.status,
+                    error: error.message
+                });
                 setProfileImage(defaultProfile);
             }
         };
 
         fetchUserData();
     }, [userId, navigate, userIdStr]);
+
+    useEffect(() => {
+        if (!userId || isNaN(userId)) {
+            return;
+        }
+
+        const fetchMealStats = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.REACT_APP_BACKEND_URL}/users/${userId}/meal-stats`
+                );
+                setMealStats(response.data);
+                console.log('Meal stats:', response.data);
+            } catch (error) {
+                console.error('Error fetching meal stats:', error);
+            }
+        };
+
+        fetchMealStats();
+    }, [userId]);
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
@@ -80,7 +126,7 @@ const UserDataPage = () => {
     }
 
     const handleImageError = () => {
-        console.error('Failed to load avatar image');
+        logUserAction('avatar_load_error');
         setProfileImage(defaultProfile);
     };
 
@@ -121,9 +167,19 @@ const UserDataPage = () => {
                 <div className="separator"></div>
                 <div className="data-box-bottom">
                     <div className="title">Meal Complete</div>
-                    <div className="data">-</div>
+                    <div className="data">
+                        {mealStats.total_completed !== null && mealStats.total_completed > 0
+                            ? mealStats.total_completed
+                            : '-'
+                        }
+                    </div>
                     <div className="title">Frequently Cooked</div>
-                    <div className="data">-</div>
+                    <div className="data">
+                        {mealStats.most_cooked
+                            ? `${mealStats.most_cooked.menu_name} (${mealStats.most_cooked.cook_count})`
+                            : '-'
+                        }
+                    </div>
                 </div>
 
                 <div className="logout-place">

@@ -86,7 +86,7 @@ const PreferencesPage = () => {
     {isLoading && <LoadingMenuPage />}
     <div className="preferences-container">
         <div className='menu-header-container'>
-            <button className="back-button" onClick={()=>navigate('/ingredients-preview')}></button>
+            <button className="back-button" onClick={()=>navigate('/ingredient-preview')}></button>
             <h1 className="header">Cuisines</h1>
         </div>
         <div className="preference-list">

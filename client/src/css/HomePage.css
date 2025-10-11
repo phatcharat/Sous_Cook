@@ -41,6 +41,35 @@
   margin-right: 20px;
 }
 
+/* Shopping List Badge */
+.list-icon-button {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.shopping-list-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #FF6B6B;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.shopping-list-badge:empty {
+  display: none;
+}
+
 .question-text {
   margin-top: 29px;
   margin-bottom: 5px;
@@ -56,6 +85,7 @@
   align-items: center;
   width: 370px;
   height: 50px;
+  border: none;
   border-radius: 30px;
   background: rgba(105, 124, 55, 0.10);
   padding-left: 22px;

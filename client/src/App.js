@@ -20,6 +20,7 @@ import HistoryScreen from './components/History';
 import Setting from './components/Setting';
 import Newpassword from './pages/Newpassword';
 import Listpage from './components/Listpage';
+import CameraSearch from './components/cameraSearch';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -32,10 +33,11 @@ function App() {
         <Route path="/home" element={<HomePage />}  />
         <Route path="/menu-suggestion" element={<MenuSuggestion />} />
         <Route path="/camera" element={<Camera />} />
+        <Route path="/camera-search" element={<CameraSearch />} />
         <Route path="/menu-detail/:index" element={<MenuDetail />} />
         <Route path="/menu-detail" element={<MenuDetail />} />
         <Route path="/preferences" element={<PreferencesPage />} />
-        <Route path="/ingredients-preview" element={<IngredientPreview />} />
+        <Route path="/ingredient-preview" element={<IngredientPreview />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />

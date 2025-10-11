@@ -85,7 +85,8 @@ const LoginPage = () => {
 
       if (backendResponse.data.user_id) {
         setUserId(backendResponse.data.user_id);
-        console.log('Google User ID:', getUserId());
+        // Replace console.log with a more secure message
+        console.log('Google authentication successful');
       }
 
       const isNewUser = backendResponse.data.is_new_user;
@@ -172,7 +173,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     // Validate all fields
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
@@ -196,10 +197,10 @@ const LoginPage = () => {
         withCredentials: true
       });
 
-      // Store user data
       if (response.data.user_id) {
         setUserId(response.data.user_id);
-        console.log('User ID saved:', getUserId());
+        // Replace console.log with a more secure message
+        console.log('Login successful');
       }
 
       setAlert({
