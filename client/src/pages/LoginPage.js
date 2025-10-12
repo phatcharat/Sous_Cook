@@ -9,6 +9,7 @@ import { getUserId, setUserId } from '../utils/auth';
 const LoginPage = () => {
   const navigate = useNavigate();
   const timeoutRef = useRef(null);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://172.23.144.1:5050';
 
   const [formData, setFormData] = useState({
     username: '',

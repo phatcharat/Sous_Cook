@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
-@import url('https://use-fontawesome.com/releases/v5.5.0/css/all.css');
+
+.no-review-text {
+ font-family: 'Questrial';
+ justify-self: center;
+ align-self: center;
+}
 
 .rating-container {
     /* background-color: aqua; */
@@ -45,7 +50,7 @@
     width: 75px;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
-    z-index: 1;
+    /* z-index: 0; */
     box-shadow: 0px 5px 10px #cacaca;
 }
 
@@ -140,10 +145,6 @@
     flex-direction: row;
     /* background-color: #FE9801; */
     margin: 1rem;
-    /* width: 25%; */
-    /* height: 150px */
-    /* justify-items: center; */
-    /* justify-content: center; */
 }
 
 .left-rating {
@@ -207,6 +208,13 @@ hr {
     border-radius: 15px;
 }
 
+.percent-progress-bar {
+   display: flex;
+   background-color: #FE9801;
+   border-radius: 15px; 
+   height: 100%;
+}
+
 
 .num-rate {
     width: 5%;
@@ -231,7 +239,7 @@ hr {
 
 .star-base {
     font-size: 12px;
-    font-family: 'Font Awesome 5 Free';
+    /* font-family: 'Font Awesome 5 Free'; */
     /* content:'\f005';  */
     font-weight: bold;
     /* position: relative; */
@@ -268,7 +276,7 @@ hr {
     /* background-color: antiquewhite; */
 }
 
-#my-review-pro {
+.my-review-pro {
     background-color: #FFFDF6;
     border: 3px solid #FE9801;
     position: relative;
@@ -278,9 +286,13 @@ hr {
     width: 35px;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
-    z-index: 1;
+    /* z-index: 1; */
     /* box-shadow: 0px 5px 10px #cacaca; */
 }
+
+/* .other-review {
+    z-index: 0;
+} */
 
 .review-pro-rate {
     width: 70%;
@@ -318,21 +330,25 @@ hr {
     border-radius: 10px;
     font-size: large;
     font-weight: bold;
+    font-family: 'Questrial';
 }
 
 #review-message-textarea {
     width: 85%;
     height: 50px;
+    font-family: 'Questrial';
+    resize: none;
 }
 
 .review-text {
+    word-break: break-word; 
+    overflow-wrap: break-word; 
     display: flex;
     width: 70%;
-    /* background-color: aqua; */
     border-radius: 10px;
-    overflow-wrap: break-all;
-    margin: 1rem;
-    font-size: 0.8rem;
+    margin: 5px;
+    font-size: 1rem;
+    max-width: 100%;
 }
 
 .my-rate {
@@ -353,5 +369,14 @@ hr {
     /* cursor: pointer; */
     padding-left: 10px;
     font-size: 30px;
-    font-family: 'Font Awesome 5 Free';
+    /* font-family: 'Font Awesome 5 Free'; */
+}
+
+.comment-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 5px;
+    /* margin: 0.5rem 0.5rem 0rem 0.5rem; */
 }

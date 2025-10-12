@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../css/MenuReview.css';  // Import the CSS file
 import logo from '../image/Logo1.svg';
+import backicon from '../image/searchbar/Back.svg';
 import defaultProfile from '../image/profile.jpg';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -19,19 +20,35 @@ const MenuReview = () => {
     });
 
     const [formReview, setReviewData] = useState({
-        recipe_id: '',
+        user_id: '',
+        menu_id: '',
         comment: '',
         rating: ''
     });
 
-    const [reviews, setReview] = useState({
-        recipe_id: '',
+    const [reviews, setReview] = useState([{
+        menu_id: '',
         comment: '',
         rating: '',
-        created_at: ''
-        // username: '',
-        // avatar: '',
-        // avatar_url: defaultProfile
+        created_at: '',
+        username: '',
+        avatar: '',
+        avatar_url: defaultProfile
+    }]);
+
+    const [ratings, setRating] = useState({
+        sum_rating: 0,
+        avg_rating: 0,
+        rate_5: 0,
+        rate_4: 0,
+        rate_3: 0,
+        rate_2: 0,
+        rate_1: 0,
+        percent_rate_5: 0,
+        percent_rate_4: 0,
+        percent_rate_3: 0,
+        percent_rate_2: 0,
+        percent_rate_1: 0
     });
 
     useEffect(() => {
@@ -42,7 +59,7 @@ const MenuReview = () => {
         }
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5050/api/users/${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/${userId}`);
                 const user = response.data.user;        
                 setUserData(user);
             } catch (error) {
@@ -53,183 +70,246 @@ const MenuReview = () => {
         fetchUserData();
     }, [userId, navigate]);
 
-    useEffect(() => {
-        const fetchReviewData = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5050/api/menu-detail/${index}/review`);
-                const reviews = response.data.reviews;
-                setReview(reviews);
-            } catch (error) {
-                console.error('Error fetching review data:', error);
+    const fetchReviewData = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${index}/reviews`);
+            const { reviews, menu_id, sum_rating, avg_rating, rate_5, rate_4, rate_3, rate_2, rate_1 } = response.data;
+            if (!menu_id) { 
+                console.error("Backend did not return a valid menu_id.");
+                return; 
             }
-        };
+            setReview(reviews || []);
+            setRating({
+                sum_rating: sum_rating || 0,
+                avg_rating: avg_rating || 0,
+                rate_5: rate_5 || 0,
+                rate_4: rate_4 || 0,
+                rate_3: rate_3 || 0,
+                rate_2: rate_2 || 0,
+                rate_1: rate_1 || 0,
+                percent_rate_5: (reviews.length > 0 ? (rate_5 / reviews.length) * 100 : 0),
+                percent_rate_4: (reviews.length > 0 ? (rate_4 / reviews.length) * 100 : 0),
+                percent_rate_3: (reviews.length > 0 ? (rate_3 / reviews.length) * 100 : 0),
+                percent_rate_2: (reviews.length > 0 ? (rate_2 / reviews.length) * 100 : 0),
+                percent_rate_1: (reviews.length > 0 ? (rate_1 / reviews.length) * 100 : 0)
+            });
+            setReviewData(prevData => ({
+                ...prevData,
+                menu_id: menu_id,
+                user_id: userIdStr
+            }));
+        } catch (error) {
+            console.error('Error fetching review data:', error);
+        }
+    };
 
+
+    useEffect(() => {
         fetchReviewData();
-    }, [index, navigate]);
+    }, [index]);
 
-    const handleReview = () => {
-        navigate('/home');
-    }
+    const renderStars = (rate) => {
+        // 1. จัดการค่า NaN/null และปัดเศษ
+        const numericRating = parseFloat(rate) || 0;
+        const finalRating = Math.round(numericRating); 
+        
+        const STAR_VALUES = [5, 4, 3, 2, 1];
+        
+        // 2. คืนค่า JSX (Array of <span>)
+        return STAR_VALUES.map((starValue) => (
+            <span 
+                key={starValue} 
+                className={`fa fa-star fa-1x star-base ${
+                    starValue <= finalRating
+                        ? 'star-check' 
+                        : '' 
+                }`}
+            >
+            </span>
+        ));
+    };
+
     const handleChange = (e) => {
         setReviewData({ ...formReview, [e.target.name]: e.target.value });
-    }
+    };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const rating_int = parseInt(formReview.rating, 10);
+
+        if (rating_int < 1 || rating_int > 5) {
+            console.error("rate should be in 1 - 5")
+            return;
+        }
+
+        if (!formReview.menu_id) {
+            console.error("Cannot submit review: menu_id is missing.");
+            // setError("Menu ID not set. Please refresh."); // ถ้าคุณมี setError
+            return; 
+        }
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${index}/reviews`, formReview);
+            setReviewData({
+                comment: '',
+                rating: 0
+            });
+            fetchReviewData(); 
+        } catch (error) {
+            console.error('Error for post review:', error);
+        }
+
+    };
 
     return (
         <div>
             <div className="rating-container">
                 <div className="top-blank">
-                    {/* <button className="back-to-menu-detail-button" onClick={() => navigate('/menu-detail/:index')}>← Back</button> */}
+                    <img
+                        src={backicon}
+                        alt="back"
+                        className="back-icon"
+                        onClick={() => navigate(`/menu-detail/${index}`)}
+                        style={{ cursor: "pointer" }}
+                    />
                 </div>
                 <div className="pic-logo">
                     <img src={logo} id="logo-review" alt="Sous Cook Logo"/>
                     <div className="caption-review">Review this recipe</div>
                     <div className="star-rating menu-rate">
-                        <span className="fa fa-star fa-1x star-base star-check"></span>
-                        <span className="fa fa-star fa-1x star-base star-check"></span>
-                        <span className="fa fa-star fa-1x star-base star-check"></span>
-                        <span className="fa fa-star fa-1x star-base star-check"></span>
-                        <span className="fa fa-star fa-1x star-base star-check"></span>
+                        {renderStars(ratings.avg_rating)}
                     </div>
                 </div>
             </div>
 
             <div className="review-container">
                 <div className="rw-rt">
-                    <div className="rw">16 reviews</div>
-                    <div className="rt">27 ratings</div>
+                    <div className="rw">{reviews.length} reviews</div>
+                    <div className="rt">{ratings.sum_rating} ratings</div>
                 </div>
                 <div className="detail-rating">
                     <div className="left-rating">
-                        <div className="rating-this-menu">4</div>
+                        <div className="rating-this-menu">{ratings.avg_rating}</div>
                         <div>out of 5</div>
                     </div>
                     <div className="right-rating">
                         {/* <div className="row"> */}
                         <div className="row-rate-right">
                             <div className="right-star">
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
+                                {renderStars(5)}
                             </div>
                             <div className="all-rate">
                                 <div className="progress-bar-rate">
+                                    <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_5}%`}}></div>
                                 </div>
                                 
                             </div>
                             <div className="num-rate">
-                                <div className="num-review">4</div>
+                                <div className="num-review">{ratings.rate_5}</div>
                             </div>
                         </div>
                         <div className="row-rate-right">
                             <div className="right-star">
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
+                                {renderStars(4)}
                             </div>
                             <div className="all-rate">
                                 <div className="progress-bar-rate">
+                                    <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_4}%`}}></div>
                                 </div>
                                 
                             </div>
                             <div className="num-rate">
-                                <div className="num-review">4</div>
+                                <div className="num-review">{ratings.rate_4}</div>
                             </div>
                         </div>
                         <div className="row-rate-right">
                             <div className="right-star">
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
+                                {renderStars(3)}
                             </div>
                             <div className="all-rate">
                                 <div className="progress-bar-rate">
+                                    <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_3}%`}}></div>
                                 </div>
                                 
                             </div>
                             <div className="num-rate">
-                                <div className="num-review">4</div>
+                                <div className="num-review">{ratings.rate_3}</div>
                             </div>
                         </div>
                         <div className="row-rate-right">
                             <div className="right-star">
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
+                                {renderStars(2)}
                             </div>
                             <div className="all-rate">
                                 <div className="progress-bar-rate">
+                                    <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_2}%`}}></div>
                                 </div>
                                 
                             </div>
                             <div className="num-rate">
-                                <div className="num-review">4</div>
+                                <div className="num-review">{ratings.rate_2}</div>
                             </div>
                         </div>
                         <div className="row-rate-right">
                             <div className="right-star">
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
+                                {renderStars(1)}
                             </div>
                             <div className="all-rate">
                                 <div className="progress-bar-rate">
+                                    <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_1}%`}}></div>
                                 </div>
                                 
                             </div>
                             <div className="num-rate">
-                                <div className="num-review">4</div>
+                                <div className="num-review">{ratings.rate_1}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <hr></hr>
-
-                <div className="review-profile">
-                    <div className="review-pro-pic">
-                        <img
-                            src={userData.avatar
-                                ? `data:image/jpeg;base64,${userData.avatar}`
-                                : defaultProfile
-                            }
-                            id="my-review-pro"
-                            alt="avatar"
-                            />
-                    </div>
-                    <div className="review-pro-rate">
-                        <div className="review-username">{userData.username}</div>
-                        <div className="review-rate my-rate">
-                            <div className="star-rating all-users-review">
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base"></span>
-                                <span className="fa fa-star fa-1x star-base star-check"></span>
+                
+                {reviews.length === 0 ? (
+                    <p className="no-review-text">Be the first to leave a review!</p>
+                    ) : (
+                    reviews.map((review, index_review) => (
+                        <div key={index_review}>
+                            <div className="review-profile">
+                                <div className="review-pro-pic">
+                                    <img
+                                        src={review.avatar
+                                        ? `data:image/jpeg;base64,${review.avatar}`
+                                        : defaultProfile
+                                        }  
+                                        className="my-review-pro"
+                                        alt="avatar"
+                                        />
+                                </div>
+                                <div className="review-pro-rate">
+                                    <div className="review-username">{review.username}</div>
+                                    <div className="review-rate my-rate">
+                                        <div className="star-rating all-users-review">
+                                            {renderStars(review.rating)}
+                                        </div>
+                                    </div> 
+                                </div>
                             </div>
-                        </div> 
-                    </div>
-                </div>
-                <div className="review-message-box">
-                    <div className="review-text">นี่คือข้อความที่ถูกตัดขึ้นบรรทัดใหม่อัตโนมัติเมื่อถึงขอบเขตของกล่องสี่เหลี่ยมนี้</div>
-                </div>
+                            <div className="comment-box">
+                                <div className="review-text">{review.comment}</div>
+                            </div>
 
-                <hr></hr>
+                            <hr></hr>
+                        </div>
+                    ))
+                )}
+
+                
 
             </div>
 
             <div className="post-review-container">
-                <form className="review-form" onSubmit={handleReview}>
+                <form className="review-form" onSubmit={handleSubmit}>
                     <div className="review-profile">
                         <div className="review-pro-pic">
                             <img
@@ -237,7 +317,7 @@ const MenuReview = () => {
                                     ? `data:image/jpeg;base64,${userData.avatar}`
                                     : defaultProfile
                                 }
-                                id="my-review-pro"
+                                className="my-review-pro"
                                 alt="avatar"
                                 />
                         </div>
@@ -245,11 +325,11 @@ const MenuReview = () => {
                             <div className="review-username">{userData.username}</div>
                             <div className="review-rate my-rate">
                                 <div className="star-rating">
-                                    <input type="radio" name="rating" id="star5" value={5} onChange={handleChange}/><label for="star5"></label>
-                                    <input type="radio" name="rating" id="star4" value={4} onChange={handleChange}/><label for="star4"></label>
-                                    <input type="radio" name="rating" id="star3" value={3} onChange={handleChange}/><label for="star3"></label>
-                                    <input type="radio" name="rating" id="star2" value={2} onChange={handleChange}/><label for="star2"></label>
-                                    <input type="radio" name="rating" id="star1" value={1} onChange={handleChange}/><label for="star1"></label>
+                                    <input type="radio" name="rating" id="star5" value={'5'} onChange={handleChange}/><label for="star5"></label>
+                                    <input type="radio" name="rating" id="star4" value={'4'} onChange={handleChange}/><label for="star4"></label>
+                                    <input type="radio" name="rating" id="star3" value={'3'} onChange={handleChange}/><label for="star3"></label>
+                                    <input type="radio" name="rating" id="star2" value={'2'} onChange={handleChange}/><label for="star2"></label>
+                                    <input type="radio" name="rating" id="star1" value={'1'} onChange={handleChange}/><label for="star1"></label>
                                 </div>
                             </div> 
                         </div>

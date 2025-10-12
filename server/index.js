@@ -104,11 +104,11 @@ const endaman_api_key = process.env.EDAMAN_API_KEY;
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 5000;
-const server_ip = process.env.SERVER_IP;
+const port = process.env.PORT || 5050;
+const server_ip = process.env.SERVER_IP || '127.0.0.1';
 
 app.use(cors({
-  origin: ['http://localhost:3000', `http://localhost:${port}`, `http://${server_ip}:3000`, `http://${server_ip}:${port}`],
+  origin: ['http://localhost:3000', `http://localhost:5050`, `http://127.0.0.1:3000`, `http://127.0.0.1:5050`],
   credentials: true,
 }));
 
@@ -616,6 +616,30 @@ app.get('/api/random-menu', async (req, res) => {
   }
 });
 
+app.post('/api/menu-detail/:index/reviews', async (req, res) => {
+  // const user_id = req.user.id;
+  try {
+    const { user_id, menu_id, comment, rating } = req.body;
+    const menu_idNumber = parseInt(menu_id, 10);
+    const user_idNumber = parseInt(user_id, 10);
+    const ratingNumber = parseInt(rating, 10);
+
+    if (!user_idNumber || !menu_idNumber || !comment || !ratingNumber) {
+       return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
+    }
+
+    await pool.query(
+      "INSERT INTO review (user_id, menu_id, rating, comment, created_at) VALUES ($1, $2, $3, $4, NOW())",
+      [user_idNumber, menu_idNumber, ratingNumber, comment]
+    );
+    res.status(201).json({ message: "Review posted Successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server Error" });
+  }
+  
+});
+
 
 app.get('/api/menu-detail/:index/reviews', async (req, res) => {
   const urlIndex = req.params.index;
@@ -625,18 +649,39 @@ app.get('/api/menu-detail/:index/reviews', async (req, res) => {
     return res.status(400).send({message: "Invalid index provide."});
   }
   try {
-    const menu_result = await pool.query("SELECT recipe_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
+    const menu_result = await pool.query("SELECT menu_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
     if (menu_result.rows.length === 0) {
       return res.status(404).send({message: "Menu not found at this index."});
     }
     const actual_menu_id = parseInt(menu_result.rows[0].menu_id, 10);
     const review_result = await pool.query(`SELECT r.*, u.username, u.avatar
                                             FROM review r JOIN users u ON r.user_id = u.user_id
-                                            WHERE recipe_id = $1;`, [actual_menu_id]);
+                                            WHERE r.menu_id = $1
+                                            ORDER BY r.created_at DESC;`, [actual_menu_id]);
+                                            
+    const rating_result = await pool.query(`SELECT SUM(rating) AS sum_rating, COALESCE(AVG(rating), 0.00) AS avg_rating,
+                                            SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS rate_5,
+                                            SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS rate_4,
+                                            SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) AS rate_3,
+                                            SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS rate_2,
+                                            SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS rate_1
+                                            FROM review
+                                            WHERE menu_id = $1;`, [actual_menu_id]);
+
+    const rawStats = rating_result.rows.length > 0 ? rating_result.rows[0] : {};
+    const summaryData = {
+        sum_rating: parseFloat(rawStats.sum_rating) || 0,
+        avg_rating: parseFloat(rawStats.avg_rating).toFixed(2) || 0,
+        rate_5: parseInt(rawStats.rate_5) || 0,
+        rate_4: parseInt(rawStats.rate_4) || 0,
+        rate_3: parseInt(rawStats.rate_3) || 0,
+        rate_2: parseInt(rawStats.rate_2) || 0,
+        rate_1: parseInt(rawStats.rate_1) || 0,
+    };
     return res.json({
-      // menu_id: actual_menu_id,
-      // reviews_count: review_result.rows.length,
-      reviews: review_result.rows
+      menu_id: actual_menu_id,
+      reviews: review_result.rows,
+      ...summaryData
     });
 
   } catch {
@@ -644,6 +689,7 @@ app.get('/api/menu-detail/:index/reviews', async (req, res) => {
     res.status(500).json({ error: 'Server error'});
   }
 });
+
 
 //
 //
