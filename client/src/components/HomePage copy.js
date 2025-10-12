@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import '../css/HomePage.css';
+import '../css/HomePage.css';  // Import the CSS file
 import { getUserId, isLoggedIn } from '../utils/auth';
-import { getShoppingListFromStorage } from '../utils/storageUtils';
 import header from '../image/homepage/Header.svg';
 import listicon from '../image/homepage/List.svg';
 import searchicon from '../image/homepage/Search-Icon.svg'
@@ -29,22 +28,20 @@ const HomePage = () => {
   const [username, setUsername] = useState("USER");
   const [isLoadingRandom, setIsLoadingRandom] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-  const [shoppingListCount, setShoppingListCount] = useState(0);
-
-  // State สำหรับข้อมูลสถิติ
-  const [chartData, setChartData] = useState([]);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [currentMonthMeals, setCurrentMonthMeals] = useState(0);
-  const [currentMonthCO2, setCurrentMonthCO2] = useState(0);
 
   const logSafeUserEvent = (event, details = {}) => {
+    // Create safe copy of details, removing sensitive data
     const safeDetails = { ...details };
+    
+    // mask sensitive fields
     if (safeDetails.userId) safeDetails.userId = '****';
     if (safeDetails.username) safeDetails.username = '****';
     if (safeDetails.email) safeDetails.email = '****';
+    
     console.log(`Event: ${event}`, safeDetails);
   };
 
+  // Update useEffect with safe logging
   useEffect(() => {
     const userId = getUserId();
     const loggedIn = isLoggedIn();
@@ -55,15 +52,13 @@ const HomePage = () => {
         if (!userId) {
           logSafeUserEvent('auth_check', { status: 'not_authenticated' });
           setUsername("USER");
-          setStatsLoading(false);
           return;
         }
 
-        // ดึงข้อมูล user
-        const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
-        const user = userResponse.data.user;
-
-        logSafeUserEvent('user_data_fetch', {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
+        const user = response.data.user;
+        
+        logSafeUserEvent('user_data_fetch', { 
           status: 'success',
           hasData: !!user
         });
@@ -71,52 +66,18 @@ const HomePage = () => {
         if (user && user.username) {
           setUsername(user.username.toUpperCase() + "!");
         }
-
-        // ดึงข้อมูลสถิติรายเดือน
-        const statsResponse = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/users/${userId}/monthly-meal-stats`
-        );
-
-        const stats = statsResponse.data;
-
-        // แปลงข้อมูลให้เป็นรูปแบบสำหรับกราฟ
-        const formattedData = stats.monthly_stats.map(item => ({
-          month: item.month,
-          value: item.meal_count
-        }));
-
-        setChartData(formattedData);
-        setCurrentMonthMeals(stats.current_month.meal_count);
-        setCurrentMonthCO2(parseFloat(stats.current_month.co2_saved));
-        setStatsLoading(false);
-
       } catch (error) {
-        logSafeUserEvent('user_data_fetch', {
+        logSafeUserEvent('user_data_fetch', { 
           status: 'error',
           errorType: error.response?.status === 401 ? 'unauthorized' : 'fetch_failed'
         });
-
+        
         if (error.response?.status === 401 || error.response?.status === 403) {
           logSafeUserEvent('guest_access');
         }
-        setStatsLoading(false);
       }
     };
-
     fetchUserData();
-  }, []);
-
-  // Add useEffect to load shopping list count
-  useEffect(() => {
-    const loadShoppingList = () => {
-      const list = getShoppingListFromStorage();
-      setShoppingListCount(list.length);
-    };
-
-    loadShoppingList();
-    window.addEventListener('storage', loadShoppingList);
-    
-    return () => window.removeEventListener('storage', loadShoppingList);
   }, []);
 
   const toggleImage = (index) => {
@@ -140,101 +101,44 @@ const HomePage = () => {
     setActiveImages(newImages);
   };
 
-  // ค่าคงที่สำหรับกราฟ - ขยายความสูงโดยลด bottomPadding
-  const chartWidth = 314;
-  const chartHeight = 220;  // เพิ่มจาก 180 เป็น 220
-  const leftPadding = 35;
+  const chartData = [
+    { month: 'Oct', value: 10.0 },
+    { month: 'Nov', value: 11.0 },
+    { month: 'Dec', value: 12.0 },
+    { month: 'Jan', value: 12.0 }
+  ]
+
+  const chartWidth = 314
+  const chartHeight = 180;
+  const leftPadding = 30;
   const rightPadding = 15;
-  const topPadding = 15;
-  const bottomPadding = 28;  // ลดจาก 35 เป็น 28 เพื่อไม่ดันข้อความ
+  const topPadding = 10;
+  const bottomPadding = 20;
 
-  const getChartBounds = () => {
-    if (chartData.length === 0) {
-      return { minValue: 0, maxValue: 20 };
-    }
-
-    const values = chartData.map(d => d.value);
-    const maxDataValue = Math.max(...values);
-
-    if (maxDataValue === 0) {
-      return { minValue: 0, maxValue: 5 };
-    }
-
-    // กำหนด maxValue ให้เป็นค่าที่หารลงตัว
-    let niceMax;
-    if (maxDataValue <= 5) {
-      niceMax = 5;
-    } else if (maxDataValue <= 10) {
-      niceMax = 10;
-    } else if (maxDataValue <= 20) {
-      niceMax = 20;
-    } else if (maxDataValue <= 50) {
-      niceMax = Math.ceil(maxDataValue / 10) * 10;
-    } else {
-      niceMax = Math.ceil(maxDataValue / 20) * 20;
-    }
-
-    return {
-      minValue: 0,
-      maxValue: niceMax
-    };
-  };
-
-  const { minValue, maxValue } = getChartBounds();
+  const minValue = 9;
+  const maxValue = 13;
+  const valueRange = maxValue - minValue;
 
   const plotWidth = chartWidth - leftPadding - rightPadding;
   const plotHeight = chartHeight - topPadding - bottomPadding;
-
-  // กำหนดจำนวน Grid Lines ตาม maxValue
-  const getGridCount = (max) => {
-    if (max <= 5) return 6;    
-    if (max <= 10) return 6;   
-    if (max <= 20) return 5;  
-    if (max <= 50) return 6;   
-    return 5;
-  };
-
-  const gridLines = getGridCount(maxValue);
-
-  // ฟังก์ชันคำนวณตำแหน่ง Y ที่แม่นยำ
-  const calculateY = (value) => {
-    return topPadding + plotHeight - ((value / maxValue) * plotHeight);
-  };
-
-  // ฟังก์ชันคำนวณตำแหน่ง X
-  const calculateX = (index, dataLength) => {
-    if (dataLength === 1) {
-      return leftPadding + plotWidth / 2;
-    }
-    return leftPadding + (index * plotWidth) / (dataLength - 1);
-  };
+  const gridLines = 5;
+  const gridSpacing = plotHeight / (gridLines - 1);
 
   const createPath = (data) => {
-    if (data.length === 0) return '';
-
     const points = data.map((point, index) => {
-      const x = calculateX(index, data.length);
-      const y = calculateY(point.value);
+
+      const x = leftPadding + (index * plotWidth) / (data.length - 1);
+
+      const normalizedValue = (point.value - minValue) / valueRange;
+      const y = topPadding + plotHeight - (normalizedValue * plotHeight)
+
       return `${x},${y}`;
     });
 
     return `M ${points.join(' L ')}`;
   };
 
-  // สร้าง array ของค่า Grid
-  const getGridValues = () => {
-    const values = [];
-    const step = maxValue / (gridLines - 1);
-    
-    for (let i = 0; i < gridLines; i++) {
-      values.push(Math.round(step * i));
-    }
-    
-    return values;
-  };
-
-  const gridValues = getGridValues();
-
+  // Random menu
   const handleRandomMenu = async () => {
     setIsLoadingRandom(true);
 
@@ -245,7 +149,7 @@ const HomePage = () => {
         navigate('/menu-detail', {
           state: {
             menu: response.data.menu,
-            menu_id: response.data.menu.menu_id,
+            menu_id: response.data.menu.menu_id,  // สำคัญ!
             isRandomMenu: true
           }
         });
@@ -258,35 +162,20 @@ const HomePage = () => {
     }
   };
 
-  // Update list icon click handler
-  const handleListIconClick = () => {
-    const shoppingList = getShoppingListFromStorage();
-    navigate("/shoppinglist", { state: { missingIngredients: shoppingList } });
-  };
 
   return (
     <div className="homepage-container">
       <img src={header} alt="Header" className="header-image" />
       <div className="second-container">
+
         <p className="greet-user">HELLO <span className="username">{username}</span></p>
-        <div className="list-icon-container">
-          <img 
-            src={listicon} 
-            alt="List" 
-            className="list-icon" 
-            onClick={handleListIconClick}
-            style={{ cursor: "pointer" }} 
-          />
-          {shoppingListCount > 0 && (
-            <span className="list-badge">{shoppingListCount}</span>
-          )}
-        </div>
+        <img src={listicon} alt="List" className="list-icon" onClick={() => navigate("/shoppinglist")} style={{ cursor: "pointer" }} />
       </div>
 
       <p className="question-text">What's on your mind today chef?</p>
       <div className="search-box" onClick={() => navigate("/search")}>
         <img src={searchicon} alt="search" className="search-icon" />
-        <p className="search-text">Search your ingredients here</p>
+        <p className="search-text" >Search your ingredients here</p>
       </div>
 
       <div className="most-searched">
@@ -309,8 +198,8 @@ const HomePage = () => {
         <div className="chart-box">
           <svg className="chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
             {/* Horizontal grid lines */}
-            {gridValues.map((value, i) => {
-              const y = calculateY(value);
+            {Array.from({ length: gridLines }).map((_, i) => {
+              const y = topPadding + i * gridSpacing;
               return (
                 <line
                   key={`h-${i}`}
@@ -326,7 +215,7 @@ const HomePage = () => {
 
             {/* Vertical grid lines */}
             {chartData.map((_, i) => {
-              const x = calculateX(i, chartData.length);
+              const x = leftPadding + (i * plotWidth) / (chartData.length - 1);
               return (
                 <line
                   key={`v-${i}`}
@@ -352,8 +241,9 @@ const HomePage = () => {
 
             {/* Data points */}
             {chartData.map((point, index) => {
-              const x = calculateX(index, chartData.length);
-              const y = calculateY(point.value);
+              const x = leftPadding + (index * plotWidth) / (chartData.length - 1);
+              const normalizedValue = (point.value - minValue) / valueRange;
+              const y = topPadding + plotHeight - (normalizedValue * plotHeight);
               return (
                 <circle
                   key={index}
@@ -362,60 +252,50 @@ const HomePage = () => {
                   r="4"
                   fill="#B0BD39"
                   stroke="#fff"
-                  strokeWidth="2"
                 />
               );
             })}
 
-            {/* Y-axis labels - ใช้ค่าจาก gridValues */}
-            {gridValues.map((value, i) => {
-              const y = calculateY(value);
+            {/* Y-axis */}
+            {Array.from({ length: gridLines }).map((_, i) => {
+              const value = maxValue - (i * valueRange) / (gridLines - 1);
+              const y = topPadding + i * gridSpacing;
               return (
                 <text
                   key={`y-label-${i}`}
-                  x={leftPadding - 10}
-                  y={y + 4}
+                  x={leftPadding - 15}
+                  y={y + 5}
                   textAnchor="end"
-                  style={{
-                    fontSize: '13px',
-                    fill: '#6D6C6C',
-                    fontFamily: 'Quicksand',
-                    fontWeight: 500
-                  }}
+                  className="axis-label"
                 >
-                  {value}
+                  {Math.round(value)}
                 </text>
               );
             })}
 
-            {/* X-axis labels */}
+
+            {/* X-axis */}
             {chartData.map((point, index) => {
-              const x = calculateX(index, chartData.length);
+              const x = leftPadding + (index * plotWidth) / (chartData.length - 1);
               return (
                 <text
                   key={index}
                   x={x}
                   y={chartHeight - bottomPadding + 20}
                   textAnchor="middle"
-                  style={{
-                    fontSize: '13px',
-                    fill: '#6D6C6C',
-                    fontFamily: 'Quicksand',
-                    fontWeight: 500
-                  }}
+                  className="axis-label"
                 >
                   {point.month}
                 </text>
               );
             })}
           </svg>
-
           <div className="stat-info">
             <p className="stat-text">
-              You made <span className="highlight-orange">{currentMonthMeals} {currentMonthMeals === 1 ? 'dish' : 'dishes'}</span> this month
+              You made <span className="highlight-orange">12 dishes</span> this month
             </p>
             <p className="stat-text">
-              Around <span className="highlight-orange">{currentMonthCO2.toFixed(1)} kg</span> of CO2 saved!
+              Around <span className="highlight-orange">75 kg</span> of CO2 saved !
             </p>
           </div>
         </div>
@@ -443,11 +323,10 @@ const HomePage = () => {
           </button>
         </div>
       </div>
-
       <div className="news-container">
         <img src={news} alt="NEWS" className="news" />
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -75,3 +75,58 @@ export const printData = (ItemName) => {
     console.error(`Error parsing ${ItemName} from localStorage:`, error);
   }
 };
+
+export const getCameraIngredientsFromLocalStorage = () => {
+    try {
+        const ingredients = localStorage.getItem('cameraIngredients');
+        return ingredients ? JSON.parse(ingredients) : [];
+    } catch (error) {
+        console.error('Error getting camera ingredients from localStorage:', error);
+        return [];
+    }
+};
+
+export const saveCameraIngredientsToLocalStorage = (ingredients) => {
+    try {
+        localStorage.setItem('cameraIngredients', JSON.stringify(ingredients));
+    } catch (error) {
+        console.error('Error saving camera ingredients to localStorage:', error);
+    }
+};
+
+export const getDeletedIngredients = () => {
+    try {
+        const deleted = localStorage.getItem('deletedIngredients');
+        return deleted ? JSON.parse(deleted) : [];
+    } catch (error) {
+        return [];
+    }
+};
+
+export const addDeletedIngredient = (ingredientName) => {
+    try {
+        const deleted = getDeletedIngredients();
+        const name = ingredientName.trim().toLowerCase();
+        if (!deleted.includes(name)) {
+            localStorage.setItem('deletedIngredients', JSON.stringify([...deleted, name]));
+        }
+    } catch (error) {}
+};
+
+export const getShoppingListFromStorage = (userId) => {
+    try {
+        const list = localStorage.getItem(`shoppingList_${userId}`);
+        return list ? JSON.parse(list) : [];
+    } catch (error) {
+        console.error('Error getting shopping list:', error);
+        return [];
+    }
+};
+
+export const saveShoppingListToStorage = (userId, items) => {
+    try {
+        localStorage.setItem(`shoppingList_${userId}`, JSON.stringify(items));
+    } catch (error) {
+        console.error('Error saving shopping list:', error);
+    }
+};

@@ -9,6 +9,7 @@ CREATE TABLE users (
   "phone_number" VARCHAR(10),
   "birth_date" DATE,
   "country" VARCHAR(50),
+  "allergies" TEXT[] DEFAULT '{}',
   "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updated_at" TIMESTAMP,
   "deleted_at" TIMESTAMP
@@ -24,6 +25,7 @@ CREATE TABLE menus (
     "ingredients_quantity" JSONB,
     "ingredients_type" JSONB,
     "nutrition" JSONB,
+    "tips" JSONB,
     "image" TEXT
 );
 
@@ -79,6 +81,15 @@ CREATE TABLE community (
     "image"   TEXT,
     "caption" TEXT,
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- meal completion
+CREATE TABLE meal_completions (
+    "completion_id" SERIAL PRIMARY KEY,
+    "user_id" INTEGER NOT NULL REFERENCES users(user_id),
+    "menu_id" INTEGER NOT NULL REFERENCES menus(menu_id),
+    "completed_at" TIMESTAMP DEFAULT NOW(),
+    UNIQUE(user_id, menu_id, completed_at)
 );
 
 -- nutrition

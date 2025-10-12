@@ -362,7 +362,7 @@ app.get('/api/users/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
     const result = await pool.query(
-      "SELECT user_id, username, email, created_at, updated_at, deleted_at, avatar, phone_number, birth_date, country FROM users WHERE user_id = $1",
+      "SELECT user_id, username, email, created_at, updated_at, deleted_at, avatar, phone_number, birth_date, country, allergies FROM users WHERE user_id = $1",
       [user_id]
     );
 
@@ -389,7 +389,7 @@ app.get('/api/users/:user_id', async (req, res) => {
 // PUT user info
 app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) => {
   const { user_id } = req.params;
-  const { username, email, phone_number, birth_date, country } = req.body;
+  const { username, email, phone_number, birth_date, country, allergies } = req.body;
 
   try {
 
@@ -405,6 +405,13 @@ app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) =
     if (phone_number) { fields.push(`phone_number=$${index++}`); values.push(phone_number); }
     if (birth_date) { fields.push(`birth_date=$${index++}`); values.push(birth_date); }
     if (country) { fields.push(`country=$${index++}`); values.push(country); }
+
+    if (allergies !== undefined) {
+      fields.push(`allergies=$${index++}`);
+
+      const allergiesArray = typeof allergies === 'string' ? JSON.parse(allergies) : allergies;
+      values.push(Array.isArray(allergiesArray) ? allergiesArray : []);
+    }
 
     if (req.file) {
       fields.push(`avatar=$${index++}`);
@@ -613,6 +620,109 @@ app.get('/api/random-menu', async (req, res) => {
       error: 'Failed to generate random menu',
       details: error.message
     });
+  }
+});
+
+// GET meal statistics
+app.get('/api/users/:user_id/meal-stats', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Get total completed meals
+    const completedResult = await pool.query(
+      `SELECT COUNT(*) as total_completed
+       FROM meal_completions
+       WHERE user_id = $1`,
+      [user_id]
+    );
+
+    // Get most frequently cooked menu
+    const frequentResult = await pool.query(
+      `SELECT m.menu_name, COUNT(*) as cook_count
+       FROM meal_completions mc
+       JOIN menus m ON mc.menu_id = m.menu_id
+       WHERE mc.user_id = $1
+       GROUP BY m.menu_id, m.menu_name
+       ORDER BY cook_count DESC
+       LIMIT 1`,
+      [user_id]
+    );
+
+    res.json({
+      total_completed: completedResult.rows[0].total_completed || 0,
+      most_cooked: frequentResult.rows[0] || null
+    });
+  } catch (err) {
+    console.error('Error fetching meal stats:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET monthly meal statistics (5 months back)
+app.get('/api/users/:user_id/monthly-meal-stats', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // ดึงข้อมูล meal completions ของ 5 เดือนย้อนหลัง
+    const result = await pool.query(
+      `SELECT 
+        TO_CHAR(completed_at, 'Mon') as month,
+        TO_CHAR(completed_at, 'YYYY-MM') as year_month,
+        COUNT(*) as meal_count
+       FROM meal_completions
+       WHERE user_id = $1 
+         AND completed_at >= NOW() - INTERVAL '3 months'
+       GROUP BY year_month, TO_CHAR(completed_at, 'Mon'), DATE_TRUNC('month', completed_at)
+       ORDER BY DATE_TRUNC('month', completed_at) ASC`,
+      [user_id]
+    );
+
+    const CO2_PER_MEAL = 2.0;
+
+    const statsWithCO2 = result.rows.map(row => ({
+      month: row.month,
+      year_month: row.year_month,
+      meal_count: parseInt(row.meal_count),
+      co2_saved: (parseFloat(row.meal_count) * CO2_PER_MEAL).toFixed(2)
+    }));
+
+    const months = [];
+    const now = new Date();
+
+    for (let i = 3; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthKey = date.toISOString().slice(0, 7); 
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+
+      const existingData = statsWithCO2.find(s => s.year_month === monthKey);
+
+      months.push({
+        month: monthName,
+        year_month: monthKey,
+        meal_count: existingData ? existingData.meal_count : 0,
+        co2_saved: existingData ? existingData.co2_saved : '0.00'
+      });
+    }
+
+    const totalMeals = months.reduce((sum, m) => sum + m.meal_count, 0);
+    const totalCO2 = months.reduce((sum, m) => sum + parseFloat(m.co2_saved), 0).toFixed(2);
+
+    const currentMonth = months[months.length - 1];
+
+    res.json({
+      monthly_stats: months,
+      total_meals: totalMeals,
+      total_co2_saved: totalCO2,
+      current_month: {
+        month: currentMonth.month,
+        meal_count: currentMonth.meal_count,
+        co2_saved: currentMonth.co2_saved
+      }
+    });
+
+  } catch (err) {
+    console.error('Error fetching monthly meal stats:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

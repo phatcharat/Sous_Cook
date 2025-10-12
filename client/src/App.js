@@ -19,8 +19,9 @@ import SearchBar from './components/SearchBar';
 import HistoryScreen from './components/History';
 import Setting from './components/Setting';
 import Newpassword from './pages/Newpassword';
-import Listpage from './components/Listpage';
 import MenuReview from './components/MenuReview';
+import ShoppingList from './components/ShoppingList';
+import CameraSearch from './components/cameraSearch';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -33,10 +34,11 @@ function App() {
         <Route path="/home" element={<HomePage />}  />
         <Route path="/menu-suggestion" element={<MenuSuggestion />} />
         <Route path="/camera" element={<Camera />} />
+        <Route path="/camera-search" element={<CameraSearch />} />
         <Route path="/menu-detail/:index" element={<MenuDetail />} />
         <Route path="/menu-detail" element={<MenuDetail />} />
         <Route path="/preferences" element={<PreferencesPage />} />
-        <Route path="/ingredients-preview" element={<IngredientPreview />} />
+        <Route path="/ingredient-preview" element={<IngredientPreview />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
@@ -46,8 +48,8 @@ function App() {
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/Newpassword" element={<Newpassword/>}/>
-        <Route path="/shoppinglist" element={<Listpage />} />
         <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
+        <Route path="/shoppinglist" element={<ShoppingList />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (

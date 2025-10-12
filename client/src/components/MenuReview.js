@@ -153,7 +153,7 @@ const MenuReview = () => {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${index}/reviews`, formReview);
             setReviewData({
                 comment: '',
-                rating: 0
+                rating: ''
             });
             fetchReviewData(); 
         } catch (error) {

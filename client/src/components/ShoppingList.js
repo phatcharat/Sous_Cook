@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../css/Listpage.css";
+import { getShoppingListFromStorage, saveShoppingListToStorage } from '../utils/storageUtils';
+import { getUserId, isLoggedIn } from '../utils/auth';
+import "../css/ShoppingList.css";
+import grabLogo from '../image/shopping_list/Grab.png';
+import linemanLogo from '../image/shopping_list/Line_man.png';
 
-const Listpage = () => {
+const ShoppingList = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const userId = getUserId();
 
-  const shoppingList = location.state?.missingIngredients || [];
-
-  // state สำหรับ popup
+  const [shoppingList, setShoppingList] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in
+    if (!isLoggedIn()) {
+      navigate('/login');
+      return;
+    }
+
+    // Load user-specific shopping list
+    const savedList = getShoppingListFromStorage(userId);
+    setShoppingList(savedList);
+  }, [userId, navigate]);
+
+  const handleRemoveItem = (index) => {
+    const newList = shoppingList.filter((_, idx) => idx !== index);
+    setShoppingList(newList);
+    // Save to user-specific storage
+    saveShoppingListToStorage(userId, newList);
+  };
 
   return (
     <div className="shopping-list-container">
@@ -25,6 +47,12 @@ const Listpage = () => {
             <div key={idx} className="shopping-card">
               <img src={item.image} alt={item.name} className="shopping-image" />
               <p>{item.name}</p>
+              <button 
+                className="remove-item" 
+                onClick={() => handleRemoveItem(idx)}
+              >
+                ×
+              </button>
             </div>
           ))
         ) : (
@@ -51,15 +79,16 @@ const Listpage = () => {
                   window.open("https://lineman.line.me/mart", "linemanPopup", "width=600,height=800")
                 }
               >
-                LINE MAN
+                <img src={linemanLogo} alt="LINE MAN"/>
               </button>
+
               <button
                 className="sponsor-button grab"
                 onClick={() =>
                   window.open("https://food.grab.com/mart", "grabPopup", "width=600,height=800")
                 }
               >
-                Grab
+                <img src={grabLogo} alt="Grab"/>
               </button>
             </div>
             <button className="close-button" onClick={() => setShowPopup(false)}>
@@ -72,4 +101,4 @@ const Listpage = () => {
   );
 };
 
-export default Listpage;
+export default ShoppingList;
