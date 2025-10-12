@@ -341,6 +341,7 @@ hr {
 }
 
 .review-text {
+    /* background-color: aqua; */
     word-break: break-word; 
     overflow-wrap: break-word; 
     display: flex;
@@ -378,5 +379,12 @@ hr {
     justify-content: center;
     min-height: 30px;
     padding: 5px;
+    flex-direction: column;
     /* margin: 0.5rem 0.5rem 0rem 0.5rem; */
+}
+
+.show-date-review {
+    font-size: 12px;
+    align-self: end;
+    margin-right: 2rem;
 }

@@ -64,7 +64,7 @@ const Camera = () => {
         if (detectedIngredients.length > 0) {
           // Save ingredients to localStorage and state
           saveIngredientsToLocalStorage(detectedIngredients);
-          navigate("/ingredients-preview");
+          navigate("/ingredient-preview");
         } else{
           setIsIngredientNotFound(true);
         }

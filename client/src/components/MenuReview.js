@@ -19,6 +19,8 @@ const MenuReview = () => {
         avatar_url: defaultProfile
     });
 
+    // const [profileImage, setProfileImage] = useState(defaultProfile);
+
     const [formReview, setReviewData] = useState({
         user_id: '',
         menu_id: '',
@@ -62,6 +64,12 @@ const MenuReview = () => {
                 const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/${userId}`);
                 const user = response.data.user;        
                 setUserData(user);
+                if (user.avatar_url) {
+                    setUserData(prevData => ({
+                        ...prevData,
+                        avatar_url: `${user.avatar_url}?t=${Date.now()}` // แล้วอัปเดตเฉพาะ avatar_url
+                    }));
+                }
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
@@ -98,6 +106,7 @@ const MenuReview = () => {
                 menu_id: menu_id,
                 user_id: userIdStr
             }));
+
         } catch (error) {
             console.error('Error fetching review data:', error);
         }
@@ -127,6 +136,27 @@ const MenuReview = () => {
             >
             </span>
         ));
+    };
+
+    const showProfle = (review) => {
+        let final_profile = defaultProfile;
+        let avatarUrl = `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}`
+        final_profile = `${avatarUrl}?t=${Date.now()}`;
+        return  (
+            <img
+                src={final_profile
+                ? `${final_profile}`
+                : defaultProfile
+                }  
+                className="my-review-pro"
+                alt="avatar"
+            />
+        );
+    };
+
+    const showDate = (review) => {
+        review.created_at = review.created_at.split('T')[0];
+        return (<div className="show-date-review">{review.created_at}</div>);
     };
 
     const handleChange = (e) => {
@@ -277,14 +307,7 @@ const MenuReview = () => {
                         <div key={index_review}>
                             <div className="review-profile">
                                 <div className="review-pro-pic">
-                                    <img
-                                        src={review.avatar
-                                        ? `data:image/jpeg;base64,${review.avatar}`
-                                        : defaultProfile
-                                        }  
-                                        className="my-review-pro"
-                                        alt="avatar"
-                                        />
+                                    {showProfle(review)}
                                 </div>
                                 <div className="review-pro-rate">
                                     <div className="review-username">{review.username}</div>
@@ -297,6 +320,7 @@ const MenuReview = () => {
                             </div>
                             <div className="comment-box">
                                 <div className="review-text">{review.comment}</div>
+                                {showDate(review)}
                             </div>
 
                             <hr></hr>
@@ -313,8 +337,8 @@ const MenuReview = () => {
                     <div className="review-profile">
                         <div className="review-pro-pic">
                             <img
-                                src={userData.avatar
-                                    ? `data:image/jpeg;base64,${userData.avatar}`
+                                src={userData.avatar_url
+                                    ? `${userData.avatar_url}`
                                     : defaultProfile
                                 }
                                 className="my-review-pro"
