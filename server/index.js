@@ -1449,6 +1449,66 @@ app.get('/api/favorites/:userId', async (req, res) => {
   }
 });
 
+// POST endpoint to analyze ingredients for allergies using GPT
+app.post('/api/analyze-allergies', async (req, res) => {
+  try {
+    const { ingredients, allergies } = req.body;
+
+    if (!ingredients || !allergies || allergies.length === 0) {
+      return res.json({ alerts: [] });
+    }
+
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `
+You are a food allergy expert. Analyze the following ingredients for potential allergens.
+
+User's allergies: ${allergies.join(', ')}
+
+Ingredients to check: ${ingredients.join(', ')}
+
+For each allergy, check if any ingredient contains or is derived from that allergen. Consider:
+- Direct matches (e.g., "milk" allergy → "milk", "cream", "butter", "cheese")
+- Hidden sources (e.g., "gluten" allergy → "wheat", "barley", "rye", "wheat flour", "soy sauce")
+- Derivatives (e.g., "egg" allergy → "egg", "mayonnaise", "egg whites")
+- Cross-contamination risks
+
+Return ONLY a JSON object with the list of ingredient names that contain allergens:
+{
+  "alerts": ["ingredient name 1", "ingredient name 2"]
+}
+
+If no allergens are found, return: {"alerts": []}
+`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1000,
+      temperature: 0.3,
+    });
+
+    const content = response.choices[0].message.content.trim();
+    
+    // Try to parse the JSON response
+    let result;
+    try {
+      // Remove markdown code blocks if present
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      result = JSON.parse(cleanContent);
+    } catch (parseError) {
+      console.error('Error parsing GPT response:', parseError);
+      console.error('Raw response:', content);
+      result = { alerts: [] };
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error analyzing allergies:', error);
+    res.status(500).json({ error: 'Failed to analyze allergies', alerts: [] });
+  }
+});
+
 // Start the server
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on ${port}`);

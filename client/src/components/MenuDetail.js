@@ -128,21 +128,44 @@ const MenuDetail = () => {
         }
     }, []);
 
-    // Check allergies with useCallback
-    const checkAllergies = useCallback(() => {
+    // Check allergies with GPT analysis
+    const checkAllergies = useCallback(async () => {
         if (!menuData?.ingredients_quantity || userAllergies.length === 0) return;
 
-        const alerts = [];
-        Object.keys(menuData.ingredients_quantity).forEach(ingredient => {
-            const ingredientLower = ingredient.toLowerCase();
-            if (userAllergies.some(allergy => ingredientLower.includes(allergy))) {
-                alerts.push(ingredient);
-            }
-        });
+        try {
+            const ingredients = Object.keys(menuData.ingredients_quantity);
+            
+            // Call the backend to analyze allergies using GPT
+            const response = await axios.post(
+                `${process.env.REACT_APP_BACKEND_URL}/analyze-allergies`,
+                {
+                    ingredients: ingredients,
+                    allergies: userAllergies
+                }
+            );
 
-        if (alerts.length > 0 && !hasAcknowledgedAllergy) {
-            setAllergyAlerts(alerts);
-            setShowAllergyAlert(true);
+            const { alerts } = response.data;
+
+            if (alerts && alerts.length > 0 && !hasAcknowledgedAllergy) {
+                setAllergyAlerts(alerts);
+                setShowAllergyAlert(true);
+            }
+        } catch (error) {
+            console.error('Error checking allergies:', error);
+            
+            // Fallback to simple string matching if API fails
+            const alerts = [];
+            Object.keys(menuData.ingredients_quantity).forEach(ingredient => {
+                const ingredientLower = ingredient.toLowerCase();
+                if (userAllergies.some(allergy => ingredientLower.includes(allergy.toLowerCase()))) {
+                    alerts.push(ingredient);
+                }
+            });
+
+            if (alerts.length > 0 && !hasAcknowledgedAllergy) {
+                setAllergyAlerts(alerts);
+                setShowAllergyAlert(true);
+            }
         }
     }, [menuData, userAllergies, hasAcknowledgedAllergy]);
 
@@ -150,6 +173,16 @@ const MenuDetail = () => {
         setShowAllergyAlert(false);
         setHasAcknowledgedAllergy(true);
     };
+
+    // Fetch allergies once on mount
+    useEffect(() => {
+        fetchUserAllergies();
+    }, [fetchUserAllergies]);
+
+    // Check allergies when menuData or userAllergies change
+    useEffect(() => {
+        checkAllergies();
+    }, [checkAllergies]);
 
     // ถ้ามาจาก History ให้ fetch menu จาก DB
     useEffect(() => {
@@ -311,6 +344,7 @@ const MenuDetail = () => {
                     </div>
                 </div>
             )}
+
 
             <div className="text-container">
                 <div className='menu-header'>
