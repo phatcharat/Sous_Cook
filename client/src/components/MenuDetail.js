@@ -33,7 +33,7 @@ const MenuDetail = () => {
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
-    // ย้อนกลับไปหน้าก่อนหน้าเสมอ
+    // Back navigation
     const handleBackNavigation = () => {
         navigate(-1);
     };
@@ -114,77 +114,30 @@ const MenuDetail = () => {
         }
     };
 
-    // Fetch user allergies with useCallback to prevent infinite loops
-    const fetchUserAllergies = useCallback(async () => {
-        const userId = getUserId();
-        if (!userId) return;
-
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
-            const allergies = response.data.user.allergies || [];
-            setUserAllergies(allergies.map(a => a.toLowerCase()));
-        } catch (error) {
-            console.error('Error fetching user allergies:', error);
-        }
-    }, []);
-
-    // Check allergies with GPT analysis
-    const checkAllergies = useCallback(async () => {
-        if (!menuData?.ingredients_quantity || userAllergies.length === 0) return;
-
-        try {
-            const ingredients = Object.keys(menuData.ingredients_quantity);
-            
-            // Call the backend to analyze allergies using GPT
-            const response = await axios.post(
-                `${process.env.REACT_APP_BACKEND_URL}/analyze-allergies`,
-                {
-                    ingredients: ingredients,
-                    allergies: userAllergies
-                }
-            );
-
-            const { alerts } = response.data;
-
-            if (alerts && alerts.length > 0 && !hasAcknowledgedAllergy) {
-                setAllergyAlerts(alerts);
-                setShowAllergyAlert(true);
-            }
-        } catch (error) {
-            console.error('Error checking allergies:', error);
-            
-            // Fallback to simple string matching if API fails
-            const alerts = [];
-            Object.keys(menuData.ingredients_quantity).forEach(ingredient => {
-                const ingredientLower = ingredient.toLowerCase();
-                if (userAllergies.some(allergy => ingredientLower.includes(allergy.toLowerCase()))) {
-                    alerts.push(ingredient);
-                }
-            });
-
-            if (alerts.length > 0 && !hasAcknowledgedAllergy) {
-                setAllergyAlerts(alerts);
-                setShowAllergyAlert(true);
-            }
-        }
-    }, [menuData, userAllergies, hasAcknowledgedAllergy]);
-
     const handleAllergyAcknowledge = () => {
         setShowAllergyAlert(false);
         setHasAcknowledgedAllergy(true);
     };
 
-    // Fetch allergies once on mount
-    useEffect(() => {
-        fetchUserAllergies();
-    }, [fetchUserAllergies]);
+    const handleAddToList = () => {
+        const userId = getUserId();
+        if (!userId) {
+            navigate('/login');
+            return;
+        }
 
-    // Check allergies when menuData or userAllergies change
-    useEffect(() => {
-        checkAllergies();
-    }, [checkAllergies]);
+        if (selectedIngredients.length > 0) {
+            const currentList = getShoppingListFromStorage(userId);
+            const updatedList = [...currentList, ...selectedIngredients];
+            saveShoppingListToStorage(userId, updatedList);
+            
+            navigate("/shoppinglist", {
+                state: { missingIngredients: selectedIngredients }
+            });
+        }
+    };
 
-    // ถ้ามาจาก History ให้ fetch menu จาก DB
+    // Fetch menu if coming from History
     useEffect(() => {
         if (!menuData && menu_id) {
             console.log("Fetching menu by ID:", menu_id);
@@ -197,7 +150,7 @@ const MenuDetail = () => {
         }
     }, [menu_id, menuData]);
 
-    // โหลดรูป ingredient และ menu
+    // Load ingredient and menu images
     useEffect(() => {
         if (!menuData || !menuData.ingredients_quantity) return;
 
@@ -225,9 +178,9 @@ const MenuDetail = () => {
 
         fetchImages();
         return () => { isCancelled = true; };
-    }, [menuData?.menu_name]); // Only depend on menu_name to prevent infinite loop
+    }, [menuData?.menu_name]);
 
-    // save history
+    // Save history
     useEffect(() => {
         if (!actualMenuId) return;
 
@@ -248,7 +201,7 @@ const MenuDetail = () => {
             });
     }, [actualMenuId]);
 
-    // check favorite
+    // Check favorite status
     useEffect(() => {
         const checkFavorite = async () => {
             const userId = getUserId();
@@ -267,33 +220,64 @@ const MenuDetail = () => {
         checkFavorite();
     }, [actualMenuId]);
 
-    // Fetch allergies once on mount
+    // Fetch user allergies and check for alerts - COMBINED INTO ONE EFFECT
     useEffect(() => {
-        fetchUserAllergies();
-    }, [fetchUserAllergies]);
+        const fetchAllergiesAndCheck = async () => {
+            const userId = getUserId();
+            if (!userId || !menuData?.ingredients_quantity) return;
 
-    // Check allergies when menuData or userAllergies change
-    useEffect(() => {
-        checkAllergies();
-    }, [checkAllergies]);
+            try {
+                // Fetch user allergies
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
+                const allergies = response.data.user.allergies || [];
+                const allergyList = allergies.map(a => a.toLowerCase());
+                setUserAllergies(allergyList);
 
-    const handleAddToList = () => {
-        const userId = getUserId();
-        if (!userId) {
-            navigate('/login');
-            return;
-        }
+                // Only check allergies if we have them and haven't acknowledged yet
+                if (allergyList.length === 0 || hasAcknowledgedAllergy) return;
 
-        if (selectedIngredients.length > 0) {
-            const currentList = getShoppingListFromStorage(userId);
-            const updatedList = [...currentList, ...selectedIngredients];
-            saveShoppingListToStorage(userId, updatedList);
-            
-            navigate("/shoppinglist", {
-                state: { missingIngredients: selectedIngredients }
-            });
-        }
-    };
+                const ingredients = Object.keys(menuData.ingredients_quantity);
+
+                try {
+                    // Call the backend to analyze allergies using GPT
+                    const allergyResponse = await axios.post(
+                        `${process.env.REACT_APP_BACKEND_URL}/analyze-allergies`,
+                        {
+                            ingredients: ingredients,
+                            allergies: allergyList
+                        }
+                    );
+
+                    const { alerts } = allergyResponse.data;
+
+                    if (alerts && alerts.length > 0) {
+                        setAllergyAlerts(alerts);
+                        setShowAllergyAlert(true);
+                    }
+                } catch (allergyError) {
+                    console.error('Error checking allergies with GPT, using fallback:', allergyError);
+                    
+                    // Fallback to simple string matching if API fails
+                    const alerts = [];
+                    ingredients.forEach(ingredient => {
+                        const ingredientLower = ingredient.toLowerCase();
+                        if (allergyList.some(allergy => ingredientLower.includes(allergy))) {
+                            alerts.push(ingredient);
+                        }
+                    });
+
+                    if (alerts.length > 0) {
+                        setAllergyAlerts(alerts);
+                        setShowAllergyAlert(true);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user allergies:', error);
+            }
+        };
+
+        fetchAllergiesAndCheck();
+    }, [menuData?.ingredients_quantity, hasAcknowledgedAllergy]); // Only depend on what's necessary
 
     if (!menuData) {
         return (
@@ -328,7 +312,7 @@ const MenuDetail = () => {
                     <div className="allergy-popup">
                         <div className="allergy-popup-content">
                             <h2>⚠️ Food Allergy Alert</h2>
-                            <p>This recipe contains:</p>
+                            <p>This recipe contains ingredients that may trigger your allergies:</p>
                             <ul className="allergy-list">
                                 {allergyAlerts.map((ingredient, index) => (
                                     <li key={index}><strong>{ingredient}</strong></li>
@@ -344,7 +328,6 @@ const MenuDetail = () => {
                     </div>
                 </div>
             )}
-
 
             <div className="text-container">
                 <div className='menu-header'>
@@ -462,16 +445,45 @@ const MenuDetail = () => {
     );
 };
 
-// โหลดรูป ingredient จาก external source
 const fetchMissingImages = async (menuList, ingredientList) => {
-    const images = {};
-    ingredientList.forEach(ing => {
-        images[ing] = `https://www.themealdb.com/images/ingredients/${encodeURIComponent(ing)}.png`;
-    });
-    return { menu: menuList, ingredient: images };
+    let storedImages = getImageFromLocalStorage();
+
+    if (!storedImages || !Array.isArray(storedImages.menu)) {
+        storedImages = { menu: [], ingredient: {} };
+    }
+
+    const missingMenuItems = menuList.filter(menuItem => 
+        !storedImages.menu.some(storedMenu => storedMenu.name === menuItem.name)
+    );
+
+    const missingIngredients = ingredientList.filter(ingredient => 
+        !(ingredient in storedImages.ingredient)
+    );
+
+    console.log("missingMenuItems:", missingMenuItems);
+    console.log("missingIngredients:", missingIngredients);
+
+    if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/get_ingredient_image`, { ingredients: missingIngredients });
+            const fetchedImages = response.data;
+
+            const newImages = {
+                menu: [...storedImages.menu, ...missingMenuItems.map(item => ({ name: item.name, image: item.image }))],
+                ingredient: { ...storedImages.ingredient, ...Object.fromEntries(fetchedImages.map(ingredient => [ingredient.ingredient, ingredient.imageUrl])) },
+            };
+
+            saveImageToLocalStorage(newImages);
+            return newImages;
+        } catch (error) {
+            console.error('Error fetching images from backend:', error);
+            return storedImages;
+        }
+    }
+
+    return storedImages;
 };
 
-// ฟังก์ชันย่อหน่วย
 const abbreviateUnit = (quantity) => {
     if (!quantity) return quantity;
     return quantity.replace(/\btablespoons?\b/gi, "tbsp");

@@ -8,7 +8,6 @@ import {
 } from '../utils/storageUtils';
 import '../css/SearchBar.css';
 import backicon from '../image/searchbar/Back.svg';
-import scanicon from '../image/searchbar/Scan.svg';
 import bread from '../image/homepage/Bread.svg';
 import tomato from '../image/homepage/Tomato.svg';
 import celery from '../image/homepage/Celery.svg';
@@ -19,6 +18,8 @@ import celeryclick from '../image/homepage/CeleryClick.svg';
 import porkclick from '../image/homepage/PorkClick.svg';
 import IconCamera from '../image/searchbar/Scan.svg';
 import listicon from '../image/homepage/List.svg';
+import logo from '../image/Logo1.svg';
+import textlogo from '../image/TextLogo.svg';
 
 const SearchBar = () => {
     const navigate = useNavigate();
@@ -157,41 +158,6 @@ const SearchBar = () => {
         }
     };
 
-    const cuisines = [
-        "Southeast Asian",
-        "American",
-        "Italian",
-        "Mexican",
-        "Indian",
-        "Fusion",
-        "South American",
-        "Middle Eastern",
-        "Mediterranean"
-    ];
-
-    const preferences = [
-        "Vegetarian",
-        "Lactose Intolerance",
-        "Pescatarian",
-        "Gluten intolerance",
-        "No red meat",
-        "Diabetes",
-        "Dairy-free",
-        "Low carb",
-        "High carb",
-        "High protein",
-        "Nuts Allergies",
-        "Healthy"
-    ];
-
-    const occasions = [
-        "Breakfast",
-        "Lunch",
-        "Dinner",
-        "Snack",
-        "Side Dish",
-        "Party"
-    ];
 
     // Update handleIngredientPreview to pass current state and refresh on return
     const handleIngredientPreview = () => {
@@ -220,9 +186,25 @@ const SearchBar = () => {
     return (
         <div className="search-container">
             <div className="back-home">
-                <img src={backicon} alt="back" className="back-icon" onClick={() => navigate("/home")} />
-                <p className="back-text">Searching</p>
+                    <button className="back-button" onClick={() => navigate(-1)}>Searching</button>
+                <button 
+                    className="list-icon-btn" 
+                    onClick={handleIngredientPreview}
+                >
+                    <img src={listicon} alt="Ingredient List" />
+                    {allIngredients.length > 0 && (
+                        <span className="ingredient-count-badge">
+                            {allIngredients.length}
+                        </span>
+                    )}
+                </button>
             </div>
+
+            <div className="logo-section">
+                <img src={logo} alt="Logo Icon" className="main-logo" />
+                <img src={textlogo} alt="Text Logo" className="text-logo" />
+            </div>
+
             {/* Google-style search bar with camera icon */}
             <form className="search-bar" onSubmit={handleSearch}>
                 <input
@@ -239,7 +221,7 @@ const SearchBar = () => {
             </form>
             
             <div className="ingredients-container">
-                <p className="ingredients-text">Ingredients</p>
+                <p className="ingredients-text">Recommended ingredients</p>
                 <div className="ingredients-scroll">
                     {activeImages.map((img, idx) => (
                         <img
@@ -252,69 +234,13 @@ const SearchBar = () => {
                     ))}
                 </div>
             </div>
-            
-            <div className="cuisine-container">
-                <p className="cuisine-text">Cuisines</p>
-                <div className="cuisine-list">
-                    {cuisines.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`cuisine-item ${selectedCuisine.includes(index) ? "active" : ""}`}
-                            onClick={() => toggleSelection(index, selectedCuisine, setSelectedCuisine)}
-                        >
-                            {item}
-                        </div>
-                    ))}
-                </div>
-                <div className="divider"></div>
-            </div>
-            
-            <div className="preference-container">
-                <p className="preference-text">Dietary Preferences</p>
-                <div className="preference-list">
-                    {preferences.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`preferences-item ${selectedPreference.includes(index) ? "active" : ""}`}
-                            onClick={() => toggleSelection(index, selectedPreference, setSelectedPreference)}
-                        >
-                            {item}
-                        </div>
-                    ))}
-                </div>
-                <div className="divider"></div>
-            </div>
-            
-            <div className="occasion-container">
-                <p className="occasion-text">Meal Occasions</p>
-                <div className="occasion-list">
-                    {occasions.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`occasion-item ${selectedOccasion.includes(index) ? "active" : ""}`}
-                            onClick={() => toggleSelection(index, selectedOccasion, setSelectedOccasion)}
-                        >
-                            {item}
-                        </div>
-                    ))}
-                </div>
-            </div>
+
+            <div className="divider"></div>
             
             <div className="search-recipe-row">
                 <div className="search-recipe-button" onClick={handleSearchRecipe}>
                     <p className="search-recipe-text">SEARCH FOR RECIPE</p>
                 </div>
-                <button 
-                    className="list-icon-btn" 
-                    onClick={handleIngredientPreview}
-                >
-                    <img src={listicon} alt="Ingredient List" />
-                    {allIngredients.length > 0 && (
-                        <span className="ingredient-count-badge">
-                            {allIngredients.length}
-                        </span>
-                    )}
-                </button>
             </div>
 
             {showAddedMessage && (

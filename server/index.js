@@ -1149,20 +1149,20 @@ const addImagesToMenus = async (menus) => {
 
 const fetchImageForMenu = limiter.wrap(async (menuName) => {
   try {
-    const response = await axios.get(
+    // Updated to API v2 endpoint
+    const response = await fetch(
       `https://api.edamam.com/api/recipes/v2?type=public&q=${encodeURIComponent(menuName)}&app_id=${endaman_app_id}&app_key=${endaman_api_key}&imageSize=REGULAR`
     );
-
+    
     if (!response.ok) {
       console.error(`Image API returned ${response.status}: ${await response.text()}`);
       return null;
     }
+    
+    const data = await response.json();
 
-    //const data = await response.json();
-    const data = response.data;
-
-    if (data.meals && data.meals.length > 0) {
-      return data.meals[0].strMealThumb;  // image form TheMealDB
+    if (data.hits && data.hits.length > 0) {
+      return data.hits[0].recipe.image;
     } else {
       console.log(`No image found for menu: ${menuName}`);
       return 'default-image-url';

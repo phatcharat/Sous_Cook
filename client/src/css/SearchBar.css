@@ -1,16 +1,16 @@
-/* Google-style search bar */
+/* search bar */
 .search-bar {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    max-width: 400px;
-    margin: 32px auto 24px auto;
-    background: #fff;
-    border-radius: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 5px 8px;
-    height: 48px;
+    width: 90%;
+    max-width: 360px;
+    margin: 10px auto 24px auto;
+    background: #fdfdfd;
+    border-radius: 20px;
+    box-shadow: none;
+    padding: 5px 12px;
+    height: 45px;
 }
 
 .search-input {
@@ -64,100 +64,47 @@
     gap: 11px;
 }
 
-.back-icon {
-    height: 26px;
-}
-
-.back-text {
-    color: #000;
-    font-family: 'Manrope';
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.scan-box {
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
     display: flex;
-    flex-direction: row;
     align-items: center;
-    width: 360px;
-    height: 40px;
-    border-radius: 10px;
-    background: rgba(105, 124, 55, 0.10);
 }
 
-.scan-icon {
-    margin-left: 39px;
+.logo-section {
+    display: flex;
+    flex-direction: column; /* จัดแนวโลโก้เป็นแนวตั้ง */
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 10px;
 }
 
-.scan-text {
-    color: rgba(104, 101, 101, 0.70);
-    text-align: center;
-    font-family: 'Quicksand';
-    font-size: 18px;
-    margin-left: 10px;
+.main-logo {
+   max-width: 22vh;
+   height: auto;
 }
+
+.text-logo {
+    max-width: 25vh;
+    height: auto;
+    margin-top: -2rem;
+}
+
 
 .ingredients-container {
     width: 100%;
-    padding-left: 30px;
-    display: block;
+    flex-direction: row;
 }
 
 .ingredients-text {
-    text-align: left;
+    text-align: center;
     margin-top: 17px;
-    color: #000;
-    font-size: 20px;
+    color: #4C4C4C;
+    font-size: 18px;
     font-weight: 700;
-}
-
-
-.cuisine-container,
-.preference-container,
-.occasion-container {
-    width: 100%;
-    padding-left: 30px;
-    padding-right: 30px;
-    box-sizing: border-box;
-}
-
-.cuisine-text,
-.preference-text,
-.occasion-text {
-    text-align: left;
-    color: #000;
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.cuisine-list,
-.preference-list,
-.occasion-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.cuisine-item,
-.preferences-item,
-.occasion-item {
-    padding: 10px 16px;
-    border-radius: 10px;
-    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-    background-color: white;
-    color: black;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease ease-out;
-    user-select: none;
-}
-
-.cuisine-item.active,
-.preferences-item.active,
-.occasion-item.active {
-    background-color: #B0BD39;
-    color: white;
 }
 
 .divider {
@@ -173,7 +120,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    margin-top: 80px;
+    margin-top: 20px;
     margin-bottom: 20px;
     width: 100%;
     padding: 0 20px;
@@ -204,6 +151,7 @@
 .list-icon-btn {
     background: none;
     border: none;
+    margin-top: 1px;
     cursor: pointer;
     padding: 0;
     display: flex;

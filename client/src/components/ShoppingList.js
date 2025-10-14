@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getShoppingListFromStorage, saveShoppingListToStorage } from '../utils/storageUtils';
 import { getUserId, isLoggedIn } from '../utils/auth';
 import "../css/ShoppingList.css";
-import grabLogo from '../image/shopping_list/Grab.png';
+import grabLogo from '../image/shopping_list/Grab.svg';
 import linemanLogo from '../image/shopping_list/Line_man.png';
 
 const ShoppingList = () => {

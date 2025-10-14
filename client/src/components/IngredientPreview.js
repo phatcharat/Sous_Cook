@@ -138,8 +138,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
       ) : (
         <div className="ingredient-preview-container">
           <div className='menu-header-container'>
-            <button className="back-button" onClick={handleBack}></button>
-            <h1 className="ingredient-header">Ingredient List</h1>
+            <button className="back-button" onClick={handleBack}>Ingredient List</button>
           </div>
           <ul className="ingredient-list">
             {ingredients.map((ingredient, index) => {
