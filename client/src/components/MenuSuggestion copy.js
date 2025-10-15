@@ -59,10 +59,7 @@ const MenuSuggestion = () => {
     console.log("storedRecommendations:", storedRecommendations);
 
     if (storedRecommendations && storedRecommendations.menus && Array.isArray(storedRecommendations.menus)) {
-      // Directly set the recommendations to state to show the UI faster
-      setRecommendations(storedRecommendations.menus);
-
-      // Then, save each menu to the DB and update the state with the menu_id
+      // save แต่ละเมนูลง DB แล้ว update state
       Promise.all(storedRecommendations.menus.map(menu => saveMenuToDB(menu)))
         .then((savedMenus) => {
           setRecommendations(savedMenus);

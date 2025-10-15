@@ -94,8 +94,8 @@ function deleteOldAvatar(filename) {
 }
 
 const limiter = new Bottleneck({
-  minTime: 200,  // Control the time between requests
-  maxConcurrent: 10  // Control how many requests run at the same time
+  minTime: 1000,  // Control the time between requests
+  maxConcurrent: 5  // Control how many requests run at the same time
 });
 
 const endaman_app_id = process.env.EDAMAN_APP_ID;
@@ -573,7 +573,7 @@ app.get('/api/random-menu', async (req, res) => {
     // บันทึกเมนูลง database
     console.log(`Saving menu to database: ${randomMenu.menu_name}`);
     const dbResult = await pool.query(
-      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, image)
+      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition,tips, image)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (menu_name) DO UPDATE
        SET prep_time = EXCLUDED.prep_time,
@@ -582,6 +582,7 @@ app.get('/api/random-menu', async (req, res) => {
            ingredients_quantity = EXCLUDED.ingredients_quantity,
            ingredients_type = EXCLUDED.ingredients_type,
            nutrition = EXCLUDED.nutrition,
+           tips = EXCLUDED.tips,
            image = EXCLUDED.image
        RETURNING menu_id, menu_name`,
       [
@@ -592,6 +593,7 @@ app.get('/api/random-menu', async (req, res) => {
         JSON.stringify(randomMenu.ingredients_quantity || {}),
         JSON.stringify(randomMenu.ingredients_type || {}),
         JSON.stringify(randomMenu.nutrition || {}),
+        JSON.stringify(randomMenu.tips || {}),
         randomMenu.image
       ]
     );
@@ -1243,6 +1245,7 @@ app.post("/api/menus", async (req, res) => {
       ingredients_quantity,
       ingredients_type,
       nutrition,
+      tips,
       image,
     } = req.body;
 
@@ -1251,7 +1254,7 @@ app.post("/api/menus", async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, image)
+      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition,tips, image)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (menu_name) DO NOTHING
        RETURNING menu_id, menu_name`,
@@ -1263,6 +1266,7 @@ app.post("/api/menus", async (req, res) => {
         JSON.stringify(ingredients_quantity || []),
         JSON.stringify(ingredients_type || []),
         JSON.stringify(nutrition || []),
+        JSON.stringify(tips || []),
         image || null,
       ]
     );

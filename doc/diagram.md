@@ -18,49 +18,42 @@ Sous Cook is a modern web application designed with a microservices-oriented arc
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        WEB[Web Browser]
-        PWA[Progressive Web App]
-        MOB[Mobile Browser]
+        USER[User's Browser]
     end
-    
-    subgraph "CDN & Load Balancing"
-        CDN[Content Delivery Network]
-        LB[Load Balancer]
+
+    subgraph "Web Server"
+        NGINX[Nginx Reverse Proxy]
     end
-    
+
     subgraph "Application Layer"
         FE[React Frontend]
         API[Express.js API Server]
-        AUTH[Authentication Service]
     end
-    
+
     subgraph "External Services"
+        OPENAI[OpenAI API]
         VISION[Google Vision API]
-        NUTRITION[Nutrition Database API]
-        DELIVERY[Delivery Service APIs]
-        SOCIAL[Social Login Providers]
+        EDAMAM[Edamam API for Images]
+        SPOONACULAR[Spoonacular API for Images]
+        G_AUTH[Google Auth]
     end
-    
+
     subgraph "Data Layer"
         DB[(PostgreSQL Database)]
-        STORAGE[File Storage]
-        CACHE[Redis Cache]
+        STORAGE[Local File Storage]
     end
-    
-    WEB --> CDN
-    PWA --> CDN
-    MOB --> CDN
-    CDN --> LB
-    LB --> FE
+
+    USER --> NGINX
+    NGINX --> FE
+    NGINX --> API
     FE --> API
-    API --> AUTH
+    API --> OPENAI
     API --> VISION
-    API --> NUTRITION
-    API --> DELIVERY
-    AUTH --> SOCIAL
+    API --> EDAMAM
+    API --> SPOONACULAR
+    API --> G_AUTH
     API --> DB
     API --> STORAGE
-    API --> CACHE
 ```
 
 ## Current Architecture
@@ -70,59 +63,65 @@ The application currently uses a traditional three-tier architecture:
 
 ```mermaid
 graph TB
-    subgraph "Presentation Tier"
+    subgraph "Presentation Tier (Client)"
         REACT[React.js Frontend]
+    end
+
+    subgraph "Application Tier (Server)"
         NGINX[Nginx Reverse Proxy]
-    end
-    
-    subgraph "Application Tier"
         EXPRESS[Express.js Server]
-        MULTER[File Upload Handler]
-        BCRYPT[Password Encryption]
+        MULTER[Multer for File Uploads]
+        BCRYPT[Bcrypt for Password Encryption]
     end
-    
+
     subgraph "Data Tier"
-        POSTGRES[(PostgreSQL Database)]
-        UPLOADS[Local File Storage]
+        POSTGRES[(PostgreSQL Database on Railway)]
+        UPLOADS[Local File System for Avatars]
     end
-    
+
     subgraph "External APIs"
-        OPENAI[OpenAI API]
+        OPENAI_API[OpenAI API]
         GVISION[Google Cloud Vision]
+        EDAMAM_API[Edamam API]
+        SPOONACULAR_API[Spoonacular API]
+        GOOGLE_AUTH[Google Auth Library]
     end
-    
+
     REACT --> NGINX
     NGINX --> EXPRESS
     EXPRESS --> POSTGRES
     EXPRESS --> UPLOADS
-    EXPRESS --> OPENAI
+    EXPRESS --> OPENAI_API
     EXPRESS --> GVISION
+    EXPRESS --> EDAMAM_API
+    EXPRESS --> SPOONACULAR_API
+    EXPRESS --> GOOGLE_AUTH
 ```
 
 ### Current Container Architecture
 ```mermaid
 graph TB
-    subgraph "Docker Environment"
+    subgraph "Docker Environment via docker-compose.yml"
         subgraph "Client Container"
-            RC[React App :3000]
+            RC[React App on Port 3000]
         end
-        
+
         subgraph "Server Container"
-            ES[Express Server :5050]
+            ES[Express Server on Port 5050]
         end
-        
-        subgraph "Database Container"
-            PG[PostgreSQL :5433]
-        end
-        
+
         subgraph "Proxy Container"
-            NX[Nginx :80]
+            NX[Nginx on Port 80]
         end
     end
-    
-    NX --> RC
-    NX --> ES
-    ES --> PG
+
+    subgraph "External Cloud Database"
+      PG_CLOUD[(PostgreSQL on Railway)]
+    end
+
+    NX -- "/api" --> ES
+    NX -- "/" --> RC
+    ES --> PG_CLOUD
 ```
 
 ## Target Firebase Architecture
@@ -176,96 +175,99 @@ graph TB
 ```mermaid
 graph TB
     subgraph "React Application"
-        APP[App.js]
-        
-        subgraph "Pages"
-            HOME[Home Page]
-            SEARCH[Search Page]
-            RECIPE[Recipe Details]
-            PROFILE[User Profile]
-            COMMUNITY[Community Feed]
+        APP[App.js Router]
+
+        subgraph "Pages & Main Components"
+            HOME[HomePage]
+            LOGIN[LoginPage / SignUpPage]
+            SEARCH[SearchBar]
+            CAMERA[Camera / CameraSearch]
+            INGREDIENT[IngredientPreview]
+            PREFERENCES[PreferencesPage]
+            SUGGESTION[MenuSuggestion]
+            DETAIL[MenuDetail]
+            FAVORITES[FavoriteMenu]
+            HISTORY[HistoryScreen]
+            ACCOUNT[UserDataPage / Setting]
+            SHOPPING[ShoppingList]
         end
-        
-        subgraph "Components"
-            HEADER[Header/Navigation]
-            INGREDIENT[Ingredient Input]
-            RECIPECARD[Recipe Card]
-            REVIEW[Review Component]
-            CAMERA[Camera Component]
+
+        subgraph "Core Components"
+            NAVBAR[Navbar]
         end
-        
+
         subgraph "Utils"
-            API[API Client]
-            AUTH_UTIL[Auth Utils]
-            STORAGE_UTIL[Storage Utils]
+            AUTH_UTIL[auth.js for User Session]
+            STORAGE_UTIL[storageUtils.js for LocalStorage]
         end
     end
-    
+
     APP --> HOME
+    APP --> LOGIN
     APP --> SEARCH
-    APP --> RECIPE
-    APP --> PROFILE
-    APP --> COMMUNITY
-    
-    HOME --> HEADER
-    HOME --> INGREDIENT
-    HOME --> RECIPECARD
-    
-    RECIPE --> REVIEW
-    SEARCH --> CAMERA
-    
-    INGREDIENT --> API
-    RECIPECARD --> API
-    REVIEW --> API
-    
-    API --> AUTH_UTIL
-    API --> STORAGE_UTIL
+    APP --> CAMERA
+    APP --> INGREDIENT
+    APP --> PREFERENCES
+    APP --> SUGGESTION
+    APP --> DETAIL
+    APP --> FAVORITES
+    APP --> HISTORY
+    APP --> ACCOUNT
+    APP --> SHOPPING
+
+    HOME --> NAVBAR
+    FAVORITES --> NAVBAR
+    HISTORY --> NAVBAR
+    ACCOUNT --> NAVBAR
+
+    SEARCH --> STORAGE_UTIL
+    INGREDIENT --> STORAGE_UTIL
+    PREFERENCES --> STORAGE_UTIL
+    LOGIN --> AUTH_UTIL
 ```
 
 ### Backend Service Architecture
 ```mermaid
 graph TB
-    subgraph "API Server"
-        ROUTER[Express Router]
-        
-        subgraph "Controllers"
-            USER_CTRL[User Controller]
-            RECIPE_CTRL[Recipe Controller]
-            INGREDIENT_CTRL[Ingredient Controller]
-            REVIEW_CTRL[Review Controller]
-            COMMUNITY_CTRL[Community Controller]
+    subgraph "Express API Server (index.js)"
+        ROUTER[API Endpoints]
+
+        subgraph "Route Handlers"
+            USER_AUTH[User Auth (Signup, Login, Google)]
+            USER_MGMT[User Management (CRUD)]
+            MENU_REC[Menu Recommendation]
+            IMAGE_PROC[Image Processing (Upload, Detect)]
+            DB_OPS[Database Operations (Favorites, History, Menus)]
         end
-        
-        subgraph "Services"
-            AUTH_SVC[Authentication Service]
-            RECIPE_SVC[Recipe Service]
-            NUTRITION_SVC[Nutrition Service]
-            IMAGE_SVC[Image Processing Service]
-            NOTIFICATION_SVC[Notification Service]
+
+        subgraph "Middleware & Libraries"
+            CORS[CORS]
+            MULTER[Multer for File Upload]
+            PG[node-postgres for DB connection]
+            BCRYPT[Bcrypt for Hashing]
         end
-        
-        subgraph "Data Access"
-            USER_DAO[User DAO]
-            RECIPE_DAO[Recipe DAO]
-            REVIEW_DAO[Review DAO]
+
+        subgraph "External API Clients"
+            OPENAI_CLIENT[OpenAI]
+            GOOGLE_VISION[Google Cloud Vision]
+            AXIOS[Axios for Edamam/Spoonacular]
+            GOOGLE_AUTH_LIB[Google Auth Library]
         end
     end
-    
-    ROUTER --> USER_CTRL
-    ROUTER --> RECIPE_CTRL
-    ROUTER --> INGREDIENT_CTRL
-    ROUTER --> REVIEW_CTRL
-    ROUTER --> COMMUNITY_CTRL
-    
-    USER_CTRL --> AUTH_SVC
-    RECIPE_CTRL --> RECIPE_SVC
-    INGREDIENT_CTRL --> NUTRITION_SVC
-    RECIPE_CTRL --> IMAGE_SVC
-    COMMUNITY_CTRL --> NOTIFICATION_SVC
-    
-    AUTH_SVC --> USER_DAO
-    RECIPE_SVC --> RECIPE_DAO
-    NOTIFICATION_SVC --> REVIEW_DAO
+
+    ROUTER --> USER_AUTH
+    ROUTER --> USER_MGMT
+    ROUTER --> MENU_REC
+    ROUTER --> IMAGE_PROC
+    ROUTER --> DB_OPS
+
+    USER_AUTH --> BCRYPT
+    USER_AUTH --> GOOGLE_AUTH_LIB
+    USER_MGMT --> MULTER
+    DB_OPS --> PG
+    MENU_REC --> OPENAI_CLIENT
+    IMAGE_PROC --> GOOGLE_VISION
+    IMAGE_PROC --> OPENAI_CLIENT
 ```
 
 ## Data Flow Diagrams
@@ -275,21 +277,18 @@ graph TB
 sequenceDiagram
     participant User
     participant Frontend
-    participant API
-    participant AI_Service
+    participant API Server
+    participant OpenAI
     participant Database
-    participant External_APIs
-    
-    User->>Frontend: Input ingredients
-    Frontend->>API: POST /api/ingredients/detect
-    API->>AI_Service: Process ingredients
-    AI_Service->>Database: Query recipes
-    Database->>AI_Service: Return matching recipes
-    AI_Service->>External_APIs: Get nutrition data
-    External_APIs->>AI_Service: Return nutrition info
-    AI_Service->>API: Ranked recipe suggestions
-    API->>Frontend: Recipe recommendations
-    Frontend->>User: Display recipes
+
+    User->>Frontend: ใส่ชื่อวัตถุดิบ, เลือกความชอบ
+    Frontend->>API Server: POST /api/menu-recommendations with ingredients & preferences
+    API Server->>OpenAI: ส่ง Prompt พร้อมข้อมูลวัตถุดิบและความชอบ
+    OpenAI-->>API Server: ตอบกลับเป็น JSON ที่มีสูตรอาหารหลายรายการ
+    API Server->>Database: บันทึก/อัปเดตสูตรอาหารที่ได้ลงในตาราง 'menus'
+    Database-->>API Server: ยืนยันการบันทึกและคืน menu_id
+    API Server-->>Frontend: ส่งข้อมูลสูตรอาหารพร้อมรูปภาพและ menu_id
+    Frontend->>User: แสดงผลสูตรอาหารที่แนะนำ
 ```
 
 ### User Authentication Flow
@@ -297,20 +296,17 @@ sequenceDiagram
 sequenceDiagram
     participant User
     participant Frontend
-    participant Firebase_Auth
-    participant API
+    participant API Server
     participant Database
-    
-    User->>Frontend: Login request
-    Frontend->>Firebase_Auth: Authenticate user
-    Firebase_Auth->>Frontend: Return auth token
-    Frontend->>API: API request with token
-    API->>Firebase_Auth: Verify token
-    Firebase_Auth->>API: Token valid
-    API->>Database: Query user data
-    Database->>API: Return user profile
-    API->>Frontend: User data
-    Frontend->>User: Display dashboard
+
+    User->>Frontend: กรอก Username และ Password
+    Frontend->>API Server: POST /login with credentials
+    API Server->>Database: SELECT user WHERE username = ?
+    Database-->>API Server: คืนข้อมูล user ที่มี password_hash
+    API Server->>API Server: ใช้ bcrypt เปรียบเทียบรหัสผ่าน
+    API Server-->>Frontend: ตอบกลับพร้อม user_id และข้อความยืนยัน
+    Frontend->>Frontend: บันทึก user_id ลง LocalStorage
+    Frontend->>User: นำทางไปยังหน้า HomePage
 ```
 
 ### Community Sharing Flow
@@ -460,30 +456,21 @@ GET    /api/community/users/:id/posts - Get user's posts
 graph TB
     subgraph "Security Layers"
         subgraph "Network Security"
-            HTTPS[HTTPS/TLS 1.3]
-            FIREWALL[Web Application Firewall]
-            DDOS[DDoS Protection]
+            HTTPS[HTTPS/TLS via Nginx]
         end
-        
+
         subgraph "Authentication & Authorization"
-            JWT[JWT Tokens]
-            OAUTH[OAuth 2.0]
-            RBAC[Role-Based Access Control]
-            MFA[Multi-Factor Authentication]
+            BCRYPT[Bcrypt for Password Hashing]
+            GOOGLE_AUTH[Google Sign-In (OAuth 2.0)]
         end
-        
+
         subgraph "Data Security"
-            ENCRYPTION[Data Encryption at Rest]
-            HASHING[Password Hashing]
-            SANITIZATION[Input Sanitization]
-            VALIDATION[Data Validation]
+            PARAM_VALIDATION[Server-side Input Validation]
         end
-        
+
         subgraph "Application Security"
             CORS[CORS Policy]
-            CSP[Content Security Policy]
-            RATE_LIMIT[Rate Limiting]
-            AUDIT[Audit Logging]
+            MULTER_VALIDATION[File Type & Size Validation]
         end
     end
 ```

@@ -312,7 +312,7 @@ const MenuDetail = () => {
                     <div className="allergy-popup">
                         <div className="allergy-popup-content">
                             <h2>⚠️ Food Allergy Alert</h2>
-                            <p>This recipe contains ingredients that may trigger your allergies:</p>
+                            <p>This recipe contains :</p>
                             <ul className="allergy-list">
                                 {allergyAlerts.map((ingredient, index) => (
                                     <li key={index}><strong>{ingredient}</strong></li>

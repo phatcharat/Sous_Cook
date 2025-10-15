@@ -1,12 +1,18 @@
+import { getUserId } from './auth';
+
 // src/utils/storageUtils.js
-// Function to save ingredients to localStorage
+// Function to save ingredients to localStorage for a specific user
 export const saveIngredientsToLocalStorage = (ingredients) => {
-  localStorage.setItem('ingredients', JSON.stringify(ingredients));
+  const userId = getUserId();
+  if (!userId) return;
+  localStorage.setItem(`ingredients_${userId}`, JSON.stringify(ingredients));
 };
 
-// Function to retrieve ingredients from localStorage
+// Function to retrieve ingredients from localStorage for a specific user
 export const getIngredientsFromLocalStorage = () => {
-  const storedIngredients = localStorage.getItem('ingredients');
+  const userId = getUserId();
+  if (!userId) return [];
+  const storedIngredients = localStorage.getItem(`ingredients_${userId}`);
   try {
     return storedIngredients ? JSON.parse(storedIngredients) : [];
   } catch (error) {
@@ -17,12 +23,16 @@ export const getIngredientsFromLocalStorage = () => {
 
 // Function to save menu recommendations to localStorage
 export const savePreferencesToLocalStorage = (menu) => {
-  localStorage.setItem('Preferences', JSON.stringify(menu));  // Changed to use "menu" as key
+  const userId = getUserId();
+  if (!userId) return;
+  localStorage.setItem(`Preferences_${userId}`, JSON.stringify(menu));
 };
 
 // Function to retrieve menu recommendations from localStorage
 export const getPreferencesFromLocalStorage = () => {
-  const storedMenu = localStorage.getItem('Preferences');  // Fetching from "menu" instead of "ingredients"
+  const userId = getUserId();
+  if (!userId) return [];
+  const storedMenu = localStorage.getItem(`Preferences_${userId}`);
   try {
     return storedMenu ? JSON.parse(storedMenu) : [];
   } catch (error) {
@@ -38,10 +48,10 @@ export const saveMenuToLocalStorage = (menus) => {
 export const getMenuFromLocalStorage = () => {
   const storedMenu = localStorage.getItem('menus');
   try {
-    return storedMenu ? JSON.parse(storedMenu) : [];  // Return an empty array if there's no data
+    return storedMenu ? JSON.parse(storedMenu) : [];
   } catch (error) {
     console.error('Error parsing menu recommendations from localStorage:', error);
-    return [];  // Return empty array in case of error
+    return [];
   }
 };
 
@@ -54,31 +64,30 @@ export const saveImageToLocalStorage = (Images_list) => {
 export const getImageFromLocalStorage = () => {
   const storedImages = localStorage.getItem('images');
   try {
-    return storedImages ? JSON.parse(storedImages) : { ingredient: {} };  // Return an object with ingredients
+    return storedImages ? JSON.parse(storedImages) : { ingredient: {} };
   } catch (error) {
     console.error('Error parsing images from localStorage:', error);
-    return { ingredient: {} };  // Return an empty object in case of error
+    return { ingredient: {} };
   }
 };
 
 // Function to print any data from localStorage by key
 export const printData = (ItemName) => {
-  // Retrieve the stored item from localStorage
-  const storedItem = localStorage.getItem(ItemName);  // Using ItemName to fetch the specific data
+  const storedItem = localStorage.getItem(ItemName);
 
   try {
-    // If data is found, parse it. If not, return an empty array.
     const parsedItem = storedItem ? JSON.parse(storedItem) : [];
     console.log(parsedItem);
   } catch (error) {
-    // Handle parsing errors
     console.error(`Error parsing ${ItemName} from localStorage:`, error);
   }
 };
 
 export const getCameraIngredientsFromLocalStorage = () => {
+    const userId = getUserId();
+    if (!userId) return [];
     try {
-        const ingredients = localStorage.getItem('cameraIngredients');
+        const ingredients = localStorage.getItem(`cameraIngredients_${userId}`);
         return ingredients ? JSON.parse(ingredients) : [];
     } catch (error) {
         console.error('Error getting camera ingredients from localStorage:', error);
@@ -87,16 +96,20 @@ export const getCameraIngredientsFromLocalStorage = () => {
 };
 
 export const saveCameraIngredientsToLocalStorage = (ingredients) => {
+    const userId = getUserId();
+    if (!userId) return;
     try {
-        localStorage.setItem('cameraIngredients', JSON.stringify(ingredients));
+        localStorage.setItem(`cameraIngredients_${userId}`, JSON.stringify(ingredients));
     } catch (error) {
         console.error('Error saving camera ingredients to localStorage:', error);
     }
 };
 
 export const getDeletedIngredients = () => {
+    const userId = getUserId();
+    if (!userId) return [];
     try {
-        const deleted = localStorage.getItem('deletedIngredients');
+        const deleted = localStorage.getItem(`deletedIngredients_${userId}`);
         return deleted ? JSON.parse(deleted) : [];
     } catch (error) {
         return [];
@@ -104,16 +117,20 @@ export const getDeletedIngredients = () => {
 };
 
 export const addDeletedIngredient = (ingredientName) => {
+    const userId = getUserId();
+    if (!userId) return;
     try {
         const deleted = getDeletedIngredients();
         const name = ingredientName.trim().toLowerCase();
         if (!deleted.includes(name)) {
-            localStorage.setItem('deletedIngredients', JSON.stringify([...deleted, name]));
+            localStorage.setItem(`deletedIngredients_${userId}`, JSON.stringify([...deleted, name]));
         }
     } catch (error) {}
 };
 
-export const getShoppingListFromStorage = (userId) => {
+export const getShoppingListFromStorage = () => {
+    const userId = getUserId();
+    if (!userId) return [];
     try {
         const list = localStorage.getItem(`shoppingList_${userId}`);
         return list ? JSON.parse(list) : [];
@@ -123,7 +140,9 @@ export const getShoppingListFromStorage = (userId) => {
     }
 };
 
-export const saveShoppingListToStorage = (userId, items) => {
+export const saveShoppingListToStorage = (items) => {
+    const userId = getUserId();
+    if (!userId) return;
     try {
         localStorage.setItem(`shoppingList_${userId}`, JSON.stringify(items));
     } catch (error) {
