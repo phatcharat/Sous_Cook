@@ -1,3 +1,4 @@
+// server/index.js
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -94,8 +95,8 @@ function deleteOldAvatar(filename) {
 }
 
 const limiter = new Bottleneck({
-  minTime: 1000,  // Control the time between requests
-  maxConcurrent: 5  // Control how many requests run at the same time
+  minTime: 500,  // Control the time between requests
+  maxConcurrent: 5 // Control how many requests run at the same time
 });
 
 const endaman_app_id = process.env.EDAMAN_APP_ID;
@@ -1204,7 +1205,7 @@ const addImagesToMenus = async (menus) => {
       const imageUrl = await fetchImageForMenu(menu.menu_name);
       return {
         ...menu,
-        image: imageUrl ? imageUrl : 'default-image-url',  // Use default image if no image found
+        image: imageUrl, 
       };
     })
   );
