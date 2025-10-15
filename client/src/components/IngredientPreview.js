@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage, addDeletedIngredient, getDeletedIngredients } from '../utils/storageUtils';
 =======
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
@@ -16,6 +17,9 @@ import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCamera
 =======
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
 >>>>>>> refs/remotes/origin/main
+=======
+import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 =======
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
 >>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
@@ -72,6 +76,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const deleted = getDeletedIngredients();
     
     return ingredients.filter(ing => {
@@ -100,6 +105,10 @@ const IngredientPreview = ({ updatedIngredients }) => {
     return ingredients.filter(ing => {
       if (!ing || typeof ing !== 'object') return false;
 >>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
+=======
+    return ingredients.filter(ing => {
+      if (!ing || typeof ing !== 'object') return false;
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
       const name = ing.ingredient_name?.trim().toLowerCase();
       if (!name || seen.has(name)) return false;
       seen.add(name);
@@ -108,6 +117,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
     });
   };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -124,6 +134,8 @@ const IngredientPreview = ({ updatedIngredients }) => {
 >>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
+=======
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 useEffect(() => {
   const normalIngredients = getIngredientsFromLocalStorage();
   const cameraIngredients = getCameraIngredientsFromLocalStorage();
@@ -134,11 +146,14 @@ useEffect(() => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
+=======
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 =======
 >>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
@@ -195,6 +210,7 @@ useEffect(() => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const handleNavigateWithSave = (path) => {
     saveIngredientsToLocalStorage(ingredients);
     navigate(path);
@@ -214,6 +230,10 @@ useEffect(() => {
   const handleAddIngredient = () => navigate('/search');
   const handleBack = () => navigate('/search');
 >>>>>>> refs/remotes/origin/main
+=======
+  const handleAddIngredient = () => navigate('/search');
+  const handleBack = () => navigate('/search');
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 =======
   const handleAddIngredient = () => navigate('/search');
   const handleBack = () => navigate('/search');
@@ -242,6 +262,7 @@ useEffect(() => {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   <li key={ingredient.ingredient_name} className="ingredient-items">
 =======
                   <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
@@ -252,6 +273,9 @@ useEffect(() => {
 =======
                   <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
 >>>>>>> refs/remotes/origin/main
+=======
+                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 =======
                   <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
 >>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
