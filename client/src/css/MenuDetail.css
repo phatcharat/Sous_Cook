@@ -34,12 +34,12 @@
 
 .image-header .back-button{
     position: absolute; /* Position the button absolutely */
-    top: 12px; /* Adjust the vertical position */
+    top: 10px; /* Adjust the vertical position */
     left: 3%; /* Adjust the horizontal position */
     background: #fdf6e3; /* Circle background color */
     border: none; /* Remove default border */
     color: #000000; /* Text color */
-    padding: 10px; /* Padding to create circular shape */
+    padding: 3px; /* Padding to create circular shape */
     border-radius: 50%; /* Make the button circular */
     display: flex; /* Use flexbox to center content */
     align-items: center; /* Center vertically */
@@ -49,7 +49,7 @@
 
 
 .favorite-button {
-    background-color: #fff;
+    background-color: #fdf6e3;
     position: absolute;
     top: 12px;
     right: 10px;
@@ -313,8 +313,49 @@ ul.instructions-list li{
     width: -webkit-fill-available;
 }
 
+.nutrition-container ul,
+.nutrition-container li {
+  list-style: disc !important;
+  border: none !important;
+  border-bottom: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  margin-left: 10px;
+}
+
 .tips-container, .nutrition-container {
-    font-family: 'Quicksand', sans-serif;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.tips-container ul,
+.tips-container li {
+  list-style: none !important;
+  border: none !important;
+  border-bottom: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  background: none !important;
+}
+
+.tips-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+  
+}
+
+.tip-icon {
+  width: 20px;
+  height: 20px;
+  margin-left: 40px;
+
 }
 
 .allergy-popup-overlay {

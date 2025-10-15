@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
+
 /* search bar */
 .search-bar {
     display: flex;
@@ -11,6 +14,7 @@
     box-shadow: none;
     padding: 5px 12px;
     height: 45px;
+    border: #f9b959 2px solid;
 }
 
 .search-input {
@@ -39,7 +43,6 @@
 .camera-icon-btn:hover .camera-icon {
     filter: none;
 }
-@import url('https://fonts.googleapis.com/css?family=Quicksand');
 
 .search-container {
     display: flex;
@@ -62,6 +65,11 @@
     align-self: flex-start;
     align-items: center;
     gap: 11px;
+}
+
+.back-home h1 {
+    font-size: 2.5vh;
+    font-family: 'Manrope', sans-serif;
 }
 
 .back-button {
@@ -131,7 +139,7 @@
     width: 250px;
     height: 58px;
     border-radius: 29px;
-    background: #FE9801;
+    background: #fdab2f;
     cursor: pointer;
     transition: background 0.2s;
 }

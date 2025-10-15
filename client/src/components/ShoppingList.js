@@ -32,7 +32,8 @@ const ShoppingList = () => {
     <div className="shopping-list-container">
       {/* Header */}
       <div className="shopping-header">
-        <button className="back-button" onClick={() => navigate(-1)}>Shopping List</button>
+        <button className="back-button" onClick={() => navigate(-1)}></button>
+        <h1>Shopping List</h1>
       </div>
 
       {/* List Items */}

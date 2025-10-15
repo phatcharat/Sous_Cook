@@ -128,7 +128,8 @@ useEffect(() => {
       ) : (
         <div className="ingredient-preview-container">
           <div className='menu-header-container'>
-            <button className="back-button" onClick={handleBack}>Ingredient List</button>
+            <button className="back-button" onClick={handleBack}></button>
+            <h1>Ingredient List</h1>
           </div>
           <ul className="ingredient-list">
             {ingredients.length === 0 ? (

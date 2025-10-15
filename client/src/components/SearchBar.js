@@ -15,7 +15,7 @@ import breadclick from '../image/homepage/BreadClick.svg';
 import tomatoclick from '../image/homepage/TomatoClick.svg';
 import celeryclick from '../image/homepage/CeleryClick.svg';
 import porkclick from '../image/homepage/PorkClick.svg';
-import IconCamera from '../image/searchbar/Scan.svg';
+import IconCamera from '../image/searchbar/camera.png';
 import listicon from '../image/homepage/List.svg';
 import logo from '../image/Logo1.svg';
 import textlogo from '../image/TextLogo.svg';
@@ -171,7 +171,8 @@ const SearchBar = () => {
     return (
         <div className="search-container">
             <div className="back-home">
-                <button className="back-button" onClick={() => navigate("/home")}>Searching</button>
+                <button className="back-button" onClick={() => navigate("/home")}></button>
+                <h1>Searching</h1>
                 <button
                     className="list-icon-btn"
                     onClick={handleIngredientPreview}

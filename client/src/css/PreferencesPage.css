@@ -1,28 +1,27 @@
 /* Preferences Page Container */
-.preferences-container {
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700;800&display=swap');
+
+.preferences-container{
+  font-family: 'Manrope', sans-serif;
   padding: 20px;
+}
+
+.menu-header-container h1 {
+    font-size: 2.5vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 /* Header */
 .preferences-container .header {
+  align-items: flex-start;
   font-size: 2.5vh;
-  margin-bottom: 10px;
+  margin: 3px 0 15px 0;
   font-weight: bold;
+  font-family: 'Manrope', sans-serif;
 }
 
-  /* Back Button */
-.back-button {
-  width: 6vh;
-  height: 6vh;
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 4.5vh;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
 .back-button::before {
   content: '←';
   font-size: 4.5vh;
@@ -39,11 +38,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin: 0;
 }
 
 /* Preference Item (Button) */
 .preference-item {
+  font-family: 'Manrope', sans-serif;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 20px;
@@ -51,6 +51,7 @@
   cursor: pointer;
   font-size: 1.5vh;
   transition: background-color 0.3s ease;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Preference Item when selected */
@@ -62,9 +63,12 @@
 
 /* Search Button */
 .search-button {
+  font-family: 'Manrope', sans-serif;
+  font-weight: bold;
   background-color: #FFA500;  /* Orange button */
   color: white;
   font-size: 1.5vh;
+  margin-top: 20px;
   padding: 10px;
   border: none;
   border-radius: 25px;
@@ -74,6 +78,7 @@
 
 /* Permanent Filter Label */
 .permanent-filter {
+  font-family: 'Manrope', sans-serif;
   font-size: 1.25vh;
   color: #888;
 }

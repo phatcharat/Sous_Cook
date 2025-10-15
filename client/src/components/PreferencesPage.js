@@ -87,8 +87,9 @@ const PreferencesPage = () => {
     <div className="preferences-container">
         <div className='menu-header-container'>
             <button className="back-button" onClick={()=>navigate('/ingredient-preview')}></button>
-            <h1 className="header">Cuisines</h1>
+            <h1>Preferences</h1>
         </div>
+        <h1 className="header">Cuisines</h1>
         <div className="preference-list">
         {cuisines.map(cuisine => (
             <button
