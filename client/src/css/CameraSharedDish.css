@@ -1,0 +1,194 @@
+.camera-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0, 0, 0);
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+
+.camera-header {
+    position: absolute;
+    top: 1.75vh;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-end; /* Keep the close button on the right */
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    z-index: 101;
+    color: white;
+    font-weight: bold;
+}
+
+.header-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* Center the text horizontally */
+    font-size: 2vh;
+    color: #F4EEC7; /* The color for the header text */
+}
+
+.styled-button {
+    background-color: transparent;
+    border: none;
+    padding-left: 20%;
+    padding-right: 20%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1vw; /* Adjust size as needed */
+    height: 1vh;
+    z-index: 102;
+  }
+
+.camera-buttom .button-image {
+    width: 8vw;
+    height: 8vh;
+    object-fit: contain; /* Ensure the SVG is properly contained within the button */
+}
+
+.webcam-view {
+    flex: 1;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transform: scale(1);
+}
+
+.captured-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    height: 100vh;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.response-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+
+.camera-container .back-button {
+    margin-top: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.camera-container .close-button{
+    width: 2.25vh;
+    height: 2.25vh;
+    cursor: pointer;
+    padding-inline-end: 10%;
+}
+.camera-buttom{
+    position: fixed;
+    bottom: 2.5%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+}
+.camera-buttom-preview{
+    position: fixed;
+    padding: 7vh;
+    bottom: 0%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+
+}
+.camera-buttom-preview .button-image {
+    width: 30vw;
+    height: 30vh;
+    object-fit: contain; /* Ensure the SVG is properly contained within the button */
+}
+.camera-button {
+    background-color: transparent; /* Remove background */
+    border: none; /* Remove default border */
+    cursor: pointer;
+    z-index: 102;
+    border-radius: 50%; /* Ensuring the button remains circular */
+}
+
+.camera-button-img {
+    width: 10vh;
+    height: 10vh;
+    object-fit: cover;
+}
+
+  
+.upload-image{
+    padding: 0.15vh;
+    width: 4.25vh;
+    height: 4.25vh;
+    background-color: rgba(104, 101, 101, 0.7);
+    border-radius: 25%; 
+    
+}
+.upload-container{
+    padding-left: 10%;
+}
+.flash-button{
+    display: none;
+}   
+.swap-camera{
+    background-color: rgba(104, 101, 101, 0.7);
+    border-radius: 100%; 
+    width: 4vh;
+    height: 4vh;
+    padding: 0.5vh;
+}
+
+.swap-container{
+    padding-right: 10%;
+}

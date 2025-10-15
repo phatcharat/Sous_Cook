@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/MenuDetail.css';
 import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLocalStorage, saveShoppingListToStorage, getShoppingListFromStorage } from '../utils/storageUtils';
@@ -11,11 +11,13 @@ import tips from '../image/menu-detail/tips.svg'
 import { getUserId } from '../utils/auth';
 import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
+import Camera from './CameraSharedDish';
 
 const MenuDetail = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { menu, menu_id, isRandomMenu = false } = location.state || {};
+    const sharedDishImage = location.state?.sharedDishImage; 
 
     const [menuData, setMenuData] = useState(menu || null);
     const [checkedSteps, setCheckedSteps] = useState([]);
@@ -30,6 +32,17 @@ const MenuDetail = () => {
     const [allergyAlerts, setAllergyAlerts] = useState([]);
     const [showAllergyAlert, setShowAllergyAlert] = useState(false);
     const [hasAcknowledgedAllergy, setHasAcknowledgedAllergy] = useState(false);
+
+    // for share your dish photo (small community)
+    const [dishImage, setDishImage] = useState(sharedDishImage || require('../image/chef.png'));
+    const [hasDishPhoto, setHasDishPhoto] = useState(!!sharedDishImage);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const dishFileInputRef = useRef(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const capturedImage = location.state?.image || null; //select photo
+    const [dishCaption, setDishCaption] = useState('');  
+    const [ignoreSharedDish, setIgnoreSharedDish] = useState(false);  
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
@@ -134,6 +147,56 @@ const MenuDetail = () => {
             navigate("/shoppinglist", {
                 state: { missingIngredients: selectedIngredients }
             });
+        }
+    };
+
+    // Share dish picture
+    const handleCancel = () => {
+        setDishImage(require('../image/chef.png'));
+        setHasDishPhoto(false);
+        setDishCaption('');
+        setIgnoreSharedDish(true);
+    };
+
+    const handleChooseDishFile = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            setDishImage(reader.result);
+            setHasDishPhoto(true);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // แปลง base64 เป็น File
+    const dataURLtoFile = async (dataurl, filename) => {
+        const res = await fetch(dataurl);
+        const blob = await res.blob();
+        return new File([blob], filename, { type: blob.type });
+    };
+
+    // Submit รูปไป community
+    const handleSubmitDish = async () => {
+        if (!dishImage || !actualMenuId) return;
+        const userId = getUserId();
+        if (!userId) return;
+
+        try {
+            const file = await dataURLtoFile(dishImage, 'dish.png');
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('user_id', userId);
+            formData.append('menu_id', actualMenuId);
+            formData.append('caption', dishCaption);
+
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/community`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            navigate('/community', { state: { dishImage, menu_id: actualMenuId } });
+        } catch (err) {
+            console.error("Upload failed:", err);
         }
     };
 
@@ -279,6 +342,15 @@ const MenuDetail = () => {
         fetchAllergiesAndCheck();
     }, [menuData?.ingredients_quantity, hasAcknowledgedAllergy]); // Only depend on what's necessary
 
+    // share dish
+    useEffect(() => {
+        if (sharedDishImage && !ignoreSharedDish && !isSubmitting) {
+            setDishImage(sharedDishImage);
+            setHasDishPhoto(true);
+        }
+    }, [sharedDishImage, ignoreSharedDish, isSubmitting]);
+
+    
     if (!menuData) {
         return (
             <div className="menu-detail-container">
@@ -441,6 +513,58 @@ const MenuDetail = () => {
                     ) : <p>No nutrition data available.</p>}
                 </div>
             </div>
+            {/* share your dish section */}
+            <div className="share-dish-container">
+                <img src={dishImage} alt="dish" className="chef" />
+
+                <h3>Share your dish</h3>
+
+                {!hasDishPhoto && (
+                    <div className="photo-buttons">
+                    <button className="take-photo-button" onClick={() => navigate("/camera-share-dish", { state: { menu_id: actualMenuId }, replace: true })}>
+                    Take a photo
+                    </button>
+                    <button className="select-photo-button" onClick={() => dishFileInputRef.current.click()}>
+                    Select photo
+                    </button>
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={dishFileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleChooseDishFile}
+                    />
+                    </div>
+                )}
+
+                {hasDishPhoto && (
+                    <div className="submit-buttons">
+                        <textarea
+                            placeholder="Write a caption..."
+                            value={dishCaption}
+                            onChange={(e) => setDishCaption(e.target.value)}
+                            className="dish-caption-box"
+                        />
+                        <div className="button-row">
+                            <button className="share-button" onClick={handleSubmitDish}>
+                                Submit
+                            </button>
+                            <button className="retake-button" onClick={handleCancel}>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
+                </div>
+                <div className="go-community-container">
+                    <button 
+                    className="go-community-button" 
+                    onClick={() => navigate('/community', { state: { dishImage, menu_id: actualMenuId } })}
+                    >
+                    See the Community
+                    </button>
+            </div>            
         </div>
     );
 };

@@ -1513,6 +1513,164 @@ If no allergens are found, return: {"alerts": []}
   }
 });
 
+// small community
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Multer storage สำหรับ community
+const communityStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'uploads', 'community');
+
+    // ถ้า folder ยังไม่มี ให้สร้าง
+    fs.mkdir(uploadPath, { recursive: true }, (err) => {
+      if (err) return cb(err);
+      cb(null, uploadPath);
+    });
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = `post_${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const communityUpload = multer({
+  storage: communityStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) return cb(null, true);
+    cb(new Error('Only image files are allowed'));
+  }
+});
+
+// get all post from community db
+app.get('/api/community', async (req, res) => {
+  try {
+    const menuId = req.query.menu_id ? Number(req.query.menu_id) : null;
+    let sql = `
+      SELECT 
+        c.post_id, c.user_id, c.menu_id, c.image, c.caption, 
+        c.created_at, c.like_count,
+        u.username, u.avatar
+      FROM community c
+      JOIN users u ON c.user_id = u.user_id
+    `;
+    const params = [];
+
+    if (menuId) {
+      sql += ' WHERE c.menu_id = $1';
+      params.push(menuId);
+    }
+
+    sql += ' ORDER BY c.created_at DESC';
+
+    const result = await pool.query(sql, params);
+
+    const serverBase = `http://localhost:5050/`;
+    const posts = result.rows.map(post => ({
+      ...post,
+      avatar_url: post.avatar ? `${serverBase}uploads/avatars/${post.avatar}` : null,
+      image_url: post.image ? `${serverBase}${post.image}` : null
+    }));
+
+    res.json({ success: true, posts });
+  } catch (error) {
+    console.error('Error fetching community posts:', error);
+    res.status(500).json({ error: 'Failed to fetch community posts' });
+  }
+});
+
+// POST community
+app.post('/api/community', communityUpload.single('image'), async (req, res) => {
+  const { user_id, menu_id, caption } = req.body;
+
+  if (!user_id || !menu_id) {
+    return res.status(400).json({ error: 'user_id and menu_id are required' });
+  }
+
+  let imagePath = null;
+  if (req.file) {
+    imagePath = `uploads/community/${req.file.filename}`;
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO community (user_id, menu_id, image, caption, created_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       RETURNING *`,
+      [user_id, menu_id, imagePath, caption || '']
+    );
+
+    const post = result.rows[0];
+    const serverBase = `http://${server_ip}:${port}/`;
+    res.status(201).json({
+      message: 'Post uploaded successfully.',
+      post: {
+        ...post,
+        avatar_url: post.avatar ? `${serverBase}uploads/avatars/${post.avatar}` : null,
+        image_url: post.image ? `${serverBase}${post.image}` : null
+      }
+    });
+  } catch (err) {
+    console.error('Error saving community post:', err);
+    res.status(500).json({ error: 'Failed to save post.' });
+  }
+});
+
+// Toggle like/unlike post
+app.post('/api/community/:post_id/like', async (req, res) => {
+  const { post_id } = req.params;
+  const { user_id } = req.body;
+
+  try {
+    const check = await pool.query(
+      'SELECT * FROM community_likes WHERE user_id = $1 AND post_id = $2',
+      [user_id, post_id]
+    );
+
+    let liked;
+    let like_count;
+
+    if (check.rows.length > 0) {
+      // User already liked → unlike
+      await pool.query(
+        'DELETE FROM community_likes WHERE user_id = $1 AND post_id = $2',
+        [user_id, post_id]
+      );
+      liked = false;
+
+      const update = await pool.query(
+        'UPDATE community SET like_count = GREATEST(like_count - 1, 0) WHERE post_id = $1 RETURNING like_count',
+        [post_id]
+      );
+      like_count = update.rows[0].like_count;
+    } else {
+      // Like
+      await pool.query(
+        'INSERT INTO community_likes (user_id, post_id) VALUES ($1, $2)',
+        [user_id, post_id]
+      );
+      liked = true;
+
+      const update = await pool.query(
+        'UPDATE community SET like_count = like_count + 1 WHERE post_id = $1 RETURNING like_count',
+        [post_id]
+      );
+      like_count = update.rows[0].like_count;
+    }
+
+    res.json({ success: true, liked, like_count });
+  } catch (err) {
+    console.error('Error toggling like:', err);
+    res.status(500).json({ error: 'Failed to toggle like' });
+  }
+});
+
 // Start the server
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on ${port}`);

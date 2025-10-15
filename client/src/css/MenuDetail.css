@@ -395,3 +395,152 @@ ul.instructions-list li{
 .allergy-confirm-btn:hover {
   background-color: #b71c1c;
 }
+
+/* share dish container*/
+.share-dish-container { 
+    background-color: #ffff;
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    margin: 60px auto 0 auto; 
+    padding: 0;
+    width: 90%; 
+    border-radius: 12px; 
+    font-family: 'Quicksand', sans-serif; 
+    font-size: 18px;
+    font-weight: 600;
+    color: #3f3f3f;
+    box-shadow: 5px 5px 10px #cacaca;
+    overflow: visible; 
+    position: relative;
+} 
+
+.chef {
+    width: 80%;
+    height: auto;
+    position: relative;
+    top: 20px;
+    margin-bottom: 10px;
+    /*top: -40px;
+    margin-bottom: -40px;*/
+}
+
+
+.photo-buttons { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    margin-bottom: 20px; 
+    gap: 20px;
+} 
+
+.take-photo-button, .select-photo-button { 
+    background-color: #FFA500; 
+    border-radius: 10px; 
+    border: none; 
+    padding: 10px 20px; 
+    color: white; 
+    font-family: 'Quicksand', sans-serif; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease; 
+} 
+
+.take-photo-button:active, .select-photo-button:active { 
+    background-color: #e39503; 
+} 
+
+.submit-buttons { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    margin-bottom: 20px; 
+    gap: 20px; 
+} 
+
+.share-button { 
+    background-color: #B0BD39;  
+    border-radius: 10px; 
+    border: none; 
+    padding: 10px 20px; 
+    color: white; 
+    font-family: 'Quicksand', sans-serif; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease; 
+} 
+
+.retake-button { 
+    background-color: #FFA500; 
+    border-radius: 10px; 
+    border: none; 
+    padding: 10px 20px; 
+    color: white; 
+    font-family: 'Quicksand', sans-serif; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease; 
+} 
+
+.dish-image { 
+    display: block; 
+    margin: 20px auto; 
+    height: auto; 
+    border-radius: 12px; 
+    object-fit: cover; 
+}
+
+.go-community-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.go-community-button {
+    background-color: #B0BD39;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.go-community-button:hover {
+    background-color: #ff8c00;
+}
+
+.dish-caption-box {
+    width: 80%;
+    margin-left: 12px;
+    margin-bottom: 2px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    height: 20%;             
+    padding-top: 16px;
+    padding-left: 10px;         
+    text-align: start;       
+    display: flex;
+    align-items: start;       
+    justify-content: start;   
+    box-sizing: border-box;
+    resize: none;
+    font-family: 'Quicksand', sans-serif;   
+}
+
+.dish-caption-box::placeholder {
+    text-align: center; 
+    color: #888;
+    padding-left: 0;
+    font-family: 'Quicksand', sans-serif; 
+}
+
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-right: 12px;
+}
