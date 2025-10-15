@@ -14,11 +14,14 @@ import notfavorite from '../image/menu-detail/heart-outline.svg';
 import Camera from './CameraSharedDish';
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import logo from '../image/Logo1.svg';
 =======
 >>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
+=======
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
 const MenuDetail = () => {
     const navigate = useNavigate();
@@ -52,6 +55,7 @@ const MenuDetail = () => {
     const [dishCaption, setDishCaption] = useState('');  
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const [ignoreSharedDish, setIgnoreSharedDish] = useState(false); 
     
     // for review
@@ -62,6 +66,9 @@ const MenuDetail = () => {
 =======
     const [ignoreSharedDish, setIgnoreSharedDish] = useState(false);  
 >>>>>>> refs/remotes/origin/main
+=======
+    const [ignoreSharedDish, setIgnoreSharedDish] = useState(false);  
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
@@ -177,12 +184,16 @@ const MenuDetail = () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> refs/remotes/origin/main
 =======
 
 >>>>>>> refs/remotes/origin/main
+=======
+
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
     // Share dish picture
     const handleCancel = () => {
         setDishImage(require('../image/chef.png'));
@@ -391,6 +402,7 @@ const MenuDetail = () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // fetch review
     const fetchReviewData = async () => {
         try {
@@ -414,6 +426,8 @@ const MenuDetail = () => {
 
 =======
 >>>>>>> refs/remotes/origin/main
+=======
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
     if (!menuData) {
         return (
@@ -630,6 +644,7 @@ const MenuDetail = () => {
                     </button>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             </div>
 
             {/* ส่วนของ review */}
@@ -660,6 +675,9 @@ const MenuDetail = () => {
 =======
             </div>            
 >>>>>>> refs/remotes/origin/main
+=======
+            </div>            
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
         </div>
     );
 };
@@ -681,6 +699,7 @@ const fetchMissingImages = async (menuList, ingredientList) => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     console.log("missingMenuItems:", missingMenuItems);
     console.log("missingIngredients:", missingIngredients);
 
@@ -688,6 +707,8 @@ const fetchMissingImages = async (menuList, ingredientList) => {
 >>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
+=======
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
     if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
         try {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/get_ingredient_image`, { ingredients: missingIngredients });
@@ -721,6 +742,7 @@ const abbreviateUnit = (quantity) => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const renderStars = (rate) => {
     const numericRating = parseFloat(rate) || 0;
     const finalRating = Math.round(numericRating); 
@@ -744,4 +766,6 @@ const renderStars = (rate) => {
 >>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
+=======
+>>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 export default MenuDetail;
