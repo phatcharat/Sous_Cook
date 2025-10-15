@@ -26,6 +26,7 @@ const MenuDetail = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [mealCompleted, setMealCompleted] = useState(false);
+    const [ingredients, setIngredients] = useState([]);
 
     // Add new state for allergies and alerts
     const [userAllergies, setUserAllergies] = useState([]);
@@ -142,13 +143,20 @@ const MenuDetail = () => {
         if (selectedIngredients.length > 0) {
             const currentList = getShoppingListFromStorage(userId);
             const updatedList = [...currentList, ...selectedIngredients];
-            saveShoppingListToStorage(userId, updatedList);
-            
-            navigate("/shoppinglist", {
-                state: { missingIngredients: selectedIngredients }
+
+            // remove duplicates
+            const uniqueList = [
+                ...new Map(updatedList.map(item => [item.name, item])).values(),
+            ];
+
+            saveShoppingListToStorage(uniqueList);
+
+            navigate('/shoppinglist', {
+                state: { missingIngredients: selectedIngredients },
             });
         }
     };
+
 
     // Share dish picture
     const handleCancel = () => {
@@ -199,6 +207,12 @@ const MenuDetail = () => {
             console.error("Upload failed:", err);
         }
     };
+
+    useEffect(() => {
+        const storedIngredients = getIngredientsFromLocalStorage();
+        setIngredients(storedIngredients);
+    }, []);
+
 
     // Fetch menu if coming from History
     useEffect(() => {
@@ -584,9 +598,6 @@ const fetchMissingImages = async (menuList, ingredientList) => {
         !(ingredient in storedImages.ingredient)
     );
 
-    console.log("missingMenuItems:", missingMenuItems);
-    console.log("missingIngredients:", missingIngredients);
-
     if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
         try {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/get_ingredient_image`, { ingredients: missingIngredients });
@@ -598,9 +609,10 @@ const fetchMissingImages = async (menuList, ingredientList) => {
             };
 
             saveImageToLocalStorage(newImages);
+            console.log("Fetched images:", newImages);
             return newImages;
         } catch (error) {
-            console.error('Error fetching images from backend:', error);
+            console.error('Error fetching images:', error);
             return storedImages;
         }
     }
@@ -610,7 +622,11 @@ const fetchMissingImages = async (menuList, ingredientList) => {
 
 const abbreviateUnit = (quantity) => {
     if (!quantity) return quantity;
-    return quantity.replace(/\btablespoons?\b/gi, "tbsp");
+    return quantity
+        .replace(/\btablespoons?\b/gi, "tbsp")
+        .replace(/\bteaspoons?\b/gi, "tsp")
+        .replace(/\bgrams?\b/gi, "g")
+        .replace(/\bmilliliters?\b/gi, "ml");
 };
 
 export default MenuDetail;

@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     saveIngredientsToLocalStorage,
     getIngredientsFromLocalStorage,
-    getCameraIngredientsFromLocalStorage,
-    getDeletedIngredients
+    getCameraIngredientsFromLocalStorage
 } from '../utils/storageUtils';
 import '../css/SearchBar.css';
 import backicon from '../image/searchbar/Back.svg';
@@ -25,9 +24,6 @@ const SearchBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [activeImages, setActiveImages] = useState([bread, tomato, celery, pork]);
-    const [selectedCuisine, setSelectedCuisine] = useState([]);
-    const [selectedPreference, setSelectedPreference] = useState([]);
-    const [selectedOccasion, setSelectedOccasion] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [allIngredients, setAllIngredients] = useState([]);
@@ -36,10 +32,10 @@ const SearchBar = () => {
     // filter duplicate ingredient names
     const getUniqueIngredients = (ingredients) => {
         const seen = new Set();
-        const deleted = getDeletedIngredients();
         return ingredients.filter(ing => {
+            if (!ing || typeof ing !== 'object') return false;
             const name = ing.ingredient_name?.trim().toLowerCase();
-            if (!name || seen.has(name) || deleted.includes(name)) return false;
+            if (!name || seen.has(name)) return false; // Check only for duplicates
             seen.add(name);
             return true;
         });
@@ -49,35 +45,32 @@ const SearchBar = () => {
     const loadAllIngredients = () => {
         const manualIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
-        // filter duplicate names
         setAllIngredients(getUniqueIngredients([...manualIngredients, ...cameraIngredients]));
     };
 
-    // Load all ingredients on component mount AND when returning from other pages
     useEffect(() => {
         loadAllIngredients();
-    }, [location.key]); // Re-run when navigation occurs
+    }, [location.key]);
 
     // Handle ingredient search
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchText.trim()) {
+            const ingredientName = searchText.trim();
+
             const newIngredient = {
-                ingredient_name: searchText.trim(),
+                ingredient_name: ingredientName,
                 ingredient_type: "Other",
                 source: "manual"
             };
 
-            const updatedIngredients = [...selectedIngredients, newIngredient];
-            setSelectedIngredients(updatedIngredients);
+            setSelectedIngredients([...selectedIngredients, newIngredient]);
             setSearchText("");
 
-            // Save to localStorage and update count
             const existingIngredients = getIngredientsFromLocalStorage();
             saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
             loadAllIngredients();
 
-            // Show popup
             setShowAddedMessage(true);
             setTimeout(() => {
                 setShowAddedMessage(false);
@@ -85,27 +78,21 @@ const SearchBar = () => {
         }
     };
 
-    // Camera icon click handler - navigate to CameraSearch
     const handleCameraClick = () => {
         navigate("/camera-search");
     };
 
-    // Handle the main search for recipe button
     const handleSearchRecipe = () => {
         const existingIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
 
-        // Combine all ingredients
         const allIngredients = [
             ...existingIngredients,
             ...selectedIngredients,
             ...cameraIngredients
         ];
 
-        // Save to localStorage
         saveIngredientsToLocalStorage(allIngredients);
-
-        // Fix: Changed route from 'ingredients-preview' to 'ingredient-preview'
         navigate('/ingredient-preview');
     };
 
@@ -114,61 +101,59 @@ const SearchBar = () => {
         const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
         const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
 
-        switch (index) {
-            case 0:
-                newImages[0] = newImages[0] === bread ? breadclick : bread;
-                break;
-            case 1:
-                newImages[1] = newImages[1] === tomato ? tomatoclick : tomato;
-                break;
-            case 2:
-                newImages[2] = newImages[2] === celery ? celeryclick : celery;
-                break;
-            case 3:
-                newImages[3] = newImages[3] === pork ? porkclick : pork;
-                break;
-            default:
-                break;
-        }
-        setActiveImages(newImages);
-
-        // Toggle ingredient selection
         const ingredientName = ingredientNames[index];
         const ingredientType = ingredientTypes[index];
+
         const isSelected = selectedIngredients.some(ing => ing.ingredient_name === ingredientName);
 
         if (isSelected) {
-            // Remove ingredient
-            setSelectedIngredients(selectedIngredients.filter(ing => ing.ingredient_name !== ingredientName));
+            // ลบ ingredient ออกจาก selectedIngredients
+            const updatedSelected = selectedIngredients.filter(ing => ing.ingredient_name !== ingredientName);
+            setSelectedIngredients(updatedSelected);
+
+            // ลบ ingredient จาก localStorage
+            const manualIngredients = getIngredientsFromLocalStorage().filter(ing => ing.ingredient_name !== ingredientName);
+            saveIngredientsToLocalStorage(manualIngredients);
+
+            // เปลี่ยนรูปกลับไปเป็นปกติ
+            switch (index) {
+                case 0: newImages[0] = bread; break;
+                case 1: newImages[1] = tomato; break;
+                case 2: newImages[2] = celery; break;
+                case 3: newImages[3] = pork; break;
+            }
         } else {
-            // Add ingredient
-            setSelectedIngredients([...selectedIngredients, {
+            // เพิ่ม ingredient ไปยัง selectedIngredients
+            const newIngredient = {
                 ingredient_name: ingredientName,
                 ingredient_type: ingredientType,
                 source: "manual"
-            }]);
+            };
+            const updatedSelected = [...selectedIngredients, newIngredient];
+            setSelectedIngredients(updatedSelected);
+
+            // เพิ่ม ingredient ลง localStorage
+            const manualIngredients = getIngredientsFromLocalStorage();
+            saveIngredientsToLocalStorage([...manualIngredients, newIngredient]);
+
+            // เปลี่ยนรูปเป็น clicked
+            switch (index) {
+                case 0: newImages[0] = breadclick; break;
+                case 1: newImages[1] = tomatoclick; break;
+                case 2: newImages[2] = celeryclick; break;
+                case 3: newImages[3] = porkclick; break;
+            }
         }
-    };
 
-    const toggleSelection = (index, selectedArray, setSelectedArray) => {
-        if (selectedArray.includes(index)) {
-            setSelectedArray(selectedArray.filter(i => i !== index));
-        } else {
-            setSelectedArray([...selectedArray, index]);
-        }
-    };
-
-
-    // Update handleIngredientPreview to pass current state and refresh on return
-    const handleIngredientPreview = () => {
-        // Reload ingredients before navigating to ensure fresh data
+        setActiveImages(newImages);
         loadAllIngredients();
+    };
 
-        // Combine current selected ingredients with stored ones
+    const handleIngredientPreview = () => {
+        loadAllIngredients();
         const manualIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
 
-        // Create real-time ingredients list
         const currentIngredients = [
             ...selectedIngredients,
             ...manualIngredients,
@@ -205,7 +190,6 @@ const SearchBar = () => {
                 <img src={textlogo} alt="Text Logo" className="text-logo" />
             </div>
 
-            {/* Google-style search bar with camera icon */}
             <form className="search-bar" onSubmit={handleSearch}>
                 <input
                     type="text"
