@@ -94,8 +94,8 @@ function deleteOldAvatar(filename) {
 }
 
 const limiter = new Bottleneck({
-  minTime: 200,  // Control the time between requests
-  maxConcurrent: 10  // Control how many requests run at the same time
+  minTime: 1000,  // Control the time between requests
+  maxConcurrent: 5  // Control how many requests run at the same time
 });
 
 const endaman_app_id = process.env.EDAMAN_APP_ID;
@@ -477,75 +477,74 @@ app.delete('/api/users/:user_id', async (req, res) => {
 // Random menu endpoint
 app.get('/api/random-menu', async (req, res) => {
   try {
-
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     // Random preference
-    const cuisines = ['Southeast Asian', 'American', 'Italian', 'Maxican', 'Indian', 'Fusion', 'South American', 'Middle Eastern', 'Mediterranean'];
+    const cuisines = ['Southeast Asian', 'American', 'Italian', 'Mexican', 'Indian', 'Fusion', 'South American', 'Middle Eastern', 'Mediterranean'];
     const randomCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
 
     const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Side Dish', 'Party'];
     const randomMealType = mealTypes[Math.floor(Math.random() * mealTypes.length)];
 
-    // สร้าง prompt สำหรับสุ่มเมนู
     const prompt = `
-      You are an AI chef that creates random menu recommendations.
-      
-      Generate ONE random ${randomCuisine} ${randomMealType} menu that is delicious and popular.
-      
-      Provide the following details:
-      - Menu name
-      - Preparation time (prep_time)
-      - Cooking time (cooking_time)
-      - Step-by-step cooking instructions
-      - Quantity required for each ingredient
-      - Nutrition information
-      - Cooking tips
-      
-      Classify ingredients according to these types:
-      - Eggs, milk, and dairy products
-      - Fats and oils
-      - Fruits
-      - Grains, nuts, and baking products
-      - Herbs and spices
-      - Meat, sausages, and fish
-      - Pasta, rice, and pulses
-      - Vegetables
-      - Miscellaneous items
-      
-      Return the response in the following JSON format:
-      <JSON_START>
-      {
-        "menu_name": "string",
-        "prep_time": "string",
-        "cooking_time": "string",
-        "steps": ["string", "string", ...],
-        "tips": ["string", "string", ...],
-        "nutrition": {
-          "calories": "string",
-          "protein": "string",
-          "fat": "string",
-          "carbohydrates": "string",
-          "sodium": "string",
-          "sugar": "string"
-        },
-        "ingredients_quantity": {
-          "ingredient_name": "string (quantity and unit)",
-          ...
-        },
-        "ingredients_type": {
-          "ingredient_name": "string (ingredient_type)",
-          ...
-        }
-      }
-      <JSON_END>
-      
-      Ensure the JSON is properly formatted with no extra explanations or text.
-    `;
+You are an AI chef that creates random menu recommendations.
+
+Generate ONE random ${randomCuisine} ${randomMealType} menu that is delicious and popular.
+
+Provide the following details:
+- Menu name
+- Preparation time (prep_time) - format: "X mins" or "X hours"
+- Cooking time (cooking_time) - format: "X mins" or "X hours"
+- Step-by-step cooking instructions (array of strings)
+- Quantity required for each ingredient
+- Nutrition information
+- Cooking tips (array of strings)
+
+Classify ingredients according to these types:
+- Eggs, milk, and dairy products
+- Fats and oils
+- Fruits
+- Grains, nuts, and baking products
+- Herbs and spices
+- Meat, sausages, and fish
+- Pasta, rice, and pulses
+- Vegetables
+- Miscellaneous items
+
+Return the response in the following JSON format:
+<JSON_START>
+{
+  "menu_name": "string",
+  "prep_time": "string",
+  "cooking_time": "string",
+  "steps": ["step 1", "step 2", "step 3"],
+  "tips": ["tip 1", "tip 2"],
+  "nutrition": {
+    "calories": "string",
+    "protein": "string",
+    "fat": "string",
+    "carbohydrates": "string",
+    "sodium": "string",
+    "sugar": "string"
+  },
+  "ingredients_quantity": {
+    "ingredient_name": "quantity with unit"
+  },
+  "ingredients_type": {
+    "ingredient_name": "type from the list above"
+  }
+}
+<JSON_END>
+
+IMPORTANT: 
+- "tips" must be an array of strings, not an object
+- Ensure all arrays are properly formatted
+- Use exact ingredient type names from the list above
+`;
 
     console.log(`Generating random ${randomCuisine} ${randomMealType} menu...`);
 
-    // เรียก OpenAI API
+    // Call OpenAI API
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
@@ -556,25 +555,51 @@ app.get('/api/random-menu', async (req, res) => {
     const responseContent = response.choices[0].message.content;
     console.log("GPT-4o-mini response received");
 
+    // Extract JSON
     const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
 
     if (!jsonMatch) {
-      throw new Error('No valid Json found in response');
+      throw new Error('No valid JSON found in response');
     }
 
     const jsonString = jsonMatch[1].trim();
-    const randomMenu = JSON.parse(jsonString);
+    let randomMenu;
+    
+    try {
+      randomMenu = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Problematic JSON:', jsonString);
+      throw new Error('Invalid JSON format from GPT response');
+    }
 
-    // ดึงรูปภาพจาก Edamam API
+    // Validate required fields
+    if (!randomMenu.menu_name) {
+      throw new Error('Missing menu_name in response');
+    }
+
+    // Ensure tips is an array
+    if (!Array.isArray(randomMenu.tips)) {
+      console.warn('Tips is not an array, converting...');
+      randomMenu.tips = randomMenu.tips ? [randomMenu.tips] : [];
+    }
+
+    // Ensure steps is an array
+    if (!Array.isArray(randomMenu.steps)) {
+      console.warn('Steps is not an array, converting...');
+      randomMenu.steps = randomMenu.steps ? [randomMenu.steps] : [];
+    }
+
+    // Fetch image from Edamam API
     console.log(`Fetching image for: ${randomMenu.menu_name}`);
     const imageUrl = await fetchImageForMenu(randomMenu.menu_name);
     randomMenu.image = imageUrl || 'default-image-url';
 
-    // บันทึกเมนูลง database
+    // Save menu to database
     console.log(`Saving menu to database: ${randomMenu.menu_name}`);
     const dbResult = await pool.query(
-      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, image)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, tips, image)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (menu_name) DO UPDATE
        SET prep_time = EXCLUDED.prep_time,
            cooking_time = EXCLUDED.cooking_time,
@@ -582,6 +607,7 @@ app.get('/api/random-menu', async (req, res) => {
            ingredients_quantity = EXCLUDED.ingredients_quantity,
            ingredients_type = EXCLUDED.ingredients_type,
            nutrition = EXCLUDED.nutrition,
+           tips = EXCLUDED.tips,
            image = EXCLUDED.image
        RETURNING menu_id, menu_name`,
       [
@@ -592,6 +618,7 @@ app.get('/api/random-menu', async (req, res) => {
         JSON.stringify(randomMenu.ingredients_quantity || {}),
         JSON.stringify(randomMenu.ingredients_type || {}),
         JSON.stringify(randomMenu.nutrition || {}),
+        JSON.stringify(randomMenu.tips || []),
         randomMenu.image
       ]
     );
@@ -599,7 +626,7 @@ app.get('/api/random-menu', async (req, res) => {
     const savedMenu = dbResult.rows[0];
     console.log(`Menu saved with ID: ${savedMenu.menu_id}`);
 
-    // ส่งข้อมูลกลับ
+    // Send response
     res.json({
       success: true,
       menu: {
@@ -614,11 +641,11 @@ app.get('/api/random-menu', async (req, res) => {
   } catch (error) {
     console.error('Error generating random menu:', error);
 
-    // กรณี error ส่ง fallback menu
     res.status(500).json({
       success: false,
       error: 'Failed to generate random menu',
-      details: error.message
+      details: error.message,
+      message: 'Please try again. If the problem persists, contact support.'
     });
   }
 });
@@ -691,7 +718,7 @@ app.get('/api/users/:user_id/monthly-meal-stats', async (req, res) => {
 
     for (let i = 3; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthKey = date.toISOString().slice(0, 7); 
+      const monthKey = date.toISOString().slice(0, 7);
       const monthName = date.toLocaleDateString('en-US', { month: 'short' });
 
       const existingData = statsWithCO2.find(s => s.year_month === monthKey);
@@ -726,7 +753,7 @@ app.get('/api/users/:user_id/monthly-meal-stats', async (req, res) => {
   }
 });
 
-app.post('/api/menu-detail/:index/reviews', async (req, res) => {
+app.post('/api/menu-detail/:menuId/reviews', async (req, res) => {
   // const user_id = req.user.id;
   try {
     const { user_id, menu_id, comment, rating } = req.body;
@@ -735,7 +762,7 @@ app.post('/api/menu-detail/:index/reviews', async (req, res) => {
     const ratingNumber = parseInt(rating, 10);
 
     if (!user_idNumber || !menu_idNumber || !comment || !ratingNumber) {
-       return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
+      return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
     }
 
     await pool.query(
@@ -747,28 +774,24 @@ app.post('/api/menu-detail/:index/reviews', async (req, res) => {
     console.error(error.message);
     res.status(500).json({ error: "Server Error" });
   }
-  
+
 });
 
 
-app.get('/api/menu-detail/:index/reviews', async (req, res) => {
-  const urlIndex = req.params.index;
-  const intIndex = parseInt(urlIndex, 10);
+app.get('/api/menu-detail/:menuId/reviews', async (req, res) => {
+  const menuIdStr = req.params.menuId;
+  const menuId = parseInt(menuIdStr, 10);
 
-  if (isNaN(intIndex) || intIndex < 0) {
-    return res.status(400).send({message: "Invalid index provide."});
-  }
   try {
-    const menu_result = await pool.query("SELECT menu_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
-    if (menu_result.rows.length === 0) {
-      return res.status(404).send({message: "Menu not found at this index."});
+    // const menu_result = await pool.query("SELECT menu_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
+    if (!menuId) {
+      return res.status(404).send({ message: "Menu not found at this index." });
     }
-    const actual_menu_id = parseInt(menu_result.rows[0].menu_id, 10);
     const review_result = await pool.query(`SELECT r.*, u.username, u.avatar
                                             FROM review r JOIN users u ON r.user_id = u.user_id
                                             WHERE r.menu_id = $1
-                                            ORDER BY r.created_at DESC;`, [actual_menu_id]);
-                                            
+                                            ORDER BY r.created_at DESC;`, [menuId]);
+
     const rating_result = await pool.query(`SELECT SUM(rating) AS sum_rating, COALESCE(AVG(rating), 0.00) AS avg_rating,
                                             SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS rate_5,
                                             SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS rate_4,
@@ -776,27 +799,27 @@ app.get('/api/menu-detail/:index/reviews', async (req, res) => {
                                             SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS rate_2,
                                             SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS rate_1
                                             FROM review
-                                            WHERE menu_id = $1;`, [actual_menu_id]);
+                                            WHERE menu_id = $1;`, [menuId]);
 
     const rawStats = rating_result.rows.length > 0 ? rating_result.rows[0] : {};
     const summaryData = {
-        sum_rating: parseFloat(rawStats.sum_rating) || 0,
-        avg_rating: parseFloat(rawStats.avg_rating).toFixed(2) || 0,
-        rate_5: parseInt(rawStats.rate_5) || 0,
-        rate_4: parseInt(rawStats.rate_4) || 0,
-        rate_3: parseInt(rawStats.rate_3) || 0,
-        rate_2: parseInt(rawStats.rate_2) || 0,
-        rate_1: parseInt(rawStats.rate_1) || 0,
+      sum_rating: parseFloat(rawStats.sum_rating) || 0,
+      avg_rating: parseFloat(rawStats.avg_rating).toFixed(0) || 0,
+      rate_5: parseInt(rawStats.rate_5) || 0,
+      rate_4: parseInt(rawStats.rate_4) || 0,
+      rate_3: parseInt(rawStats.rate_3) || 0,
+      rate_2: parseInt(rawStats.rate_2) || 0,
+      rate_1: parseInt(rawStats.rate_1) || 0,
     };
     return res.json({
-      menu_id: actual_menu_id,
+      menu_id: menuId,
       reviews: review_result.rows,
       ...summaryData
     });
 
   } catch {
     console.error(error.message);
-    res.status(500).json({ error: 'Server error'});
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -1190,7 +1213,8 @@ const addImagesToMenus = async (menus) => {
 
 const fetchImageForMenu = limiter.wrap(async (menuName) => {
   try {
-    const response = await axios.get(
+    // Updated to API v2 endpoint
+    const response = await fetch(
       `https://api.edamam.com/api/recipes/v2?type=public&q=${encodeURIComponent(menuName)}&app_id=${endaman_app_id}&app_key=${endaman_api_key}&imageSize=REGULAR`
     );
 
@@ -1199,11 +1223,10 @@ const fetchImageForMenu = limiter.wrap(async (menuName) => {
       return null;
     }
 
-    //const data = await response.json();
-    const data = response.data;
+    const data = await response.json();
 
-    if (data.meals && data.meals.length > 0) {
-      return data.meals[0].strMealThumb;  // image form TheMealDB
+    if (data.hits && data.hits.length > 0) {
+      return data.hits[0].recipe.image;
     } else {
       console.log(`No image found for menu: ${menuName}`);
       return 'default-image-url';
@@ -1284,6 +1307,7 @@ app.post("/api/menus", async (req, res) => {
       ingredients_quantity,
       ingredients_type,
       nutrition,
+      tips,
       image,
     } = req.body;
 
@@ -1292,8 +1316,8 @@ app.post("/api/menus", async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition, image)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition,tips, image)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (menu_name) DO NOTHING
        RETURNING menu_id, menu_name`,
       [
@@ -1304,6 +1328,7 @@ app.post("/api/menus", async (req, res) => {
         JSON.stringify(ingredients_quantity || []),
         JSON.stringify(ingredients_type || []),
         JSON.stringify(nutrition || []),
+        JSON.stringify(tips || []),
         image || null,
       ]
     );
@@ -1487,6 +1512,224 @@ app.get('/api/favorites/:userId', async (req, res) => {
   } catch (err) {
     console.error("Error fetching favorites:", err);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+// POST endpoint to analyze ingredients for allergies using GPT
+app.post('/api/analyze-allergies', async (req, res) => {
+  try {
+    const { ingredients, allergies } = req.body;
+
+    if (!ingredients || !allergies || allergies.length === 0) {
+      return res.json({ alerts: [] });
+    }
+
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const prompt = `
+You are a food allergy expert. Analyze the following ingredients for potential allergens.
+
+User's allergies: ${allergies.join(', ')}
+
+Ingredients to check: ${ingredients.join(', ')}
+
+For each allergy, check if any ingredient contains or is derived from that allergen. Consider:
+- Direct matches (e.g., "milk" allergy → "milk", "cream", "butter", "cheese")
+- Hidden sources (e.g., "gluten" allergy → "wheat", "barley", "rye", "wheat flour", "soy sauce")
+- Derivatives (e.g., "egg" allergy → "egg", "mayonnaise", "egg whites")
+- Cross-contamination risks
+
+Return ONLY a JSON object with the list of ingredient names that contain allergens:
+{
+  "alerts": ["ingredient name 1", "ingredient name 2"]
+}
+
+If no allergens are found, return: {"alerts": []}
+`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1000,
+      temperature: 0.3,
+    });
+
+    const content = response.choices[0].message.content.trim();
+
+    // Try to parse the JSON response
+    let result;
+    try {
+      // Remove markdown code blocks if present
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      result = JSON.parse(cleanContent);
+    } catch (parseError) {
+      console.error('Error parsing GPT response:', parseError);
+      console.error('Raw response:', content);
+      result = { alerts: [] };
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error analyzing allergies:', error);
+    res.status(500).json({ error: 'Failed to analyze allergies', alerts: [] });
+  }
+});
+
+// small community
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Multer storage สำหรับ community
+const communityStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'uploads', 'community');
+
+    // ถ้า folder ยังไม่มี ให้สร้าง
+    fs.mkdir(uploadPath, { recursive: true }, (err) => {
+      if (err) return cb(err);
+      cb(null, uploadPath);
+    });
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = `post_${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const communityUpload = multer({
+  storage: communityStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) return cb(null, true);
+    cb(new Error('Only image files are allowed'));
+  }
+});
+
+// get all post from community db
+app.get('/api/community', async (req, res) => {
+  try {
+    const menuId = req.query.menu_id ? Number(req.query.menu_id) : null;
+    let sql = `
+      SELECT 
+        c.post_id, c.user_id, c.menu_id, c.image, c.caption, 
+        c.created_at, c.like_count,
+        u.username, u.avatar
+      FROM community c
+      JOIN users u ON c.user_id = u.user_id
+    `;
+    const params = [];
+
+    if (menuId) {
+      sql += ' WHERE c.menu_id = $1';
+      params.push(menuId);
+    }
+
+    sql += ' ORDER BY c.created_at DESC';
+
+    const result = await pool.query(sql, params);
+
+    const serverBase = `http://localhost:5050/`;
+    const posts = result.rows.map(post => ({
+      ...post,
+      avatar_url: post.avatar ? `${serverBase}uploads/avatars/${post.avatar}` : null,
+      image_url: post.image ? `${serverBase}${post.image}` : null
+    }));
+
+    res.json({ success: true, posts });
+  } catch (error) {
+    console.error('Error fetching community posts:', error);
+    res.status(500).json({ error: 'Failed to fetch community posts' });
+  }
+});
+
+// POST community
+app.post('/api/community', communityUpload.single('image'), async (req, res) => {
+  const { user_id, menu_id, caption } = req.body;
+
+  if (!user_id || !menu_id) {
+    return res.status(400).json({ error: 'user_id and menu_id are required' });
+  }
+
+  let imagePath = null;
+  if (req.file) {
+    imagePath = `uploads/community/${req.file.filename}`;
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO community (user_id, menu_id, image, caption, created_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       RETURNING *`,
+      [user_id, menu_id, imagePath, caption || '']
+    );
+
+    const post = result.rows[0];
+    const serverBase = `http://${server_ip}:${port}/`;
+    res.status(201).json({
+      message: 'Post uploaded successfully.',
+      post: {
+        ...post,
+        avatar_url: post.avatar ? `${serverBase}uploads/avatars/${post.avatar}` : null,
+        image_url: post.image ? `${serverBase}${post.image}` : null
+      }
+    });
+  } catch (err) {
+    console.error('Error saving community post:', err);
+    res.status(500).json({ error: 'Failed to save post.' });
+  }
+});
+
+// Toggle like/unlike post
+app.post('/api/community/:post_id/like', async (req, res) => {
+  const { post_id } = req.params;
+  const { user_id } = req.body;
+
+  try {
+    const check = await pool.query(
+      'SELECT * FROM community_likes WHERE user_id = $1 AND post_id = $2',
+      [user_id, post_id]
+    );
+
+    let liked;
+    let like_count;
+
+    if (check.rows.length > 0) {
+      // User already liked → unlike
+      await pool.query(
+        'DELETE FROM community_likes WHERE user_id = $1 AND post_id = $2',
+        [user_id, post_id]
+      );
+      liked = false;
+
+      const update = await pool.query(
+        'UPDATE community SET like_count = GREATEST(like_count - 1, 0) WHERE post_id = $1 RETURNING like_count',
+        [post_id]
+      );
+      like_count = update.rows[0].like_count;
+    } else {
+      // Like
+      await pool.query(
+        'INSERT INTO community_likes (user_id, post_id) VALUES ($1, $2)',
+        [user_id, post_id]
+      );
+      liked = true;
+
+      const update = await pool.query(
+        'UPDATE community SET like_count = like_count + 1 WHERE post_id = $1 RETURNING like_count',
+        [post_id]
+      );
+      like_count = update.rows[0].like_count;
+    }
+
+    res.json({ success: true, liked, like_count });
+  } catch (err) {
+    console.error('Error toggling like:', err);
+    res.status(500).json({ error: 'Failed to toggle like' });
   }
 });
 

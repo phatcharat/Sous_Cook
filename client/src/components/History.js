@@ -104,15 +104,15 @@ const HistoryScreen = () => {
             <div className="header">
                 <h1 className="title-meal">History</h1>
             </div>
-
+            <div className="meal-lists">
             {historyItems.length === 0 ? (
                 <div className="no-history-message">
                     <p>No history found. Start exploring some menus!</p>
                 </div>
             ) : (
-                <div className="history-list">
-                    {historyItems.map((item, index) => (
+                    historyItems.map((item, index) => (
                         <div key={item.id}>
+                            <div className="meal-cards">
                             <div 
                                 onClick={() => goToMenuDetail(item)} //คลิกแล้วไปหน้า detail
                             >
@@ -128,16 +128,17 @@ const HistoryScreen = () => {
                                 </div>
                             </div>
                             <div className="card-right-section">
-                                <button className="like-button" onClick={() => handleLike(item)}>
+                                <button className="liker-button" onClick={() => handleLike(item)}>
                                     <i className={`fas fa-heart heart-icon ${item.isLiked ? 'liked' : ''}`}></i>
                                 </button>
                                 <p className="time-ago">{item.timeAgo}</p>
                             </div>
                             {index < historyItems.length - 1 && <div className="meal-separator"></div>}
+                            </div>
                         </div>
-                    ))}
-                </div>
+                    ))
             )}
+            </div>
         </div>
     );
 };

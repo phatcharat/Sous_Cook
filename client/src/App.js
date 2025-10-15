@@ -22,6 +22,8 @@ import Newpassword from './pages/Newpassword';
 import MenuReview from './components/MenuReview';
 import ShoppingList from './components/ShoppingList';
 import CameraSearch from './components/cameraSearch';
+import CameraSharedDish from './components/CameraSharedDish';
+import Community from './components/SmallCommunity';
 
 function App() {
   const location = useLocation();  // Get the current location
@@ -47,9 +49,11 @@ function App() {
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
-        <Route path="/Newpassword" element={<Newpassword/>}/>
-        <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
+        <Route path="/new-password" element={<Newpassword/>}/>
+        <Route path="/reviews" element={<MenuReview />} />
         <Route path="/shoppinglist" element={<ShoppingList />} />
+        <Route path="/camera-share-dish" element={<CameraSharedDish />} />
+        <Route path="/community" element={<Community />} />
       </Routes>
 
       {route_list.includes(location.pathname) ? (

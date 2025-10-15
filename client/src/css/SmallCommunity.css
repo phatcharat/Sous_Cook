@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
+
+/* Container */
+.community-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+    padding-bottom: 80px;
+    box-sizing: border-box;
+}
+
+/* Header */
+.community-header-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.community-header-image {
+  width: 65%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* No posts text */
+.community-no-posts {
+  text-align: center;
+  color: #777;
+  margin: 24px 0;
+  font-size: 16px;
+}
+
+.back-to-menu-detail {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+
+}
+
+/* Shared dish preview (when coming from MenuDetail) */
+.shared-dish-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(37,37,37,0.04);
+}
+.shared-dish-preview h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.shared-dish-image {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+
+/* Post card */
+.community-post-card {
+  background: #fff;
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(32,32,32,0.04);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.community-post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(32,32,32,0.06);
+}
+
+/* Post header */
+.community-post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.user-profile-pic {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.community-username {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0;
+  color: #FFA500;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Post image */
+.community-post-image {
+  width: 100%;
+  max-height: 380px;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Actions */
+.community-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+/* Like button */
+.community-like-button {
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  margin-left: 14px;
+  margin-bottom: 8px;
+  gap: 6px; 
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  transition: all .12s ease;
+  border: none;
+  outline: none;
+}
+
+/* หัวใจ */
+.community-like-button img {
+  width: 22px;
+  height: 22px;
+  filter: none;
+  margin: 0; 
+}
+
+
+.community-like-button.liked {
+  background: linear-gradient(90deg,#ff7a59,#FFA500);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+}
+
+
+.community-like-button.liked img {
+  filter: brightness(0) invert(1);
+}
+
+.community-like-count {
+  font-weight: 600;
+  font-size: 16px;    
+  color: #000;
+  margin: 0; 
+  display: flex;
+  align-items: center;
+}
+
+.community-username-caption {
+  font-weight: bold;
+  margin-right: 8px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.community-caption {
+  margin: 8px 20px 4px 20px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.community-created-at {
+  color: #8b8b8b;
+  font-size: 12px;
+  margin-left: 20px;
+}

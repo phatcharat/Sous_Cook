@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-    saveIngredientsToLocalStorage, 
+import {
+    saveIngredientsToLocalStorage,
     getIngredientsFromLocalStorage,
     getCameraIngredientsFromLocalStorage,
-    getDeletedIngredients 
+    getDeletedIngredients
 } from '../utils/storageUtils';
 import '../css/SearchBar.css';
 import backicon from '../image/searchbar/Back.svg';
-import scanicon from '../image/searchbar/Scan.svg';
 import bread from '../image/homepage/Bread.svg';
 import tomato from '../image/homepage/Tomato.svg';
 import celery from '../image/homepage/Celery.svg';
@@ -19,6 +18,8 @@ import celeryclick from '../image/homepage/CeleryClick.svg';
 import porkclick from '../image/homepage/PorkClick.svg';
 import IconCamera from '../image/searchbar/Scan.svg';
 import listicon from '../image/homepage/List.svg';
+import logo from '../image/Logo1.svg';
+import textlogo from '../image/TextLogo.svg';
 
 const SearchBar = () => {
     const navigate = useNavigate();
@@ -66,11 +67,11 @@ const SearchBar = () => {
                 ingredient_type: "Other",
                 source: "manual"
             };
-            
+
             const updatedIngredients = [...selectedIngredients, newIngredient];
             setSelectedIngredients(updatedIngredients);
             setSearchText("");
-            
+
             // Save to localStorage and update count
             const existingIngredients = getIngredientsFromLocalStorage();
             saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
@@ -93,17 +94,17 @@ const SearchBar = () => {
     const handleSearchRecipe = () => {
         const existingIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
-        
+
         // Combine all ingredients
         const allIngredients = [
             ...existingIngredients,
             ...selectedIngredients,
             ...cameraIngredients
         ];
-        
+
         // Save to localStorage
         saveIngredientsToLocalStorage(allIngredients);
-        
+
         // Fix: Changed route from 'ingredients-preview' to 'ingredient-preview'
         navigate('/ingredient-preview');
     };
@@ -112,7 +113,7 @@ const SearchBar = () => {
         const newImages = [...activeImages];
         const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
         const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
-        
+
         switch (index) {
             case 0:
                 newImages[0] = newImages[0] === bread ? breadclick : bread;
@@ -130,12 +131,12 @@ const SearchBar = () => {
                 break;
         }
         setActiveImages(newImages);
-        
+
         // Toggle ingredient selection
         const ingredientName = ingredientNames[index];
         const ingredientType = ingredientTypes[index];
         const isSelected = selectedIngredients.some(ing => ing.ingredient_name === ingredientName);
-        
+
         if (isSelected) {
             // Remove ingredient
             setSelectedIngredients(selectedIngredients.filter(ing => ing.ingredient_name !== ingredientName));
@@ -157,62 +158,27 @@ const SearchBar = () => {
         }
     };
 
-    const cuisines = [
-        "Southeast Asian",
-        "American",
-        "Italian",
-        "Mexican",
-        "Indian",
-        "Fusion",
-        "South American",
-        "Middle Eastern",
-        "Mediterranean"
-    ];
-
-    const preferences = [
-        "Vegetarian",
-        "Lactose Intolerance",
-        "Pescatarian",
-        "Gluten intolerance",
-        "No red meat",
-        "Diabetes",
-        "Dairy-free",
-        "Low carb",
-        "High carb",
-        "High protein",
-        "Nuts Allergies",
-        "Healthy"
-    ];
-
-    const occasions = [
-        "Breakfast",
-        "Lunch",
-        "Dinner",
-        "Snack",
-        "Side Dish",
-        "Party"
-    ];
 
     // Update handleIngredientPreview to pass current state and refresh on return
     const handleIngredientPreview = () => {
         // Reload ingredients before navigating to ensure fresh data
         loadAllIngredients();
-        
+
         // Combine current selected ingredients with stored ones
         const manualIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
-        
+
         // Create real-time ingredients list
         const currentIngredients = [
             ...selectedIngredients,
             ...manualIngredients,
             ...cameraIngredients
         ];
-        
+
         navigate('/ingredient-preview', {
-            state: { 
+            state: {
                 currentIngredients,
-                fromSearchBar: true 
+                fromSearchBar: true
             }
         });
     };
@@ -220,9 +186,25 @@ const SearchBar = () => {
     return (
         <div className="search-container">
             <div className="back-home">
-                <img src={backicon} alt="back" className="back-icon" onClick={() => navigate("/home")} />
-                <p className="back-text">Searching</p>
+                <button className="back-button" onClick={() => navigate("/home")}>Searching</button>
+                <button
+                    className="list-icon-btn"
+                    onClick={handleIngredientPreview}
+                >
+                    <img src={listicon} alt="Ingredient List" />
+                    {allIngredients.length > 0 && (
+                        <span className="ingredient-count-badge">
+                            {allIngredients.length}
+                        </span>
+                    )}
+                </button>
             </div>
+
+            <div className="logo-section">
+                <img src={logo} alt="Logo Icon" className="main-logo" />
+                <img src={textlogo} alt="Text Logo" className="text-logo" />
+            </div>
+
             {/* Google-style search bar with camera icon */}
             <form className="search-bar" onSubmit={handleSearch}>
                 <input
@@ -235,11 +217,11 @@ const SearchBar = () => {
                 <button type="button" className="camera-icon-btn" onClick={handleCameraClick}>
                     <img src={IconCamera} alt="camera" className="camera-icon" />
                 </button>
-                <button type="submit" className="search-btn" style={{display: 'none'}}></button>
+                <button type="submit" className="search-btn" style={{ display: 'none' }}></button>
             </form>
-            
+
             <div className="ingredients-container">
-                <p className="ingredients-text">Ingredients</p>
+                <p className="ingredients-text">Recommended ingredients</p>
                 <div className="ingredients-scroll">
                     {activeImages.map((img, idx) => (
                         <img
@@ -252,69 +234,13 @@ const SearchBar = () => {
                     ))}
                 </div>
             </div>
-            
-            <div className="cuisine-container">
-                <p className="cuisine-text">Cuisines</p>
-                <div className="cuisine-list">
-                    {cuisines.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`cuisine-item ${selectedCuisine.includes(index) ? "active" : ""}`}
-                            onClick={() => toggleSelection(index, selectedCuisine, setSelectedCuisine)}
-                        >
-                            {item}
-                        </div>
-                    ))}
-                </div>
-                <div className="divider"></div>
-            </div>
-            
-            <div className="preference-container">
-                <p className="preference-text">Dietary Preferences</p>
-                <div className="preference-list">
-                    {preferences.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`preferences-item ${selectedPreference.includes(index) ? "active" : ""}`}
-                            onClick={() => toggleSelection(index, selectedPreference, setSelectedPreference)}
-                        >
-                            {item}
-                        </div>
-                    ))}
-                </div>
-                <div className="divider"></div>
-            </div>
-            
-            <div className="occasion-container">
-                <p className="occasion-text">Meal Occasions</p>
-                <div className="occasion-list">
-                    {occasions.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`occasion-item ${selectedOccasion.includes(index) ? "active" : ""}`}
-                            onClick={() => toggleSelection(index, selectedOccasion, setSelectedOccasion)}
-                        >
-                            {item}
-                        </div>
-                    ))}
-                </div>
-            </div>
-            
+
+            <div className="divider"></div>
+
             <div className="search-recipe-row">
                 <div className="search-recipe-button" onClick={handleSearchRecipe}>
                     <p className="search-recipe-text">SEARCH FOR RECIPE</p>
                 </div>
-                <button 
-                    className="list-icon-btn" 
-                    onClick={handleIngredientPreview}
-                >
-                    <img src={listicon} alt="Ingredient List" />
-                    {allIngredients.length > 0 && (
-                        <span className="ingredient-count-badge">
-                            {allIngredients.length}
-                        </span>
-                    )}
-                </button>
             </div>
 
             {showAddedMessage && (

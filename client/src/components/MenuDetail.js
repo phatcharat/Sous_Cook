@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/MenuDetail.css';
 import { getIngredientsFromLocalStorage, getImageFromLocalStorage, saveImageToLocalStorage, saveShoppingListToStorage, getShoppingListFromStorage } from '../utils/storageUtils';
@@ -11,12 +11,14 @@ import tips from '../image/menu-detail/tips.svg'
 import { getUserId } from '../utils/auth';
 import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
-// import MenuReview from './components/MenuReview';
+import Camera from './CameraSharedDish';
+import logo from '../image/Logo1.svg';
 
 const MenuDetail = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { menu, menu_id, isRandomMenu = false } = location.state || {};
+    const sharedDishImage = location.state?.sharedDishImage; 
 
     const [menuData, setMenuData] = useState(menu || null);
     const [checkedSteps, setCheckedSteps] = useState([]);
@@ -32,9 +34,23 @@ const MenuDetail = () => {
     const [showAllergyAlert, setShowAllergyAlert] = useState(false);
     const [hasAcknowledgedAllergy, setHasAcknowledgedAllergy] = useState(false);
 
+    // for share your dish photo (small community)
+    const [dishImage, setDishImage] = useState(sharedDishImage || require('../image/chef.png'));
+    const [hasDishPhoto, setHasDishPhoto] = useState(!!sharedDishImage);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const dishFileInputRef = useRef(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const capturedImage = location.state?.image || null; //select photo
+    const [dishCaption, setDishCaption] = useState('');  
+    const [ignoreSharedDish, setIgnoreSharedDish] = useState(false); 
+    
+    // for review
+    const [avgRating, setRating] = useState(0);
+
     const actualMenuId = menu_id || menuData?.menu_id;
 
-    // ย้อนกลับไปหน้าก่อนหน้าเสมอ
+    // Back navigation
     const handleBackNavigation = () => {
         navigate(-1);
     };
@@ -115,44 +131,80 @@ const MenuDetail = () => {
         }
     };
 
-    // Fetch user allergies with useCallback to prevent infinite loops
-    const fetchUserAllergies = useCallback(async () => {
-        const userId = getUserId();
-        if (!userId) return;
-
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
-            const allergies = response.data.user.allergies || [];
-            setUserAllergies(allergies.map(a => a.toLowerCase()));
-        } catch (error) {
-            console.error('Error fetching user allergies:', error);
-        }
-    }, []);
-
-    // Check allergies with useCallback
-    const checkAllergies = useCallback(() => {
-        if (!menuData?.ingredients_quantity || userAllergies.length === 0) return;
-
-        const alerts = [];
-        Object.keys(menuData.ingredients_quantity).forEach(ingredient => {
-            const ingredientLower = ingredient.toLowerCase();
-            if (userAllergies.some(allergy => ingredientLower.includes(allergy))) {
-                alerts.push(ingredient);
-            }
-        });
-
-        if (alerts.length > 0 && !hasAcknowledgedAllergy) {
-            setAllergyAlerts(alerts);
-            setShowAllergyAlert(true);
-        }
-    }, [menuData, userAllergies, hasAcknowledgedAllergy]);
-
     const handleAllergyAcknowledge = () => {
         setShowAllergyAlert(false);
         setHasAcknowledgedAllergy(true);
     };
 
-    // ถ้ามาจาก History ให้ fetch menu จาก DB
+    const handleAddToList = () => {
+        const userId = getUserId();
+        if (!userId) {
+            navigate('/login');
+            return;
+        }
+
+        if (selectedIngredients.length > 0) {
+            const currentList = getShoppingListFromStorage(userId);
+            const updatedList = [...currentList, ...selectedIngredients];
+            saveShoppingListToStorage(userId, updatedList);
+            
+            navigate("/shoppinglist", {
+                state: { missingIngredients: selectedIngredients }
+            });
+        }
+    };
+
+    // Share dish picture
+    const handleCancel = () => {
+        setDishImage(require('../image/chef.png'));
+        setHasDishPhoto(false);
+        setDishCaption('');
+        setIgnoreSharedDish(true);
+    };
+
+    const handleChooseDishFile = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            setDishImage(reader.result);
+            setHasDishPhoto(true);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // แปลง base64 เป็น File
+    const dataURLtoFile = async (dataurl, filename) => {
+        const res = await fetch(dataurl);
+        const blob = await res.blob();
+        return new File([blob], filename, { type: blob.type });
+    };
+
+    // Submit รูปไป community
+    const handleSubmitDish = async () => {
+        if (!dishImage || !actualMenuId) return;
+        const userId = getUserId();
+        if (!userId) return;
+
+        try {
+            const file = await dataURLtoFile(dishImage, 'dish.png');
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('user_id', userId);
+            formData.append('menu_id', actualMenuId);
+            formData.append('caption', dishCaption);
+
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/community`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            navigate('/community', { state: { dishImage, menu_id: actualMenuId } });
+        } catch (err) {
+            console.error("Upload failed:", err);
+        }
+    };
+
+    // Fetch menu if coming from History
     useEffect(() => {
         if (!menuData && menu_id) {
             console.log("Fetching menu by ID:", menu_id);
@@ -165,7 +217,7 @@ const MenuDetail = () => {
         }
     }, [menu_id, menuData]);
 
-    // โหลดรูป ingredient และ menu
+    // Load ingredient and menu images
     useEffect(() => {
         if (!menuData || !menuData.ingredients_quantity) return;
 
@@ -193,9 +245,9 @@ const MenuDetail = () => {
 
         fetchImages();
         return () => { isCancelled = true; };
-    }, [menuData?.menu_name]); // Only depend on menu_name to prevent infinite loop
+    }, [menuData?.menu_name]);
 
-    // save history
+    // Save history
     useEffect(() => {
         if (!actualMenuId) return;
 
@@ -216,7 +268,7 @@ const MenuDetail = () => {
             });
     }, [actualMenuId]);
 
-    // check favorite
+    // Check favorite status
     useEffect(() => {
         const checkFavorite = async () => {
             const userId = getUserId();
@@ -235,33 +287,92 @@ const MenuDetail = () => {
         checkFavorite();
     }, [actualMenuId]);
 
-    // Fetch allergies once on mount
+    // Fetch user allergies and check for alerts - COMBINED INTO ONE EFFECT
     useEffect(() => {
-        fetchUserAllergies();
-    }, [fetchUserAllergies]);
+        const fetchAllergiesAndCheck = async () => {
+            const userId = getUserId();
+            if (!userId || !menuData?.ingredients_quantity) return;
 
-    // Check allergies when menuData or userAllergies change
+            try {
+                // Fetch user allergies
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
+                const allergies = response.data.user.allergies || [];
+                const allergyList = allergies.map(a => a.toLowerCase());
+                setUserAllergies(allergyList);
+
+                // Only check allergies if we have them and haven't acknowledged yet
+                if (allergyList.length === 0 || hasAcknowledgedAllergy) return;
+
+                const ingredients = Object.keys(menuData.ingredients_quantity);
+
+                try {
+                    // Call the backend to analyze allergies using GPT
+                    const allergyResponse = await axios.post(
+                        `${process.env.REACT_APP_BACKEND_URL}/analyze-allergies`,
+                        {
+                            ingredients: ingredients,
+                            allergies: allergyList
+                        }
+                    );
+
+                    const { alerts } = allergyResponse.data;
+
+                    if (alerts && alerts.length > 0) {
+                        setAllergyAlerts(alerts);
+                        setShowAllergyAlert(true);
+                    }
+                } catch (allergyError) {
+                    console.error('Error checking allergies with GPT, using fallback:', allergyError);
+                    
+                    // Fallback to simple string matching if API fails
+                    const alerts = [];
+                    ingredients.forEach(ingredient => {
+                        const ingredientLower = ingredient.toLowerCase();
+                        if (allergyList.some(allergy => ingredientLower.includes(allergy))) {
+                            alerts.push(ingredient);
+                        }
+                    });
+
+                    if (alerts.length > 0) {
+                        setAllergyAlerts(alerts);
+                        setShowAllergyAlert(true);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user allergies:', error);
+            }
+        };
+
+        fetchAllergiesAndCheck();
+    }, [menuData?.ingredients_quantity, hasAcknowledgedAllergy]); // Only depend on what's necessary
+
+    // share dish
     useEffect(() => {
-        checkAllergies();
-    }, [checkAllergies]);
-
-    const handleAddToList = () => {
-        const userId = getUserId();
-        if (!userId) {
-            navigate('/login');
-            return;
+        if (sharedDishImage && !ignoreSharedDish && !isSubmitting) {
+            setDishImage(sharedDishImage);
+            setHasDishPhoto(true);
         }
+    }, [sharedDishImage, ignoreSharedDish, isSubmitting]);
 
-        if (selectedIngredients.length > 0) {
-            const currentList = getShoppingListFromStorage(userId);
-            const updatedList = [...currentList, ...selectedIngredients];
-            saveShoppingListToStorage(userId, updatedList);
-            
-            navigate("/shoppinglist", {
-                state: { missingIngredients: selectedIngredients }
-            });
+    // fetch review
+    const fetchReviewData = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${actualMenuId}/reviews`);
+            const { reviews, menu_id, sum_rating, avg_rating, rate_5, rate_4, rate_3, rate_2, rate_1 } = response.data;
+            if (!actualMenuId) { 
+                console.error("Backend did not return a valid menu_id.");
+                return; 
+            }
+            setRating(avg_rating);
+        } catch (error) {
+            console.error('Error fetching review data:', error);
         }
     };
+
+    useEffect(() => {
+        fetchReviewData();
+    }, [actualMenuId]);
+
 
     if (!menuData) {
         return (
@@ -296,7 +407,7 @@ const MenuDetail = () => {
                     <div className="allergy-popup">
                         <div className="allergy-popup-content">
                             <h2>⚠️ Food Allergy Alert</h2>
-                            <p>This recipe contains:</p>
+                            <p>This recipe contains :</p>
                             <ul className="allergy-list">
                                 {allergyAlerts.map((ingredient, index) => (
                                     <li key={index}><strong>{ingredient}</strong></li>
@@ -425,23 +536,146 @@ const MenuDetail = () => {
                     ) : <p>No nutrition data available.</p>}
                 </div>
             </div>
+            {/* share your dish section */}
+            <div className="share-dish-container">
+                <img src={dishImage} alt="dish" className="chef" />
+
+                <h3>Share your dish</h3>
+
+                {!hasDishPhoto && (
+                    <div className="dish-photo-buttons">
+                    <button className="dish-take-photo-button" onClick={() => navigate("/camera-share-dish", { state: { menu_id: actualMenuId }, replace: true })}>
+                    Take a photo
+                    </button>
+                    <button className="dish-select-photo-button" onClick={() => dishFileInputRef.current.click()}>
+                    Select photo
+                    </button>
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={dishFileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleChooseDishFile}
+                    />
+                    </div>
+                )}
+
+                {hasDishPhoto && (
+                    <div className="dish-submit-buttons">
+                        <textarea
+                            placeholder="Write a caption..."
+                            value={dishCaption}
+                            onChange={(e) => setDishCaption(e.target.value)}
+                            className="dish-caption-box"
+                        />
+                        <div className="dish-button-row">
+                            <button className="dish-share-button" onClick={handleSubmitDish}>
+                                Submit
+                            </button>
+                            <button className="dish-retake-button" onClick={handleCancel}>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
+                </div>
+                <div className="go-community-container">
+                    <button 
+                    className="go-community-button" 
+                    onClick={() => navigate('/community', { state: { dishImage, menu_id: actualMenuId } })}
+                    >
+                    See the Community
+                    </button>
+            </div>
+
+            {/* ส่วนของ review */}
+            <div className="review-container-in-menu">
+                <div className="rating-container">
+                    <div className="top-blank">
+                    </div>
+                    <div className="pic-logo">
+                        <img src={logo} id="logo-review" alt="Sous Cook Logo"/>
+                        <div className="caption-review">Review this recipe</div>
+                        <div className="star-rating menu-rate">
+                            {renderStars(avgRating)}
+                        </div>
+                    </div>
+                </div>  
+                <button className="go-review-button" 
+                    onClick={() => navigate('/reviews', { state: { menu_id: actualMenuId } })}
+                    >
+                    See All Reviews
+                </button>
+            </div>
+            
+
+
         </div>
     );
 };
 
-// โหลดรูป ingredient จาก external source
 const fetchMissingImages = async (menuList, ingredientList) => {
-    const images = {};
-    ingredientList.forEach(ing => {
-        images[ing] = `https://www.themealdb.com/images/ingredients/${encodeURIComponent(ing)}.png`;
-    });
-    return { menu: menuList, ingredient: images };
+    let storedImages = getImageFromLocalStorage();
+
+    if (!storedImages || !Array.isArray(storedImages.menu)) {
+        storedImages = { menu: [], ingredient: {} };
+    }
+
+    const missingMenuItems = menuList.filter(menuItem => 
+        !storedImages.menu.some(storedMenu => storedMenu.name === menuItem.name)
+    );
+
+    const missingIngredients = ingredientList.filter(ingredient => 
+        !(ingredient in storedImages.ingredient)
+    );
+
+    console.log("missingMenuItems:", missingMenuItems);
+    console.log("missingIngredients:", missingIngredients);
+
+    if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/get_ingredient_image`, { ingredients: missingIngredients });
+            const fetchedImages = response.data;
+
+            const newImages = {
+                menu: [...storedImages.menu, ...missingMenuItems.map(item => ({ name: item.name, image: item.image }))],
+                ingredient: { ...storedImages.ingredient, ...Object.fromEntries(fetchedImages.map(ingredient => [ingredient.ingredient, ingredient.imageUrl])) },
+            };
+
+            saveImageToLocalStorage(newImages);
+            return newImages;
+        } catch (error) {
+            console.error('Error fetching images from backend:', error);
+            return storedImages;
+        }
+    }
+
+    return storedImages;
 };
 
-// ฟังก์ชันย่อหน่วย
 const abbreviateUnit = (quantity) => {
     if (!quantity) return quantity;
     return quantity.replace(/\btablespoons?\b/gi, "tbsp");
+};
+
+const renderStars = (rate) => {
+    const numericRating = parseFloat(rate) || 0;
+    const finalRating = Math.round(numericRating); 
+    
+    const STAR_VALUES = [5, 4, 3, 2, 1];
+    
+    return STAR_VALUES.map((starValue) => (
+        <span 
+            key={starValue} 
+            className={`fa fa-star fa-1x star-base ${
+                starValue <= finalRating
+                    ? 'star-check' 
+                    : '' 
+            }`}
+        >
+        </span>
+    ));
 };
 
 export default MenuDetail;

@@ -100,29 +100,22 @@
 
 .popup-buttons {
   margin: auto;
-  font-family: 'Manrope', sans-serif;
-  flex-direction: column;
   display: flex;
-  gap: 20px;
-  padding: 12px 40px;
   margin-top: 20px;
-  margin-bottom: 20px;
-
+  margin-bottom: 30px;
+  justify-content: center;
 }
 
 .sponsor-button img {
-  width: 200px;
+  width: 120px;
   height: 80px;
   object-fit: contain;
 }
 
 .sponsor-button {
   display: flex;
-  justify-content: center;
-  padding: 1px 20px;
-  border-radius: 20px;
-  font-weight: bold;
-  color: white;
+  flex-direction: row;
+  align-items: center;
   border: none;
   cursor: pointer;
 }

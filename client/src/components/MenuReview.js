@@ -4,12 +4,15 @@ import logo from '../image/Logo1.svg';
 import backicon from '../image/searchbar/Back.svg';
 import defaultProfile from '../image/profile.jpg';
 import deleteicon from '../Icon/Button/Delete_btn.png';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const MenuReview = () => {
     const navigate = useNavigate();
-    const { index } = useParams();
+    // const { index } = useParams();
+    const location = useLocation();
+    const menuIdStr = location.state?.menu_id;
+    const menuId = parseInt(menuIdStr, 10);
 
     const userIdStr = localStorage.getItem('user_id');
     const userId = parseInt(userIdStr, 10);
@@ -92,7 +95,7 @@ const MenuReview = () => {
 
     const fetchReviewData = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${index}/reviews`);
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${menuId}/reviews`);
             const { reviews, menu_id, sum_rating, avg_rating, rate_5, rate_4, rate_3, rate_2, rate_1 } = response.data;
             if (!menu_id) { 
                 console.error("Backend did not return a valid menu_id.");
@@ -115,7 +118,7 @@ const MenuReview = () => {
             });
             setReviewData(prevData => ({
                 ...prevData,
-                menu_id: menu_id,
+                menu_id: menuId,
                 user_id: userIdStr
             }));
             
@@ -131,18 +134,16 @@ const MenuReview = () => {
 
     useEffect(() => {
         fetchReviewData();
-    }, [index]);
+    }, [menuId]);
 
 
 
     const renderStars = (rate) => {
-        // 1. จัดการค่า NaN/null และปัดเศษ
         const numericRating = parseFloat(rate) || 0;
         const finalRating = Math.round(numericRating); 
         
         const STAR_VALUES = [5, 4, 3, 2, 1];
         
-        // 2. คืนค่า JSX (Array of <span>)
         return STAR_VALUES.map((starValue) => (
             <span 
                 key={starValue} 
@@ -209,14 +210,14 @@ const MenuReview = () => {
             return;
         }
 
-        if (!formReview.menu_id) {
+        if (!menuId) {
             console.error("Cannot submit review: menu_id is missing.");
             // setError("Menu ID not set. Please refresh."); // ถ้าคุณมี setError
             return; 
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${index}/reviews`, formReview);
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${menuId}/reviews`, formReview);
             setReviewData({
                 comment: '',
                 rating: ''
@@ -247,7 +248,7 @@ const MenuReview = () => {
 
     const handleDeleteReview = async (e) => {
         try {
-            const response = await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/${formReview.menu_id}/${userId}/reviews`);
+            const response = await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/${menuId}/${userId}/reviews`);
             setShowDeletePopup(false);
             fetchReviewData();
         } catch (error) {
@@ -256,14 +257,14 @@ const MenuReview = () => {
     };
 
     return (
-        <div>
+        <div className="review-page">
             <div className="rating-container">
                 <div className="top-blank">
                     <img
                         src={backicon}
                         alt="back"
                         className="back-icon"
-                        onClick={() => navigate(`/menu-detail/${index}`)}
+                        onClick={() => navigate(-1)}
                         style={{ cursor: "pointer" }}
                     />
                 </div>

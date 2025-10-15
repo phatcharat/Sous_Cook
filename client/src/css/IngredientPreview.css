@@ -1,7 +1,9 @@
 /* IngredientPreview.css */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&display=swap');
 
 /* Container for the ingredient preview */
 .ingredient-preview-container {
+  font-family: 'Manrope', sans-serif;
   padding: 20px;
   max-width: 600px;
   margin: 10%;
@@ -12,6 +14,7 @@
 }
 /* Header styling */
 .ingredient-header {
+  font-family: 'Manrope', sans-serif;
   text-align: center;
   margin-bottom: 2vh;
   font-size: 3vh;
