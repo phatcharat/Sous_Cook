@@ -3,7 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage, addDeletedIngredient, getDeletedIngredients } from '../utils/storageUtils';
+=======
+import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
+>>>>>>> refs/remotes/origin/main
 =======
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
 >>>>>>> refs/remotes/origin/main
@@ -57,6 +61,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
   const getUniqueIngredients = (ingredients) => {
     const seen = new Set();
 <<<<<<< HEAD
+<<<<<<< HEAD
     const deleted = getDeletedIngredients();
     
     return ingredients.filter(ing => {
@@ -73,6 +78,10 @@ const IngredientPreview = ({ updatedIngredients }) => {
 =======
     return ingredients.filter(ing => {
       if (!ing || typeof ing !== 'object') return false;
+=======
+    return ingredients.filter(ing => {
+      if (!ing || typeof ing !== 'object') return false;
+>>>>>>> refs/remotes/origin/main
       const name = ing.ingredient_name?.trim().toLowerCase();
       if (!name || seen.has(name)) return false;
       seen.add(name);
@@ -82,12 +91,15 @@ const IngredientPreview = ({ updatedIngredients }) => {
   };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   useEffect(() => {
     let allIngredients = location.state?.currentIngredients || getIngredientsFromLocalStorage();
     const uniqueIngredients = getUniqueIngredients(allIngredients);
     setIngredients(uniqueIngredients);
   }, [location.state]);
 =======
+=======
+>>>>>>> refs/remotes/origin/main
 useEffect(() => {
   const normalIngredients = getIngredientsFromLocalStorage();
   const cameraIngredients = getCameraIngredientsFromLocalStorage();
@@ -95,6 +107,9 @@ useEffect(() => {
   const uniqueIngredients = getUniqueIngredients(allIngredients);
   setIngredients(uniqueIngredients);
 }, []);
+<<<<<<< HEAD
+>>>>>>> refs/remotes/origin/main
+=======
 >>>>>>> refs/remotes/origin/main
 
   useEffect(() => {
@@ -147,6 +162,7 @@ useEffect(() => {
   };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const handleNavigateWithSave = (path) => {
     saveIngredientsToLocalStorage(ingredients);
     navigate(path);
@@ -154,6 +170,10 @@ useEffect(() => {
 
   const handleAddIngredient = () => handleNavigateWithSave('/search');
   const handleBack = () => handleNavigateWithSave('/search');
+=======
+  const handleAddIngredient = () => navigate('/search');
+  const handleBack = () => navigate('/search');
+>>>>>>> refs/remotes/origin/main
 =======
   const handleAddIngredient = () => navigate('/search');
   const handleBack = () => navigate('/search');
@@ -179,7 +199,11 @@ useEffect(() => {
                 const iconSrc = getIconForIngredientType(ingredient.ingredient_type);
                 return (
 <<<<<<< HEAD
+<<<<<<< HEAD
                   <li key={ingredient.ingredient_name} className="ingredient-items">
+=======
+                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
+>>>>>>> refs/remotes/origin/main
 =======
                   <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
 >>>>>>> refs/remotes/origin/main

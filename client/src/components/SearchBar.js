@@ -4,8 +4,12 @@ import {
     saveIngredientsToLocalStorage,
     getIngredientsFromLocalStorage,
 <<<<<<< HEAD
+<<<<<<< HEAD
     getCameraIngredientsFromLocalStorage,
     getDeletedIngredients
+=======
+    getCameraIngredientsFromLocalStorage
+>>>>>>> refs/remotes/origin/main
 =======
     getCameraIngredientsFromLocalStorage
 >>>>>>> refs/remotes/origin/main
@@ -70,11 +74,17 @@ const SearchBar = () => {
             };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             const updatedIngredients = [...selectedIngredients, newIngredient];
             setSelectedIngredients(updatedIngredients);
             setSearchText("");
 
             // Save to localStorage and update count
+=======
+            setSelectedIngredients([...selectedIngredients, newIngredient]);
+            setSearchText("");
+
+>>>>>>> refs/remotes/origin/main
 =======
             setSelectedIngredients([...selectedIngredients, newIngredient]);
             setSearchText("");
@@ -100,7 +110,10 @@ const SearchBar = () => {
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Combine all ingredients
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
         const allIngredients = [
@@ -110,10 +123,14 @@ const SearchBar = () => {
         ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Save to localStorage
         saveIngredientsToLocalStorage(allIngredients);
 
         // Fix: Changed route from 'ingredients-preview' to 'ingredient-preview'
+=======
+        saveIngredientsToLocalStorage(allIngredients);
+>>>>>>> refs/remotes/origin/main
 =======
         saveIngredientsToLocalStorage(allIngredients);
 >>>>>>> refs/remotes/origin/main
@@ -125,6 +142,7 @@ const SearchBar = () => {
         const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
         const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         switch (index) {
             case 0:
@@ -145,6 +163,8 @@ const SearchBar = () => {
         setActiveImages(newImages);
 
         // Toggle ingredient selection
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
         const ingredientName = ingredientNames[index];
@@ -177,6 +197,7 @@ const SearchBar = () => {
             };
             const updatedSelected = [...selectedIngredients, newIngredient];
             setSelectedIngredients(updatedSelected);
+<<<<<<< HEAD
 
             // เพิ่ม ingredient ลง localStorage
             const manualIngredients = getIngredientsFromLocalStorage();
@@ -212,6 +233,31 @@ const SearchBar = () => {
 
         // Create real-time ingredients list
 =======
+        setActiveImages(newImages);
+        loadAllIngredients();
+    };
+
+    const handleIngredientPreview = () => {
+        loadAllIngredients();
+        const manualIngredients = getIngredientsFromLocalStorage();
+        const cameraIngredients = getCameraIngredientsFromLocalStorage();
+
+>>>>>>> refs/remotes/origin/main
+=======
+
+            // เพิ่ม ingredient ลง localStorage
+            const manualIngredients = getIngredientsFromLocalStorage();
+            saveIngredientsToLocalStorage([...manualIngredients, newIngredient]);
+
+            // เปลี่ยนรูปเป็น clicked
+            switch (index) {
+                case 0: newImages[0] = breadclick; break;
+                case 1: newImages[1] = tomatoclick; break;
+                case 2: newImages[2] = celeryclick; break;
+                case 3: newImages[3] = porkclick; break;
+            }
+        }
+
         setActiveImages(newImages);
         loadAllIngredients();
     };
@@ -259,7 +305,10 @@ const SearchBar = () => {
             </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             {/* Google-style search bar with camera icon */}
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
             <form className="search-bar" onSubmit={handleSearch}>

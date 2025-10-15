@@ -12,7 +12,10 @@ import { getUserId } from '../utils/auth';
 import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
 import Camera from './CameraSharedDish';
+<<<<<<< HEAD
 import logo from '../image/Logo1.svg';
+=======
+>>>>>>> refs/remotes/origin/main
 
 const MenuDetail = () => {
     const navigate = useNavigate();
@@ -44,10 +47,14 @@ const MenuDetail = () => {
     const [posts, setPosts] = useState([]);
     const capturedImage = location.state?.image || null; //select photo
     const [dishCaption, setDishCaption] = useState('');  
+<<<<<<< HEAD
     const [ignoreSharedDish, setIgnoreSharedDish] = useState(false); 
     
     // for review
     const [avgRating, setRating] = useState(0);
+=======
+    const [ignoreSharedDish, setIgnoreSharedDish] = useState(false);  
+>>>>>>> refs/remotes/origin/main
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
@@ -161,6 +168,10 @@ const MenuDetail = () => {
         }
     };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
     // Share dish picture
     const handleCancel = () => {
         setDishImage(require('../image/chef.png'));
@@ -367,6 +378,7 @@ const MenuDetail = () => {
         }
     }, [sharedDishImage, ignoreSharedDish, isSubmitting]);
 
+<<<<<<< HEAD
     // fetch review
     const fetchReviewData = async () => {
         try {
@@ -381,6 +393,8 @@ const MenuDetail = () => {
             console.error('Error fetching review data:', error);
         }
     };
+=======
+>>>>>>> refs/remotes/origin/main
 
     useEffect(() => {
         fetchReviewData();
@@ -600,6 +614,7 @@ const MenuDetail = () => {
                     >
                     See the Community
                     </button>
+<<<<<<< HEAD
             </div>
 
             {/* ส่วนของ review */}
@@ -624,6 +639,9 @@ const MenuDetail = () => {
             
 
 
+=======
+            </div>            
+>>>>>>> refs/remotes/origin/main
         </div>
     );
 };
@@ -643,9 +661,12 @@ const fetchMissingImages = async (menuList, ingredientList) => {
         !(ingredient in storedImages.ingredient)
     );
 
+<<<<<<< HEAD
     console.log("missingMenuItems:", missingMenuItems);
     console.log("missingIngredients:", missingIngredients);
 
+=======
+>>>>>>> refs/remotes/origin/main
     if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
         try {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/get_ingredient_image`, { ingredients: missingIngredients });
@@ -677,6 +698,7 @@ const abbreviateUnit = (quantity) => {
         .replace(/\bmilliliters?\b/gi, "ml");
 };
 
+<<<<<<< HEAD
 const renderStars = (rate) => {
     const numericRating = parseFloat(rate) || 0;
     const finalRating = Math.round(numericRating); 
@@ -696,4 +718,6 @@ const renderStars = (rate) => {
     ));
 };
 
+=======
+>>>>>>> refs/remotes/origin/main
 export default MenuDetail;

@@ -106,6 +106,7 @@ export const saveCameraIngredientsToLocalStorage = (ingredients) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const getDeletedIngredients = () => {
     const userId = getUserId();
     if (!userId) return [];
@@ -137,6 +138,11 @@ export const getShoppingListFromStorage = (userId) => {
     const uid = userId || getUserId();
     if (!uid) return [];
 >>>>>>> refs/remotes/origin/main
+=======
+export const getShoppingListFromStorage = (userId) => {
+    const uid = userId || getUserId();
+    if (!uid) return [];
+>>>>>>> refs/remotes/origin/main
     try {
         const list = localStorage.getItem(`shoppingList_${uid}`);
         return list ? JSON.parse(list) : [];
@@ -147,9 +153,15 @@ export const getShoppingListFromStorage = (userId) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const saveShoppingListToStorage = (items) => {
     const userId = getUserId();
     if (!userId) return;
+=======
+export const saveShoppingListToStorage = (items, userId) => {
+    const uid = userId || getUserId();
+    if (!uid) return;
+>>>>>>> refs/remotes/origin/main
 =======
 export const saveShoppingListToStorage = (items, userId) => {
     const uid = userId || getUserId();

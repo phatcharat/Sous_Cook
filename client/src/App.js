@@ -51,8 +51,11 @@ function App() {
         <Route path="/setting" element={<Setting />} />
         <Route path="/new-password" element={<Newpassword/>}/>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <Route path="/reviews" element={<MenuReview />} />
 =======
+=======
+>>>>>>> refs/remotes/origin/main
         <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
 >>>>>>> refs/remotes/origin/main
         <Route path="/shoppinglist" element={<ShoppingList />} />
