@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../css/ResetPassword.css';
-import logo from '../image/Logo2.png';
+import logo from '../image/Logo1.svg';
 import axios from 'axios';
 
 const ResetPasswordPage = () => {
@@ -63,12 +63,11 @@ const ResetPasswordPage = () => {
     setErrors({});
     setMessage('');
     try {
-      // ✅ Call API backend reset password
       const res = await axios.post('/api/auth/reset-password', {
         email: formData.email,
       });
 
-      setMessage(res.data?.message || 'Password reset link sent to your email!');
+      setMessage(res.data?.message || 'Password reset link sent to your email.');
       setFormData({ email: '' });
       setTouched({});
     } catch (error) {
@@ -88,79 +87,87 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="reset-container">
-  {/* Header */}
-  <div className="logo-header">
-    <img 
-      src={logo} 
-      alt="Company Logo" 
-      className="Logo"
-    />
-  </div>
-
-  <div className="reset-card">
-    <div className="reset-header">
-      <h1 className="reset-title">RESET YOUR PASSWORD</h1>
-      <p className="reset-subtitle">
-        Don't worry! It happens. Please enter your email, you will soon receive a password reset link.
-      </p>
-    </div>
-
-    <form onSubmit={handleSubmit}>
-      {/* Email Field */}
-      <label className="reset-label" htmlFor="email">Email</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        value={formData.email}
-        onChange={handleInputChange}
-        onBlur={handleBlur}
-        placeholder="Enter your email"
-        className={getInputClasses('email')}
-        aria-describedby={errors.email ? 'email-error' : undefined}
-        aria-invalid={errors.email ? 'true' : 'false'}
-        autoComplete="email"
-        disabled={isLoading}
-      />
-      {errors.email && (
-        <div id="email-error" className="login-error" role="alert">
-          {errors.email}
-        </div>
-      )}
-
-      {/* Success Message */}
-      {message && (
-        <div className="login-success" role="alert">
-          {message}
-        </div>
-      )}
-
-      {/* Submit Error */}
-      {errors.submit && (
-        <div className="login-error" role="alert">
-          {errors.submit}
-        </div>
-      )}
-
-      {/* Submit Button */}
-      <button 
-        type="submit" 
-        className="send-reset-button" 
-        disabled={!formData.email || !!errors.email || isLoading}
+      <button
+        className="back-arrow"
+        onClick={() => navigate('/login')}
+        aria-label="Go back to login"
       >
-        {isLoading ? 'Sending...' : 'Send Reset Link'}
+        ‹
       </button>
 
-      {/* Back to Login Link (now inside the form, under button) */}
-      <div className="reset-link">
-        <Link to="/login" className="login-link-text">
-          Back to Sign In
-        </Link>
+      <div className="logo-header">
+        <div className="logo-circle">
+          <img
+            src={logo}
+            alt="Company Logo"
+            className="Logo"
+          />
+        </div>
       </div>
-    </form>
-  </div>
-</div>
-);
+
+      <div className="reset-card">
+        <div className="reset-header">
+          <h1 className="reset-title">RESET YOUR PASSWORD</h1>
+          <p className="reset-subtitle">
+            Don't worry! It happens. Please enter your email, You will soon receive a Password Reset link.
+          </p>
+        </div>
+
+        <form className="reset" onSubmit={handleSubmit}>
+          {/* Input Wrapper to contain error message */}
+          <div className="input-wrapper">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="Email"
+              className={getInputClasses('email')}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              aria-invalid={errors.email ? 'true' : 'false'}
+              autoComplete="email"
+              disabled={isLoading}
+            />
+            {errors.email && (
+              <div id="email-error" className="login-error" role="alert">
+                {errors.email}
+              </div>
+            )}
+          </div>
+
+          {/* Success Message */}
+          {message && (
+            <div className="login-success" role="alert">
+              {message}
+            </div>
+          )}
+
+          {/* Submit Error */}
+          {errors.submit && (
+            <div className="login-error" role="alert">
+              {errors.submit}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="send-reset-button"
+            disabled={!formData.email || !!errors.email || isLoading}
+          >
+            {isLoading ? 'Sending...' : 'Send Reset Link'}
+          </button>
+
+          <div className="reset-link">
+            <Link to="/login" className="login-link-text">
+              Back to Sign In
+            </Link>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default ResetPasswordPage;

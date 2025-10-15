@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-    saveIngredientsToLocalStorage, 
+import {
+    saveIngredientsToLocalStorage,
     getIngredientsFromLocalStorage,
     getCameraIngredientsFromLocalStorage,
-    getDeletedIngredients 
+    getDeletedIngredients
 } from '../utils/storageUtils';
 import '../css/SearchBar.css';
 import backicon from '../image/searchbar/Back.svg';
@@ -67,11 +67,11 @@ const SearchBar = () => {
                 ingredient_type: "Other",
                 source: "manual"
             };
-            
+
             const updatedIngredients = [...selectedIngredients, newIngredient];
             setSelectedIngredients(updatedIngredients);
             setSearchText("");
-            
+
             // Save to localStorage and update count
             const existingIngredients = getIngredientsFromLocalStorage();
             saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
@@ -94,17 +94,17 @@ const SearchBar = () => {
     const handleSearchRecipe = () => {
         const existingIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
-        
+
         // Combine all ingredients
         const allIngredients = [
             ...existingIngredients,
             ...selectedIngredients,
             ...cameraIngredients
         ];
-        
+
         // Save to localStorage
         saveIngredientsToLocalStorage(allIngredients);
-        
+
         // Fix: Changed route from 'ingredients-preview' to 'ingredient-preview'
         navigate('/ingredient-preview');
     };
@@ -113,7 +113,7 @@ const SearchBar = () => {
         const newImages = [...activeImages];
         const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
         const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
-        
+
         switch (index) {
             case 0:
                 newImages[0] = newImages[0] === bread ? breadclick : bread;
@@ -131,12 +131,12 @@ const SearchBar = () => {
                 break;
         }
         setActiveImages(newImages);
-        
+
         // Toggle ingredient selection
         const ingredientName = ingredientNames[index];
         const ingredientType = ingredientTypes[index];
         const isSelected = selectedIngredients.some(ing => ing.ingredient_name === ingredientName);
-        
+
         if (isSelected) {
             // Remove ingredient
             setSelectedIngredients(selectedIngredients.filter(ing => ing.ingredient_name !== ingredientName));
@@ -163,22 +163,22 @@ const SearchBar = () => {
     const handleIngredientPreview = () => {
         // Reload ingredients before navigating to ensure fresh data
         loadAllIngredients();
-        
+
         // Combine current selected ingredients with stored ones
         const manualIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
-        
+
         // Create real-time ingredients list
         const currentIngredients = [
             ...selectedIngredients,
             ...manualIngredients,
             ...cameraIngredients
         ];
-        
+
         navigate('/ingredient-preview', {
-            state: { 
+            state: {
                 currentIngredients,
-                fromSearchBar: true 
+                fromSearchBar: true
             }
         });
     };
@@ -186,9 +186,9 @@ const SearchBar = () => {
     return (
         <div className="search-container">
             <div className="back-home">
-                    <button className="back-button" onClick={() => navigate(-1)}>Searching</button>
-                <button 
-                    className="list-icon-btn" 
+                <button className="back-button" onClick={() => navigate("/home")}>Searching</button>
+                <button
+                    className="list-icon-btn"
                     onClick={handleIngredientPreview}
                 >
                     <img src={listicon} alt="Ingredient List" />
@@ -217,9 +217,9 @@ const SearchBar = () => {
                 <button type="button" className="camera-icon-btn" onClick={handleCameraClick}>
                     <img src={IconCamera} alt="camera" className="camera-icon" />
                 </button>
-                <button type="submit" className="search-btn" style={{display: 'none'}}></button>
+                <button type="submit" className="search-btn" style={{ display: 'none' }}></button>
             </form>
-            
+
             <div className="ingredients-container">
                 <p className="ingredients-text">Recommended ingredients</p>
                 <div className="ingredients-scroll">
@@ -236,7 +236,7 @@ const SearchBar = () => {
             </div>
 
             <div className="divider"></div>
-            
+
             <div className="search-recipe-row">
                 <div className="search-recipe-button" onClick={handleSearchRecipe}>
                     <p className="search-recipe-text">SEARCH FOR RECIPE</p>

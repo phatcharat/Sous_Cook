@@ -290,7 +290,7 @@ const Setting = () => {
                         name="allergies"
                         value={allergyInput}
                         onChange={handleChange}
-                        placeholder="Enter allergies separated by comma"
+                        placeholder="Enter allergies separated by comma, e.g. peanuts, milk, seafood"
                     />
                 </div>
 

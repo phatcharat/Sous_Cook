@@ -47,7 +47,7 @@ function App() {
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
-        <Route path="/Newpassword" element={<Newpassword/>}/>
+        <Route path="/new-password" element={<Newpassword/>}/>
         <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
         <Route path="/shoppinglist" element={<ShoppingList />} />
       </Routes>

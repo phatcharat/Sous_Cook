@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../css/ResetPassword.css'; // ใช้ CSS เดิมได้เลย
-import logo from '../image/Logo2.png';
+import '../css/ResetPassword.css';
+import logo from '../image/Logo1.svg';
 import axios from 'axios';
 
 const NewPasswordPage = () => {
@@ -14,12 +14,15 @@ const NewPasswordPage = () => {
 
   const validateField = (name, value) => {
     if (name === 'password') {
-      if (!value.trim()) return 'Password is required';
-      if (value.length < 6) return 'Password must be at least 6 characters';
+      if (!value) return 'Password is required';
+      if (value.length < 8) return 'Password must be at least 8 characters';
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) return 'Password must contain uppercase, lowercase, and number';
+      return '';
     }
     if (name === 'confirmPassword') {
       if (!value.trim()) return 'Please confirm your password';
       if (value !== formData.password) return 'Passwords do not match';
+      return '';
     }
     return '';
   };
@@ -37,11 +40,18 @@ const NewPasswordPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
     if (touched[name]) {
       const error = validateField(name, value);
       setErrors((prev) => ({ ...prev, [name]: error }));
-    } else if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+
+    // Re-validate confirmPassword when password changes
+    if (name === 'password' && touched.confirmPassword && formData.confirmPassword) {
+      const confirmError = validateField('confirmPassword', formData.confirmPassword);
+      setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
     }
   };
 
@@ -66,12 +76,15 @@ const NewPasswordPage = () => {
     setMessage('');
 
     try {
-      // ตัวอย่างเรียก API สำหรับ reset password ใหม่
-      const res = await axios.post('/api/auth/new-password', { password: formData.password });
+      const res = await axios.post('/api/auth/new-password', {
+        password: formData.password,
+      });
+
       setMessage(res.data?.message || 'Your password has been reset successfully!');
       setFormData({ password: '', confirmPassword: '' });
       setTouched({});
-      setTimeout(() => navigate('/login'), 2000); // กลับไปหน้า login หลัง 2 วินาที
+      
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       setErrors({
         submit: error.response?.data?.message || 'An error occurred. Please try again.',
@@ -88,8 +101,22 @@ const NewPasswordPage = () => {
 
   return (
     <div className="reset-container">
+      <button
+        className="back-arrow"
+        onClick={() => navigate('/login')}
+        aria-label="Go back to login"
+      >
+        ‹
+      </button>
+
       <div className="logo-header">
-        <img src={logo} alt="Company Logo" className="Logo" />
+        <div className="logo-circle">
+          <img
+            src={logo}
+            alt="Company Logo"
+            className="Logo"
+          />
+        </div>
       </div>
 
       <div className="reset-card">
@@ -100,56 +127,85 @@ const NewPasswordPage = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Password */}
-          <label className="reset-label" htmlFor="password">New Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            placeholder="Enter new password"
-            className={getInputClasses('password')}
-            aria-describedby={errors.password ? 'password-error' : undefined}
-            aria-invalid={errors.password ? 'true' : 'false'}
-            disabled={isLoading}
-          />
-          {errors.password && <div id="password-error" className="login-error">{errors.password}</div>}
+        <form className="reset" onSubmit={handleSubmit}>
+          {/* Password Input Wrapper */}
+          <div className="input-wrapper">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="New Password"
+              className={getInputClasses('password')}
+              aria-describedby={errors.password ? 'password-error' : undefined}
+              aria-invalid={errors.password ? 'true' : 'false'}
+              autoComplete="new-password"
+              disabled={isLoading}
+            />
+            {errors.password && (
+              <div id="password-error" className="login-error" role="alert">
+                {errors.password}
+              </div>
+            )}
+          </div>
 
-          {/* Confirm Password */}
-          <label className="reset-label" htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            placeholder="Confirm new password"
-            className={getInputClasses('confirmPassword')}
-            aria-describedby={errors.confirmPassword ? 'confirm-error' : undefined}
-            aria-invalid={errors.confirmPassword ? 'true' : 'false'}
-            disabled={isLoading}
-          />
-          {errors.confirmPassword && <div id="confirm-error" className="login-error">{errors.confirmPassword}</div>}
+          {/* Confirm Password Input Wrapper */}
+          <div className="input-wrapper">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="Confirm Password"
+              className={getInputClasses('confirmPassword')}
+              aria-describedby={errors.confirmPassword ? 'confirm-error' : undefined}
+              aria-invalid={errors.confirmPassword ? 'true' : 'false'}
+              autoComplete="new-password"
+              disabled={isLoading}
+            />
+            {errors.confirmPassword && (
+              <div id="confirm-error" className="login-error" role="alert">
+                {errors.confirmPassword}
+              </div>
+            )}
+          </div>
 
           {/* Success Message */}
-          {message && <div className="login-success">{message}</div>}
-          {errors.submit && <div className="login-error">{errors.submit}</div>}
+          {message && (
+            <div className="login-success" role="alert">
+              {message}
+            </div>
+          )}
 
-          {/* Submit Button */}
+          {/* Submit Error */}
+          {errors.submit && (
+            <div className="login-error" role="alert">
+              {errors.submit}
+            </div>
+          )}
+
           <button
             type="submit"
             className="send-reset-button"
-            disabled={!formData.password || !formData.confirmPassword || !!errors.password || !!errors.confirmPassword || isLoading}
+            disabled={
+              !formData.password || 
+              !formData.confirmPassword || 
+              !!errors.password || 
+              !!errors.confirmPassword || 
+              isLoading
+            }
           >
             {isLoading ? 'Saving...' : 'Save New Password'}
           </button>
 
           <div className="reset-link">
-            <Link to="/login" className="login-link-text">Back to Sign In</Link>
+            <Link to="/login" className="login-link-text">
+              Back to Sign In
+            </Link>
           </div>
         </form>
       </div>
