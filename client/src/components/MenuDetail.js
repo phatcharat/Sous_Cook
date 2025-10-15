@@ -13,7 +13,10 @@ import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
 import Camera from './CameraSharedDish';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import logo from '../image/Logo1.svg';
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
 
@@ -48,10 +51,14 @@ const MenuDetail = () => {
     const capturedImage = location.state?.image || null; //select photo
     const [dishCaption, setDishCaption] = useState('');  
 <<<<<<< HEAD
+<<<<<<< HEAD
     const [ignoreSharedDish, setIgnoreSharedDish] = useState(false); 
     
     // for review
     const [avgRating, setRating] = useState(0);
+=======
+    const [ignoreSharedDish, setIgnoreSharedDish] = useState(false);  
+>>>>>>> refs/remotes/origin/main
 =======
     const [ignoreSharedDish, setIgnoreSharedDish] = useState(false);  
 >>>>>>> refs/remotes/origin/main
@@ -169,6 +176,10 @@ const MenuDetail = () => {
     };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
 =======
 
 >>>>>>> refs/remotes/origin/main
@@ -379,6 +390,7 @@ const MenuDetail = () => {
     }, [sharedDishImage, ignoreSharedDish, isSubmitting]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // fetch review
     const fetchReviewData = async () => {
         try {
@@ -400,6 +412,8 @@ const MenuDetail = () => {
         fetchReviewData();
     }, [actualMenuId]);
 
+=======
+>>>>>>> refs/remotes/origin/main
 
     if (!menuData) {
         return (
@@ -615,6 +629,7 @@ const MenuDetail = () => {
                     See the Community
                     </button>
 <<<<<<< HEAD
+<<<<<<< HEAD
             </div>
 
             {/* ส่วนของ review */}
@@ -642,6 +657,9 @@ const MenuDetail = () => {
 =======
             </div>            
 >>>>>>> refs/remotes/origin/main
+=======
+            </div>            
+>>>>>>> refs/remotes/origin/main
         </div>
     );
 };
@@ -662,9 +680,12 @@ const fetchMissingImages = async (menuList, ingredientList) => {
     );
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     console.log("missingMenuItems:", missingMenuItems);
     console.log("missingIngredients:", missingIngredients);
 
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
     if (missingMenuItems.length > 0 || missingIngredients.length > 0) {
@@ -699,6 +720,7 @@ const abbreviateUnit = (quantity) => {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const renderStars = (rate) => {
     const numericRating = parseFloat(rate) || 0;
     const finalRating = Math.round(numericRating); 
@@ -718,6 +740,8 @@ const renderStars = (rate) => {
     ));
 };
 
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
 export default MenuDetail;

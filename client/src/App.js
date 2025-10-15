@@ -52,8 +52,11 @@ function App() {
         <Route path="/new-password" element={<Newpassword/>}/>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         <Route path="/reviews" element={<MenuReview />} />
 =======
+=======
+>>>>>>> refs/remotes/origin/main
 =======
 >>>>>>> refs/remotes/origin/main
         <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
