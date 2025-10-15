@@ -11,6 +11,7 @@ import tips from '../image/menu-detail/tips.svg'
 import { getUserId } from '../utils/auth';
 import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
+// import MenuReview from './components/MenuReview';
 
 const MenuDetail = () => {
     const navigate = useNavigate();

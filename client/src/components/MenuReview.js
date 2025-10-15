@@ -3,6 +3,7 @@ import '../css/MenuReview.css';  // Import the CSS file
 import logo from '../image/Logo1.svg';
 import backicon from '../image/searchbar/Back.svg';
 import defaultProfile from '../image/profile.jpg';
+import deleteicon from '../Icon/Button/Delete_btn.png';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
@@ -33,6 +34,7 @@ const MenuReview = () => {
         comment: '',
         rating: '',
         created_at: '',
+        updated_at: '',
         username: '',
         avatar: '',
         avatar_url: defaultProfile
@@ -52,6 +54,16 @@ const MenuReview = () => {
         percent_rate_2: 0,
         percent_rate_1: 0
     });
+
+    const [hasReviewed, setHasReview] = useState(false);
+
+    const [confirmUpdate, setUpdate] = useState(false);
+    
+    const [confirmDelete, setDelete] = useState(false);
+
+    const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
 
     useEffect(() => {
         if (!userId || isNaN(userId)) {
@@ -106,6 +118,10 @@ const MenuReview = () => {
                 menu_id: menu_id,
                 user_id: userIdStr
             }));
+            
+            const foundReview = reviews && Array.isArray(reviews) ? 
+            reviews.some(review => review.user_id === userId) : false; 
+            setHasReview(foundReview);
 
         } catch (error) {
             console.error('Error fetching review data:', error);
@@ -116,6 +132,8 @@ const MenuReview = () => {
     useEffect(() => {
         fetchReviewData();
     }, [index]);
+
+
 
     const renderStars = (rate) => {
         // 1. จัดการค่า NaN/null และปัดเศษ
@@ -155,8 +173,23 @@ const MenuReview = () => {
     };
 
     const showDate = (review) => {
-        review.created_at = review.created_at.split('T')[0];
-        return (<div className="show-date-review">{review.created_at}</div>);
+        if (review.updated_at) {
+            review.updated_at = review.updated_at.split('T')[0];
+            return (<div className="show-date-review">{review.updated_at}</div>);
+        } else {
+            review.created_at = review.created_at.split('T')[0];
+            return (<div className="show-date-review">{review.created_at}</div>);
+        }
+    };
+
+    // const showUpdate = () => {
+    //     return ()
+    // };
+
+    const showDeleteReview = (review) => {
+        if (review.user_id === userId) {
+            return (<button className="del-rew-bttn" onClick={() => setShowDeletePopup(true)}><img src={deleteicon}/></button>)
+        }
     };
 
     const handleChange = (e) => {
@@ -168,7 +201,10 @@ const MenuReview = () => {
 
         const rating_int = parseInt(formReview.rating, 10);
 
-        if (rating_int < 1 || rating_int > 5) {
+        if (hasReviewed) {
+            setShowUpdatePopup(true); 
+        } else {
+            if (rating_int < 1 || rating_int > 5) {
             console.error("rate should be in 1 - 5")
             return;
         }
@@ -189,7 +225,34 @@ const MenuReview = () => {
         } catch (error) {
             console.error('Error for post review:', error);
         }
+        }
+        
+    };
 
+    const handleUpdateReview = async (e) => {
+        e.preventDefault();
+            try {
+                const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/reviews`, formReview);
+                // setUpdate(false);
+                setShowUpdatePopup(false);
+                setReviewData({
+                    comment: '',
+                    rating: ''
+                });
+                fetchReviewData(); 
+            } catch (error) {
+                console.error('Error for put review:', error);
+            }
+    };
+
+    const handleDeleteReview = async (e) => {
+        try {
+            const response = await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/${formReview.menu_id}/${userId}/reviews`);
+            setShowDeletePopup(false);
+            fetchReviewData();
+        } catch (error) {
+            console.error('Error for delete review:', error);
+        }
     };
 
     return (
@@ -317,6 +380,8 @@ const MenuReview = () => {
                                         </div>
                                     </div> 
                                 </div>
+                                {showDeleteReview(review)}
+
                             </div>
                             <div className="comment-box">
                                 <div className="review-text">{review.comment}</div>
@@ -349,11 +414,11 @@ const MenuReview = () => {
                             <div className="review-username">{userData.username}</div>
                             <div className="review-rate my-rate">
                                 <div className="star-rating">
-                                    <input type="radio" name="rating" id="star5" value={'5'} onChange={handleChange}/><label for="star5"></label>
-                                    <input type="radio" name="rating" id="star4" value={'4'} onChange={handleChange}/><label for="star4"></label>
-                                    <input type="radio" name="rating" id="star3" value={'3'} onChange={handleChange}/><label for="star3"></label>
-                                    <input type="radio" name="rating" id="star2" value={'2'} onChange={handleChange}/><label for="star2"></label>
-                                    <input type="radio" name="rating" id="star1" value={'1'} onChange={handleChange}/><label for="star1"></label>
+                                    <input type="radio" name="rating" id="star5" value={'5'} checked={formReview.rating === '5'} onChange={handleChange}/><label for="star5"></label>
+                                    <input type="radio" name="rating" id="star4" value={'4'} checked={formReview.rating === '4'} onChange={handleChange}/><label for="star4"></label>
+                                    <input type="radio" name="rating" id="star3" value={'3'} checked={formReview.rating === '3'} onChange={handleChange}/><label for="star3"></label>
+                                    <input type="radio" name="rating" id="star2" value={'2'} checked={formReview.rating === '2'} onChange={handleChange}/><label for="star2"></label>
+                                    <input type="radio" name="rating" id="star1" value={'1'} checked={formReview.rating === '1'} onChange={handleChange}/><label for="star1"></label>
                                 </div>
                             </div> 
                         </div>
@@ -366,9 +431,52 @@ const MenuReview = () => {
                     </div>
                 </form>
             </div>
+            {showUpdatePopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Update Reiview</h2>
+                        <p>Are you sure you want to update your review?</p>
+                        <div className="popup-buttons">
+                            <button
+                                className="cancel-button-review"
+                                onClick={() => setShowUpdatePopup(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-button-review"
+                                onClick={handleUpdateReview}
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+              )}  
+              {showDeletePopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Delete Reiview</h2>
+                        <p>Are you sure you want to delete your review?</p>
+                        <div className="popup-buttons">
+                            <button
+                                className="cancel-button-review"
+                                onClick={() => setShowDeletePopup(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-button-review"
+                                onClick={handleDeleteReview}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+              )}  
             
         </div>
-      
     );
   };
   

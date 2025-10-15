@@ -800,6 +800,47 @@ app.get('/api/menu-detail/:index/reviews', async (req, res) => {
   }
 });
 
+app.put('/api/reviews', async (req, res) => {
+  try {
+    const { user_id, menu_id, comment, rating } = req.body;
+    const menu_idNumber = parseInt(menu_id, 10);
+    const user_idNumber = parseInt(user_id, 10);
+    const ratingNumber = parseInt(rating, 10);
+
+    if (!user_idNumber || !menu_idNumber || !comment || !ratingNumber) {
+       return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
+    }
+
+    await pool.query(
+      "UPDATE review SET rating = $1, comment= $2, updated_at = now() WHERE menu_id = $3 AND user_id = $4; ",
+      [ratingNumber, comment, menu_idNumber, user_idNumber]
+    );
+    res.status(201).json({ message: "Review posted Successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server Error" });
+  }
+  
+});
+
+app.delete('/api/:menuId/:userId/reviews', async (req, res) => {
+  try {
+    const { menuId, userId } = req.params;
+    const menu_idNumber = parseInt(menuId, 10);
+    const user_idNumber = parseInt(userId, 10);
+
+    // Soft delete 
+    const result = await pool.query(
+      'DELETE FROM review WHERE user_id = $1 AND menu_id = $2',
+      [user_idNumber, menu_idNumber]
+    );
+
+    res.json({ success: true, message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    res.status(500).json({ error: 'Failed to delete review' });
+  }
+});
 
 //
 //

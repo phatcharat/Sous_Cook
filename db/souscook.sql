@@ -61,6 +61,8 @@ CREATE TABLE review (
     "rating"   SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     "comment"  TEXT,
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "updated_at" TIMESTAMP,
+    "deleted_at" TIMESTAMP
     UNIQUE (user_id, menu_id)
 );
 
