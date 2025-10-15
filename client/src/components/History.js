@@ -110,9 +110,9 @@ const HistoryScreen = () => {
                     <p>No history found. Start exploring some menus!</p>
                 </div>
             ) : (
-                <div className="history-list">
-                    {historyItems.map((item, index) => (
+                    historyItems.map((item, index) => (
                         <div key={item.id}>
+                            <div className="meal-cards">
                             <div 
                                 onClick={() => goToMenuDetail(item)} //คลิกแล้วไปหน้า detail
                             >
@@ -134,9 +134,9 @@ const HistoryScreen = () => {
                                 <p className="time-ago">{item.timeAgo}</p>
                             </div>
                             {index < historyItems.length - 1 && <div className="meal-separator"></div>}
+                            </div>
                         </div>
-                    ))}
-                </div>
+                    ))
             )}
             </div>
         </div>

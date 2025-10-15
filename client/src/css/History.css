@@ -36,7 +36,11 @@
 .meal-lists {
   padding: 0 1.5rem;
 }
-
+.meal-cards {
+    background-color: none;
+    padding: 1.5rem;
+    position: relative;
+}
 .meal-content {
     display: flex;
     align-items: center; /* Use center here as well */
