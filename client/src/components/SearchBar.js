@@ -3,28 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     saveIngredientsToLocalStorage,
     getIngredientsFromLocalStorage,
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    getCameraIngredientsFromLocalStorage,
-    getDeletedIngredients
-=======
     getCameraIngredientsFromLocalStorage
->>>>>>> refs/remotes/origin/main
-=======
-    getCameraIngredientsFromLocalStorage
->>>>>>> refs/remotes/origin/main
-=======
-    getCameraIngredientsFromLocalStorage
->>>>>>> refs/remotes/origin/main
-=======
-    getCameraIngredientsFromLocalStorage
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-    getCameraIngredientsFromLocalStorage
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 } from '../utils/storageUtils';
 import '../css/SearchBar.css';
 import backicon from '../image/searchbar/Back.svg';
@@ -85,41 +64,9 @@ const SearchBar = () => {
                 source: "manual"
             };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            const updatedIngredients = [...selectedIngredients, newIngredient];
-            setSelectedIngredients(updatedIngredients);
-            setSearchText("");
-
-            // Save to localStorage and update count
-=======
             setSelectedIngredients([...selectedIngredients, newIngredient]);
             setSearchText("");
 
->>>>>>> refs/remotes/origin/main
-=======
-            setSelectedIngredients([...selectedIngredients, newIngredient]);
-            setSearchText("");
-
->>>>>>> refs/remotes/origin/main
-=======
-            setSelectedIngredients([...selectedIngredients, newIngredient]);
-            setSearchText("");
-
->>>>>>> refs/remotes/origin/main
-=======
-            setSelectedIngredients([...selectedIngredients, newIngredient]);
-            setSearchText("");
-
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-            setSelectedIngredients([...selectedIngredients, newIngredient]);
-            setSearchText("");
-
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
             const existingIngredients = getIngredientsFromLocalStorage();
             saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
             loadAllIngredients();
@@ -139,52 +86,13 @@ const SearchBar = () => {
         const existingIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // Combine all ingredients
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
         const allIngredients = [
             ...existingIngredients,
             ...selectedIngredients,
             ...cameraIngredients
         ];
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // Save to localStorage
         saveIngredientsToLocalStorage(allIngredients);
-
-        // Fix: Changed route from 'ingredients-preview' to 'ingredient-preview'
-=======
-        saveIngredientsToLocalStorage(allIngredients);
->>>>>>> refs/remotes/origin/main
-=======
-        saveIngredientsToLocalStorage(allIngredients);
->>>>>>> refs/remotes/origin/main
-=======
-        saveIngredientsToLocalStorage(allIngredients);
->>>>>>> refs/remotes/origin/main
-=======
-        saveIngredientsToLocalStorage(allIngredients);
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-        saveIngredientsToLocalStorage(allIngredients);
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
         navigate('/ingredient-preview');
     };
 
@@ -193,40 +101,6 @@ const SearchBar = () => {
         const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
         const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        switch (index) {
-            case 0:
-                newImages[0] = newImages[0] === bread ? breadclick : bread;
-                break;
-            case 1:
-                newImages[1] = newImages[1] === tomato ? tomatoclick : tomato;
-                break;
-            case 2:
-                newImages[2] = newImages[2] === celery ? celeryclick : celery;
-                break;
-            case 3:
-                newImages[3] = newImages[3] === pork ? porkclick : pork;
-                break;
-            default:
-                break;
-        }
-        setActiveImages(newImages);
-
-        // Toggle ingredient selection
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
         const ingredientName = ingredientNames[index];
         const ingredientType = ingredientTypes[index];
 
@@ -257,56 +131,6 @@ const SearchBar = () => {
             };
             const updatedSelected = [...selectedIngredients, newIngredient];
             setSelectedIngredients(updatedSelected);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-            // เพิ่ม ingredient ลง localStorage
-            const manualIngredients = getIngredientsFromLocalStorage();
-            saveIngredientsToLocalStorage([...manualIngredients, newIngredient]);
-
-            // เปลี่ยนรูปเป็น clicked
-            switch (index) {
-                case 0: newImages[0] = breadclick; break;
-                case 1: newImages[1] = tomatoclick; break;
-                case 2: newImages[2] = celeryclick; break;
-                case 3: newImages[3] = porkclick; break;
-            }
-        }
-
-<<<<<<< HEAD
-    const toggleSelection = (index, selectedArray, setSelectedArray) => {
-        if (selectedArray.includes(index)) {
-            setSelectedArray(selectedArray.filter(i => i !== index));
-        } else {
-            setSelectedArray([...selectedArray, index]);
-        }
-    };
-
-
-    // Update handleIngredientPreview to pass current state and refresh on return
-    const handleIngredientPreview = () => {
-        // Reload ingredients before navigating to ensure fresh data
-        loadAllIngredients();
-
-        // Combine current selected ingredients with stored ones
-        const manualIngredients = getIngredientsFromLocalStorage();
-        const cameraIngredients = getCameraIngredientsFromLocalStorage();
-
-        // Create real-time ingredients list
-=======
-        setActiveImages(newImages);
-        loadAllIngredients();
-    };
-
-    const handleIngredientPreview = () => {
-        loadAllIngredients();
-        const manualIngredients = getIngredientsFromLocalStorage();
-        const cameraIngredients = getCameraIngredientsFromLocalStorage();
-
->>>>>>> refs/remotes/origin/main
-=======
 
             // เพิ่ม ingredient ลง localStorage
             const manualIngredients = getIngredientsFromLocalStorage();
@@ -330,82 +154,6 @@ const SearchBar = () => {
         const manualIngredients = getIngredientsFromLocalStorage();
         const cameraIngredients = getCameraIngredientsFromLocalStorage();
 
->>>>>>> refs/remotes/origin/main
-=======
-
-            // เพิ่ม ingredient ลง localStorage
-            const manualIngredients = getIngredientsFromLocalStorage();
-            saveIngredientsToLocalStorage([...manualIngredients, newIngredient]);
-
-            // เปลี่ยนรูปเป็น clicked
-            switch (index) {
-                case 0: newImages[0] = breadclick; break;
-                case 1: newImages[1] = tomatoclick; break;
-                case 2: newImages[2] = celeryclick; break;
-                case 3: newImages[3] = porkclick; break;
-            }
-        }
-
-        setActiveImages(newImages);
-        loadAllIngredients();
-    };
-
-    const handleIngredientPreview = () => {
-        loadAllIngredients();
-        const manualIngredients = getIngredientsFromLocalStorage();
-        const cameraIngredients = getCameraIngredientsFromLocalStorage();
-
->>>>>>> refs/remotes/origin/main
-=======
-
-            // เพิ่ม ingredient ลง localStorage
-            const manualIngredients = getIngredientsFromLocalStorage();
-            saveIngredientsToLocalStorage([...manualIngredients, newIngredient]);
-
-            // เปลี่ยนรูปเป็น clicked
-            switch (index) {
-                case 0: newImages[0] = breadclick; break;
-                case 1: newImages[1] = tomatoclick; break;
-                case 2: newImages[2] = celeryclick; break;
-                case 3: newImages[3] = porkclick; break;
-            }
-        }
-
-        setActiveImages(newImages);
-        loadAllIngredients();
-    };
-
-    const handleIngredientPreview = () => {
-        loadAllIngredients();
-        const manualIngredients = getIngredientsFromLocalStorage();
-        const cameraIngredients = getCameraIngredientsFromLocalStorage();
-
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-
-            // เพิ่ม ingredient ลง localStorage
-            const manualIngredients = getIngredientsFromLocalStorage();
-            saveIngredientsToLocalStorage([...manualIngredients, newIngredient]);
-
-            // เปลี่ยนรูปเป็น clicked
-            switch (index) {
-                case 0: newImages[0] = breadclick; break;
-                case 1: newImages[1] = tomatoclick; break;
-                case 2: newImages[2] = celeryclick; break;
-                case 3: newImages[3] = porkclick; break;
-            }
-        }
-
-        setActiveImages(newImages);
-        loadAllIngredients();
-    };
-
-    const handleIngredientPreview = () => {
-        loadAllIngredients();
-        const manualIngredients = getIngredientsFromLocalStorage();
-        const cameraIngredients = getCameraIngredientsFromLocalStorage();
-
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
         const currentIngredients = [
             ...selectedIngredients,
             ...manualIngredients,
@@ -442,22 +190,6 @@ const SearchBar = () => {
                 <img src={textlogo} alt="Text Logo" className="text-logo" />
             </div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            {/* Google-style search bar with camera icon */}
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
             <form className="search-bar" onSubmit={handleSearch}>
                 <input
                     type="text"

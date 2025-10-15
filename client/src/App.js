@@ -50,23 +50,7 @@ function App() {
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/new-password" element={<Newpassword/>}/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <Route path="/reviews" element={<MenuReview />} />
-=======
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
         <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
->>>>>>> refs/remotes/origin/main
         <Route path="/shoppinglist" element={<ShoppingList />} />
         <Route path="/camera-share-dish" element={<CameraSharedDish />} />
         <Route path="/community" element={<Community />} />

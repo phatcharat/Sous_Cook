@@ -2,27 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage, addDeletedIngredient, getDeletedIngredients } from '../utils/storageUtils';
-=======
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
->>>>>>> refs/remotes/origin/main
-=======
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
->>>>>>> refs/remotes/origin/main
-=======
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
->>>>>>> refs/remotes/origin/main
-=======
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 import '../css/IngredientPreview.css';
 import PreferencesPage from './PreferencesPage';
 
@@ -72,70 +52,15 @@ const IngredientPreview = ({ updatedIngredients }) => {
 
   const getUniqueIngredients = (ingredients) => {
     const seen = new Set();
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    const deleted = getDeletedIngredients();
-    
     return ingredients.filter(ing => {
       if (!ing || typeof ing !== 'object') return false;
-      const name = ing.ingredient_name?.trim();
-      if (!name) return false;
-      
-      const nameLower = name.toLowerCase();
-      if (seen.has(nameLower) || deleted.includes(nameLower)) {
-        return false;
-      }
-      
-      seen.add(nameLower);
-=======
-    return ingredients.filter(ing => {
-      if (!ing || typeof ing !== 'object') return false;
-=======
-    return ingredients.filter(ing => {
-      if (!ing || typeof ing !== 'object') return false;
->>>>>>> refs/remotes/origin/main
-=======
-    return ingredients.filter(ing => {
-      if (!ing || typeof ing !== 'object') return false;
->>>>>>> refs/remotes/origin/main
-=======
-    return ingredients.filter(ing => {
-      if (!ing || typeof ing !== 'object') return false;
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-    return ingredients.filter(ing => {
-      if (!ing || typeof ing !== 'object') return false;
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
       const name = ing.ingredient_name?.trim().toLowerCase();
       if (!name || seen.has(name)) return false;
       seen.add(name);
->>>>>>> refs/remotes/origin/main
       return true;
     });
   };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  useEffect(() => {
-    let allIngredients = location.state?.currentIngredients || getIngredientsFromLocalStorage();
-    const uniqueIngredients = getUniqueIngredients(allIngredients);
-    setIngredients(uniqueIngredients);
-  }, [location.state]);
-=======
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 useEffect(() => {
   const normalIngredients = getIngredientsFromLocalStorage();
   const cameraIngredients = getCameraIngredientsFromLocalStorage();
@@ -143,19 +68,6 @@ useEffect(() => {
   const uniqueIngredients = getUniqueIngredients(allIngredients);
   setIngredients(uniqueIngredients);
 }, []);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> refs/remotes/origin/main
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
   useEffect(() => {
     if (updatedIngredients) {
@@ -206,38 +118,8 @@ useEffect(() => {
     setIngredients(prev => prev.filter((_, i) => i !== index));
   };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const handleNavigateWithSave = (path) => {
-    saveIngredientsToLocalStorage(ingredients);
-    navigate(path);
-  };
-
-  const handleAddIngredient = () => handleNavigateWithSave('/search');
-  const handleBack = () => handleNavigateWithSave('/search');
-=======
   const handleAddIngredient = () => navigate('/search');
   const handleBack = () => navigate('/search');
->>>>>>> refs/remotes/origin/main
-=======
-  const handleAddIngredient = () => navigate('/search');
-  const handleBack = () => navigate('/search');
->>>>>>> refs/remotes/origin/main
-=======
-  const handleAddIngredient = () => navigate('/search');
-  const handleBack = () => navigate('/search');
->>>>>>> refs/remotes/origin/main
-=======
-  const handleAddIngredient = () => navigate('/search');
-  const handleBack = () => navigate('/search');
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-  const handleAddIngredient = () => navigate('/search');
-  const handleBack = () => navigate('/search');
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
   return (
     <>
@@ -258,27 +140,7 @@ useEffect(() => {
                 }
                 const iconSrc = getIconForIngredientType(ingredient.ingredient_type);
                 return (
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-                  <li key={ingredient.ingredient_name} className="ingredient-items">
-=======
                   <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
->>>>>>> refs/remotes/origin/main
-=======
-                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
->>>>>>> refs/remotes/origin/main
-=======
-                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
->>>>>>> refs/remotes/origin/main
-=======
-                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
                     <img src={iconSrc} alt={`${ingredient.ingredient_type} icon`} className="ingredient-icon" />
                     {editIndex === index ? (
                       <>

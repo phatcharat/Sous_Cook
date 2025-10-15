@@ -782,28 +782,15 @@ app.get('/api/menu-detail/:menuId/reviews', async (req, res) => {
   const menuIdStr = req.params.menuId;
   const menuId = parseInt(menuIdStr, 10);
 
-<<<<<<< HEAD
   try {
     // const menu_result = await pool.query("SELECT menu_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
     if (!menuId) {
-=======
-  if (isNaN(intIndex) || intIndex < 0) {
-    return res.status(400).send({ message: "Invalid index provide." });
-  }
-  try {
-    const menu_result = await pool.query("SELECT menu_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
-    if (menu_result.rows.length === 0) {
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
       return res.status(404).send({ message: "Menu not found at this index." });
     }
     const review_result = await pool.query(`SELECT r.*, u.username, u.avatar
                                             FROM review r JOIN users u ON r.user_id = u.user_id
                                             WHERE r.menu_id = $1
-<<<<<<< HEAD
                                             ORDER BY r.created_at DESC;`, [menuId]);
-=======
-                                            ORDER BY r.created_at DESC;`, [actual_menu_id]);
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
 
     const rating_result = await pool.query(`SELECT SUM(rating) AS sum_rating, COALESCE(AVG(rating), 0.00) AS avg_rating,
                                             SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS rate_5,
@@ -817,11 +804,7 @@ app.get('/api/menu-detail/:menuId/reviews', async (req, res) => {
     const rawStats = rating_result.rows.length > 0 ? rating_result.rows[0] : {};
     const summaryData = {
       sum_rating: parseFloat(rawStats.sum_rating) || 0,
-<<<<<<< HEAD
       avg_rating: parseFloat(rawStats.avg_rating).toFixed(0) || 0,
-=======
-      avg_rating: parseFloat(rawStats.avg_rating).toFixed(2) || 0,
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
       rate_5: parseInt(rawStats.rate_5) || 0,
       rate_4: parseInt(rawStats.rate_4) || 0,
       rate_3: parseInt(rawStats.rate_3) || 0,
