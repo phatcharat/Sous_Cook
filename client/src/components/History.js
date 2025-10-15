@@ -128,7 +128,7 @@ const HistoryScreen = () => {
                                 </div>
                             </div>
                             <div className="card-right-section">
-                                <button className="like-button" onClick={() => handleLike(item)}>
+                                <button className="liker-button" onClick={() => handleLike(item)}>
                                     <i className={`fas fa-heart heart-icon ${item.isLiked ? 'liked' : ''}`}></i>
                                 </button>
                                 <p className="time-ago">{item.timeAgo}</p>
