@@ -1280,7 +1280,7 @@ app.post("/api/menus", async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO menus (menu_name, prep_time, cooking_time, steps, ingredients_quantity, ingredients_type, nutrition,tips, image)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (menu_name) DO NOTHING
        RETURNING menu_id, menu_name`,
       [
