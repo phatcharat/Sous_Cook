@@ -350,7 +350,7 @@ const MenuDetail = () => {
         }
     }, [sharedDishImage, ignoreSharedDish, isSubmitting]);
 
-    
+
     if (!menuData) {
         return (
             <div className="menu-detail-container">
@@ -520,11 +520,11 @@ const MenuDetail = () => {
                 <h3>Share your dish</h3>
 
                 {!hasDishPhoto && (
-                    <div className="photo-buttons">
-                    <button className="take-photo-button" onClick={() => navigate("/camera-share-dish", { state: { menu_id: actualMenuId }, replace: true })}>
+                    <div className="dish-photo-buttons">
+                    <button className="dish-take-photo-button" onClick={() => navigate("/camera-share-dish", { state: { menu_id: actualMenuId }, replace: true })}>
                     Take a photo
                     </button>
-                    <button className="select-photo-button" onClick={() => dishFileInputRef.current.click()}>
+                    <button className="dish-select-photo-button" onClick={() => dishFileInputRef.current.click()}>
                     Select photo
                     </button>
 
@@ -539,18 +539,18 @@ const MenuDetail = () => {
                 )}
 
                 {hasDishPhoto && (
-                    <div className="submit-buttons">
+                    <div className="dish-submit-buttons">
                         <textarea
                             placeholder="Write a caption..."
                             value={dishCaption}
                             onChange={(e) => setDishCaption(e.target.value)}
                             className="dish-caption-box"
                         />
-                        <div className="button-row">
-                            <button className="share-button" onClick={handleSubmitDish}>
+                        <div className="dish-button-row">
+                            <button className="dish-share-button" onClick={handleSubmitDish}>
                                 Submit
                             </button>
-                            <button className="retake-button" onClick={handleCancel}>
+                            <button className="dish-retake-button" onClick={handleCancel}>
                                 Cancel
                             </button>
                         </div>

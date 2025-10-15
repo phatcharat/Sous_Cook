@@ -86,54 +86,56 @@ const SmallCommunity = () => {
   return (
     <div className="community-container">
       {/* Header */}
-      <div className='header-container'>
-        <img src={Header} alt="Header" className="header-image" />
+      <div className='community-header-container'>
+        <img src={Header} alt="Header" className="community-header-image" />
+        <div className="back-to-menu-detail">
         <button className="back-button" onClick={handleBackNavigation}></button>
+        </div>
       </div>
 
-      {posts.length === 0 && <p className="no-posts">No posts yet</p>}
+      {posts.length === 0 && <p className="community-no-posts">No posts yet</p>}
 
       {posts.map(post => (
-        <div key={post.id} className="post-card">
+        <div key={post.id} className="community-post-card">
           {/* Post header */}
-          <div className="post-header">
+          <div className="community-post-header">
             <img 
               src={post.avatar} 
-              className="profile-pic" 
+              className="user-profile-pic" 
               alt="avatar"
               onError={(e) => e.target.src = defaultProfile}
             />
-            <p className="username">{capitalize(post.username)}</p>
+            <p className="community-username">{capitalize(post.username)}</p>
           </div>
 
           {/* Post image */}
           {post.image && (
             <img 
               src={post.image} 
-              className="post-image" 
+              className="community-post-image" 
               alt="dish"
               onError={(e) => e.target.style.display = 'none'}
             />
           )}
 
           {/* Like button */}
-          <div className="post-actions">
+          <div className="community-post-actions">
             <button 
-              className={`like-button ${post.liked ? 'liked' : ''}`}
+              className={`community-like-button ${post.liked ? 'liked' : ''}`}
               onClick={() => handleLike(post.id)}
             >
-              <img src={LikeIcon} alt="like" /> {post.likes}
+              <img src={LikeIcon} alt="like" /> 
+              <span className="community-like-count">{post.likes}</span>
             </button>
           </div>
-
           {/* Caption and date */}
           {post.caption && (
-            <p className="caption">
-            <strong className="username-caption">{capitalize(post.username)}</strong>
+            <p className="community-caption">
+            <strong className="community-username-caption">{capitalize(post.username)}</strong>
             {post.caption}
             </p>
             )}
-          <p className="created-at">
+          <p className="community-created-at">
             {new Date(post.created_at).toLocaleDateString('en-GB', {
               day: '2-digit',
               month: '2-digit',

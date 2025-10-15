@@ -426,7 +426,7 @@ ul.instructions-list li{
 }
 
 
-.photo-buttons { 
+.dish-photo-buttons { 
     display: flex; 
     justify-content: center; 
     align-items: center; 
@@ -434,7 +434,7 @@ ul.instructions-list li{
     gap: 20px;
 } 
 
-.take-photo-button, .select-photo-button { 
+.dish-take-photo-button, .dish-select-photo-button { 
     background-color: #FFA500; 
     border-radius: 10px; 
     border: none; 
@@ -446,11 +446,11 @@ ul.instructions-list li{
     transition: background-color 0.3s ease; 
 } 
 
-.take-photo-button:active, .select-photo-button:active { 
+.dish-take-photo-button:active, .dish-select-photo-button:active { 
     background-color: #e39503; 
 } 
 
-.submit-buttons { 
+.dish-submit-buttons { 
     display: flex; 
     justify-content: center; 
     align-items: center; 
@@ -458,7 +458,7 @@ ul.instructions-list li{
     gap: 20px; 
 } 
 
-.share-button { 
+.dish-share-button { 
     background-color: #B0BD39;  
     border-radius: 10px; 
     border: none; 
@@ -470,7 +470,7 @@ ul.instructions-list li{
     transition: background-color 0.3s ease; 
 } 
 
-.retake-button { 
+.dish-retake-button { 
     background-color: #FFA500; 
     border-radius: 10px; 
     border: none; 
@@ -539,7 +539,7 @@ ul.instructions-list li{
     font-family: 'Quicksand', sans-serif; 
 }
 
-.button-row {
+.dish-button-row {
     display: flex;
     gap: 10px;
     margin-right: 12px;
