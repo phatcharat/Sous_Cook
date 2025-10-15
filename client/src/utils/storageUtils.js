@@ -105,6 +105,7 @@ export const saveCameraIngredientsToLocalStorage = (ingredients) => {
     }
 };
 
+<<<<<<< HEAD
 export const getDeletedIngredients = () => {
     const userId = getUserId();
     if (!userId) return [];
@@ -131,8 +132,13 @@ export const addDeletedIngredient = (ingredientName) => {
 export const getShoppingListFromStorage = () => {
     const userId = getUserId();
     if (!userId) return [];
+=======
+export const getShoppingListFromStorage = (userId) => {
+    const uid = userId || getUserId();
+    if (!uid) return [];
+>>>>>>> refs/remotes/origin/main
     try {
-        const list = localStorage.getItem(`shoppingList_${userId}`);
+        const list = localStorage.getItem(`shoppingList_${uid}`);
         return list ? JSON.parse(list) : [];
     } catch (error) {
         console.error('Error getting shopping list:', error);
@@ -140,11 +146,17 @@ export const getShoppingListFromStorage = () => {
     }
 };
 
+<<<<<<< HEAD
 export const saveShoppingListToStorage = (items) => {
     const userId = getUserId();
     if (!userId) return;
+=======
+export const saveShoppingListToStorage = (items, userId) => {
+    const uid = userId || getUserId();
+    if (!uid) return;
+>>>>>>> refs/remotes/origin/main
     try {
-        localStorage.setItem(`shoppingList_${userId}`, JSON.stringify(items));
+        localStorage.setItem(`shoppingList_${uid}`, JSON.stringify(items));
     } catch (error) {
         console.error('Error saving shopping list:', error);
     }

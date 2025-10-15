@@ -170,7 +170,7 @@ const CameraSearch = () => {
         ) : (
           <>
             <div className="camera-header">
-              <span className="header-title">Add Ingredients via Camera</span>
+              <span className="header-title">Add Ingredients</span>
               <img 
                 src={IconClose} 
                 className="close-button" 

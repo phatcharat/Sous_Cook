@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
+<<<<<<< HEAD
 import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage, addDeletedIngredient, getDeletedIngredients } from '../utils/storageUtils';
+=======
+import { saveIngredientsToLocalStorage, getIngredientsFromLocalStorage,getCameraIngredientsFromLocalStorage,saveCameraIngredientsToLocalStorage} from '../utils/storageUtils';
+>>>>>>> refs/remotes/origin/main
 import '../css/IngredientPreview.css';
 import PreferencesPage from './PreferencesPage';
 
@@ -52,6 +56,7 @@ const IngredientPreview = ({ updatedIngredients }) => {
 
   const getUniqueIngredients = (ingredients) => {
     const seen = new Set();
+<<<<<<< HEAD
     const deleted = getDeletedIngredients();
     
     return ingredients.filter(ing => {
@@ -65,15 +70,32 @@ const IngredientPreview = ({ updatedIngredients }) => {
       }
       
       seen.add(nameLower);
+=======
+    return ingredients.filter(ing => {
+      if (!ing || typeof ing !== 'object') return false;
+      const name = ing.ingredient_name?.trim().toLowerCase();
+      if (!name || seen.has(name)) return false;
+      seen.add(name);
+>>>>>>> refs/remotes/origin/main
       return true;
     });
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     let allIngredients = location.state?.currentIngredients || getIngredientsFromLocalStorage();
     const uniqueIngredients = getUniqueIngredients(allIngredients);
     setIngredients(uniqueIngredients);
   }, [location.state]);
+=======
+useEffect(() => {
+  const normalIngredients = getIngredientsFromLocalStorage();
+  const cameraIngredients = getCameraIngredientsFromLocalStorage();
+  const allIngredients = [...normalIngredients, ...cameraIngredients];
+  const uniqueIngredients = getUniqueIngredients(allIngredients);
+  setIngredients(uniqueIngredients);
+}, []);
+>>>>>>> refs/remotes/origin/main
 
   useEffect(() => {
     if (updatedIngredients) {
@@ -110,12 +132,21 @@ const IngredientPreview = ({ updatedIngredients }) => {
   const handleCancelEdit = () => setEditIndex(null);
 
   const handleDelete = (index) => {
-    const deletedName = ingredients[index].ingredient_name;
-    addDeletedIngredient(deletedName);
-    const updatedList = ingredients.filter((_, i) => i !== index);
-    saveIngredients(updatedList);
+    const ingToDelete = ingredients[index];
+
+    // ลบจาก normal ingredients
+    const normalIngredients = getIngredientsFromLocalStorage().filter(ing => ing.ingredient_name !== ingToDelete.ingredient_name);
+    saveIngredientsToLocalStorage(normalIngredients);
+
+    // ลบจาก camera ingredients
+    const cameraIngredients = getCameraIngredientsFromLocalStorage().filter(ing => ing.ingredient_name !== ingToDelete.ingredient_name);
+    saveCameraIngredientsToLocalStorage(cameraIngredients);
+
+    // อัพเดต state
+    setIngredients(prev => prev.filter((_, i) => i !== index));
   };
 
+<<<<<<< HEAD
   const handleNavigateWithSave = (path) => {
     saveIngredientsToLocalStorage(ingredients);
     navigate(path);
@@ -123,6 +154,10 @@ const IngredientPreview = ({ updatedIngredients }) => {
 
   const handleAddIngredient = () => handleNavigateWithSave('/search');
   const handleBack = () => handleNavigateWithSave('/search');
+=======
+  const handleAddIngredient = () => navigate('/search');
+  const handleBack = () => navigate('/search');
+>>>>>>> refs/remotes/origin/main
 
   return (
     <>
@@ -143,7 +178,11 @@ const IngredientPreview = ({ updatedIngredients }) => {
                 }
                 const iconSrc = getIconForIngredientType(ingredient.ingredient_type);
                 return (
+<<<<<<< HEAD
                   <li key={ingredient.ingredient_name} className="ingredient-items">
+=======
+                  <li key={`${ingredient.ingredient_name}-${index}`} className="ingredient-items">
+>>>>>>> refs/remotes/origin/main
                     <img src={iconSrc} alt={`${ingredient.ingredient_type} icon`} className="ingredient-icon" />
                     {editIndex === index ? (
                       <>

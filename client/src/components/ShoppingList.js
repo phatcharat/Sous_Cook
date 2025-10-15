@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getShoppingListFromStorage, saveShoppingListToStorage } from '../utils/storageUtils';
 import { getUserId, isLoggedIn } from '../utils/auth';
 import "../css/ShoppingList.css";
@@ -8,20 +8,16 @@ import linemanLogo from '../image/shopping_list/Line_man.png';
 
 const ShoppingList = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const userId = getUserId();
 
   const [shoppingList, setShoppingList] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in
     if (!isLoggedIn()) {
       navigate('/login');
       return;
     }
-
-    // Load user-specific shopping list
     const savedList = getShoppingListFromStorage(userId);
     setShoppingList(savedList);
   }, [userId, navigate]);
@@ -29,8 +25,7 @@ const ShoppingList = () => {
   const handleRemoveItem = (index) => {
     const newList = shoppingList.filter((_, idx) => idx !== index);
     setShoppingList(newList);
-    // Save to user-specific storage
-    saveShoppingListToStorage(userId, newList);
+    saveShoppingListToStorage(newList);
   };
 
   return (
@@ -42,13 +37,13 @@ const ShoppingList = () => {
 
       {/* List Items */}
       <div className="shopping-items">
-        {shoppingList.length > 0 ? (
+        {Array.isArray(shoppingList) && shoppingList.length > 0 ? (
           shoppingList.map((item, idx) => (
             <div key={idx} className="shopping-card">
               <img src={item.image} alt={item.name} className="shopping-image" />
               <p>{item.name}</p>
-              <button 
-                className="remove-item" 
+              <button
+                className="remove-item"
                 onClick={() => handleRemoveItem(idx)}
               >
                 ×
@@ -61,7 +56,7 @@ const ShoppingList = () => {
       </div>
 
       {/* Order button */}
-      {shoppingList.length > 0 && (
+      {Array.isArray(shoppingList) && shoppingList.length > 0 && (
         <button className="order-button" onClick={() => setShowPopup(true)}>
           Order
         </button>
