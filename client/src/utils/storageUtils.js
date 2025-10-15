@@ -105,68 +105,9 @@ export const saveCameraIngredientsToLocalStorage = (ingredients) => {
     }
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-export const getDeletedIngredients = () => {
-    const userId = getUserId();
-    if (!userId) return [];
-    try {
-        const deleted = localStorage.getItem(`deletedIngredients_${userId}`);
-        return deleted ? JSON.parse(deleted) : [];
-    } catch (error) {
-        return [];
-    }
-};
-
-export const addDeletedIngredient = (ingredientName) => {
-    const userId = getUserId();
-    if (!userId) return;
-    try {
-        const deleted = getDeletedIngredients();
-        const name = ingredientName.trim().toLowerCase();
-        if (!deleted.includes(name)) {
-            localStorage.setItem(`deletedIngredients_${userId}`, JSON.stringify([...deleted, name]));
-        }
-    } catch (error) {}
-};
-
-export const getShoppingListFromStorage = () => {
-    const userId = getUserId();
-    if (!userId) return [];
-=======
 export const getShoppingListFromStorage = (userId) => {
     const uid = userId || getUserId();
     if (!uid) return [];
->>>>>>> refs/remotes/origin/main
-=======
-export const getShoppingListFromStorage = (userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return [];
->>>>>>> refs/remotes/origin/main
-=======
-export const getShoppingListFromStorage = (userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return [];
->>>>>>> refs/remotes/origin/main
-=======
-export const getShoppingListFromStorage = (userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return [];
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-export const getShoppingListFromStorage = (userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return [];
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-export const getShoppingListFromStorage = (userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return [];
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
     try {
         const list = localStorage.getItem(`shoppingList_${uid}`);
         return list ? JSON.parse(list) : [];
@@ -176,45 +117,9 @@ export const getShoppingListFromStorage = (userId) => {
     }
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-export const saveShoppingListToStorage = (items) => {
-    const userId = getUserId();
-    if (!userId) return;
-=======
 export const saveShoppingListToStorage = (items, userId) => {
     const uid = userId || getUserId();
     if (!uid) return;
->>>>>>> refs/remotes/origin/main
-=======
-export const saveShoppingListToStorage = (items, userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return;
->>>>>>> refs/remotes/origin/main
-=======
-export const saveShoppingListToStorage = (items, userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return;
->>>>>>> refs/remotes/origin/main
-=======
-export const saveShoppingListToStorage = (items, userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return;
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-export const saveShoppingListToStorage = (items, userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return;
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
-=======
-export const saveShoppingListToStorage = (items, userId) => {
-    const uid = userId || getUserId();
-    if (!uid) return;
->>>>>>> f0c87adfa7b8263d9d277d0d7c30a0329dd0892c
     try {
         localStorage.setItem(`shoppingList_${uid}`, JSON.stringify(items));
     } catch (error) {

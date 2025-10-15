@@ -50,7 +50,7 @@ function App() {
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
         <Route path="/new-password" element={<Newpassword/>}/>
-        <Route path="/menu-detail/:index/reviews" element={<MenuReview />} />
+        <Route path="/reviews" element={<MenuReview />} />
         <Route path="/shoppinglist" element={<ShoppingList />} />
         <Route path="/camera-share-dish" element={<CameraSharedDish />} />
         <Route path="/community" element={<Community />} />
