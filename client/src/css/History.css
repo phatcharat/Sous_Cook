@@ -33,6 +33,10 @@
     position: relative;
 }
 
+.meal-lists {
+  padding: 0 1.5rem;
+}
+
 .meal-content {
     display: flex;
     align-items: center; /* Use center here as well */

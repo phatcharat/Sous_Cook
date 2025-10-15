@@ -104,7 +104,7 @@ const HistoryScreen = () => {
             <div className="header">
                 <h1 className="title-meal">History</h1>
             </div>
-
+            <div className="meal-lists">
             {historyItems.length === 0 ? (
                 <div className="no-history-message">
                     <p>No history found. Start exploring some menus!</p>
@@ -138,6 +138,7 @@ const HistoryScreen = () => {
                     ))}
                 </div>
             )}
+            </div>
         </div>
     );
 };
