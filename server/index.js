@@ -1,4 +1,5 @@
 // server/index.js
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -102,14 +103,14 @@ const limiter = new Bottleneck({
 const endaman_app_id = process.env.EDAMAN_APP_ID;
 const endaman_api_key = process.env.EDAMAN_API_KEY;
 
-require('dotenv').config();
+// require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5050;
-const server_ip = process.env.SERVER_IP || '127.0.0.1';
+const server_ip = process.env.SERVER_IP || '0.0.0.0';
 
 app.use(cors({
-  origin: ['http://localhost:3000', `http://localhost:5050`, `http://127.0.0.1:3000`, `http://127.0.0.1:5050`],
+  origin: ['http://localhost:3000', `http://127.0.0.1:3000`,  `https://souscook-production.up.railway.app`],
   credentials: true,
 }));
 
@@ -1739,6 +1740,6 @@ app.post('/api/community/:post_id/like', async (req, res) => {
 });
 
 // Start the server
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on ${port}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
