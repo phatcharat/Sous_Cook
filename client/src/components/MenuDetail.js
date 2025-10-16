@@ -13,6 +13,7 @@ import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
 import Camera from './CameraSharedDish';
 import logo from '../image/Logo1.svg';
+import defaultProfile from '../image/profile.jpg';
 
 const MenuDetail = () => {
     const navigate = useNavigate();
@@ -47,7 +48,50 @@ const MenuDetail = () => {
     const [ignoreSharedDish, setIgnoreSharedDish] = useState(false); 
     
     // for review
-    const [avgRating, setRating] = useState(0);
+    // const [avgRating, setRating] = useState(0);
+    const [ratings, setRating] = useState({
+        sum_rating: 0,
+        avg_rating: 0,
+        rate_5: 0,
+        rate_4: 0,
+        rate_3: 0,
+        rate_2: 0,
+        rate_1: 0,
+        percent_rate_5: 0,
+        percent_rate_4: 0,
+        percent_rate_3: 0,
+        percent_rate_2: 0,
+        percent_rate_1: 0
+    });
+
+    const [review, setReview] = useState({
+        menu_id: '',
+        comment: '',
+        rating: '',
+        created_at: '',
+        updated_at: '',
+        username: '',
+        avatar: '',
+        avatar_url: defaultProfile
+    });
+
+    const [formReview, setReviewData] = useState({
+        user_id: '',
+        menu_id: '',
+        comment: '',
+        rating: ''
+    });
+
+    const [userData, setUserData] = useState({
+        username: '',
+        avatar: '',
+        avatar_url: defaultProfile
+    });   
+
+    const [hasReviewed, setHasReview] = useState(false);
+    const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+
+    const userId = getUserId();
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
@@ -216,6 +260,95 @@ const MenuDetail = () => {
         setIngredients(storedIngredients);
     }, []);
 
+    // Change Review
+    const handleChangeReview = (e) => {
+        setReviewData({ ...formReview, [e.target.name]: e.target.value });
+    };
+
+    // Submit Review
+    const handleReview = async (e) => {
+        e.preventDefault();
+
+        setReviewData(prevData => ({
+            ...prevData,
+            user_id: parseInt(userId, 10),
+            menu_id: actualMenuId
+        }));
+
+        // console.log("information of formReview", formReview);
+
+        const rating_int = parseInt(formReview.rating, 10);
+        console.log('has review?', hasReviewed);
+
+        if (hasReviewed) {
+            setShowUpdatePopup(true); 
+        } else {
+            if (rating_int < 1 || rating_int > 5) {
+            console.error("rate should be in 1 - 5")
+            return;
+        }
+
+        if (!actualMenuId) {
+            console.error("Cannot submit review: menu_id is missing.");
+            // setError("Menu ID not set. Please refresh."); // ถ้าคุณมี setError
+            return; 
+        }
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${actualMenuId}/reviews`, formReview);
+            setReviewData({
+                comment: '',
+                rating: ''
+            });
+            fetchReviewData(); 
+        } catch (error) {
+            console.error('Error for post review:', error);
+        }
+        }
+        
+    };
+
+    const handleUpdateReview = async (e) => {
+        e.preventDefault();
+            try {
+                const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/reviews`, formReview);
+                // setUpdate(false);
+                setShowUpdatePopup(false);
+                setReviewData({
+                    comment: '',
+                    rating: ''
+                });
+                fetchReviewData(); 
+            } catch (error) {
+                console.error('Error for put review:', error);
+            }
+    };
+
+    // Fetch User data
+    useEffect(() => {
+        if (!userId || isNaN(userId)) {
+            console.error('Invalid userId:', userId);
+            navigate('/login');
+            return;
+        }
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/${userId}`);
+                const user = response.data.user;        
+                setUserData(user);
+                if (user.avatar_url) {
+                    setUserData(prevData => ({
+                        ...prevData,
+                        avatar_url: `${user.avatar_url}?t=${Date.now()}` // แล้วอัปเดตเฉพาะ avatar_url
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+        
+        fetchUserData();
+    }, [userId, navigate]);
 
     // Fetch menu if coming from History
     useEffect(() => {
@@ -367,7 +500,7 @@ const MenuDetail = () => {
         }
     }, [sharedDishImage, ignoreSharedDish, isSubmitting]);
 
-    // fetch review
+    // Fetch review
     const fetchReviewData = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${actualMenuId}/reviews`);
@@ -376,9 +509,31 @@ const MenuDetail = () => {
                 console.error("Backend did not return a valid menu_id.");
                 return; 
             }
-            setRating(avg_rating);
+            setReview(reviews[0]);
+            setRating({
+                review_lenght: reviews.length,
+                sum_rating: sum_rating || 0,
+                avg_rating: avg_rating || 0,
+                rate_5: rate_5 || 0,
+                rate_4: rate_4 || 0,
+                rate_3: rate_3 || 0,
+                rate_2: rate_2 || 0,
+                rate_1: rate_1 || 0,
+                percent_rate_5: (reviews.length > 0 ? (rate_5 / reviews.length) * 100 : 0),
+                percent_rate_4: (reviews.length > 0 ? (rate_4 / reviews.length) * 100 : 0),
+                percent_rate_3: (reviews.length > 0 ? (rate_3 / reviews.length) * 100 : 0),
+                percent_rate_2: (reviews.length > 0 ? (rate_2 / reviews.length) * 100 : 0),
+                percent_rate_1: (reviews.length > 0 ? (rate_1 / reviews.length) * 100 : 0)
+            });
+            const foundReview = reviews && Array.isArray(reviews) ? 
+            reviews.some(review_find => String(review_find.user_id) === userId) : false; 
+            setHasReview(foundReview);
+            console.log('check has review in fetch', foundReview, userId)
+            // console.log('type of userId:', typeof userId);
+
         } catch (error) {
             console.error('Error fetching review data:', error);
+            
         }
     };
 
@@ -611,11 +766,174 @@ const MenuDetail = () => {
                         <img src={logo} id="logo-review" alt="Sous Cook Logo"/>
                         <div className="caption-review">Review this recipe</div>
                         <div className="star-rating menu-rate">
-                            {renderStars(avgRating)}
+                            {renderStars(ratings.avg_rating)}
                         </div>
                     </div>
                 </div>  
-                <button className="go-review-button" 
+
+                <div className="review-container menu-detail-review-container">
+                    <div className="rw-rt">
+                        <div className="rw">{ratings.review_lenght} reviews</div>
+                        <div className="rt">{ratings.sum_rating} ratings</div>
+                    </div>
+                    <div className="detail-rating">
+                        <div className="left-rating">
+                            <div className="rating-this-menu">{ratings.avg_rating}</div>
+                            <div>out of 5</div>
+                        </div>
+                        <div className="right-rating">
+                            {/* <div className="row"> */}
+                            <div className="row-rate-right">
+                                <div className="right-star">
+                                    {renderStars(5)}
+                                </div>
+                                <div className="all-rate">
+                                    <div className="progress-bar-rate">
+                                        <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_5}%`}}></div>
+                                    </div>
+                                    
+                                </div>
+                                <div className="num-rate">
+                                    <div className="num-review">{ratings.rate_5}</div>
+                                </div>
+                            </div>
+                            <div className="row-rate-right">
+                                <div className="right-star">
+                                    {renderStars(4)}
+                                </div>
+                                <div className="all-rate">
+                                    <div className="progress-bar-rate">
+                                        <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_4}%`}}></div>
+                                    </div>
+                                    
+                                </div>
+                                <div className="num-rate">
+                                    <div className="num-review">{ratings.rate_4}</div>
+                                </div>
+                            </div>
+                            <div className="row-rate-right">
+                                <div className="right-star">
+                                    {renderStars(3)}
+                                </div>
+                                <div className="all-rate">
+                                    <div className="progress-bar-rate">
+                                        <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_3}%`}}></div>
+                                    </div>
+                                    
+                                </div>
+                                <div className="num-rate">
+                                    <div className="num-review">{ratings.rate_3}</div>
+                                </div>
+                            </div>
+                            <div className="row-rate-right">
+                                <div className="right-star">
+                                    {renderStars(2)}
+                                </div>
+                                <div className="all-rate">
+                                    <div className="progress-bar-rate">
+                                        <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_2}%`}}></div>
+                                    </div>
+                                    
+                                </div>
+                                <div className="num-rate">
+                                    <div className="num-review">{ratings.rate_2}</div>
+                                </div>
+                            </div>
+                            <div className="row-rate-right">
+                                <div className="right-star">
+                                    {renderStars(1)}
+                                </div>
+                                <div className="all-rate">
+                                    <div className="progress-bar-rate">
+                                        <div className="percent-progress-bar" style={{ width: `${ratings.percent_rate_1}%`}}></div>
+                                    </div>
+                                    
+                                </div>
+                                <div className="num-rate">
+                                    <div className="num-review">{ratings.rate_1}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr></hr>
+
+                        <div className="review-profile">
+                            <div className="review-pro-pic">
+                                {showProfle(review)}
+                            </div>
+                            <div className="review-pro-rate">
+                                <div className="review-username">{review.username}</div>
+                                <div className="review-rate my-rate">
+                                    <div className="star-rating all-users-review">
+                                        {renderStars(review.rating)}
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                        <div className="comment-box">
+                            <div className="review-text">{review.comment}</div>
+                            {showDate(review)}
+                        </div>
+
+                        <hr></hr>
+
+                        <form className="review-form" onSubmit={handleReview}>
+                            <div className="review-profile">
+                                <div className="review-pro-pic">
+                                    <img
+                                        src={userData.avatar_url
+                                            ? `${userData.avatar_url}`
+                                            : defaultProfile
+                                        }
+                                        className="my-review-pro"
+                                        alt="avatar"
+                                    />
+                                </div>
+                                <div className="review-pro-rate">
+                                    <div className="review-username">{userData.username}</div>
+                                    <div className="review-rate my-rate">
+                                        <div className="star-rating">
+                                            <input type="radio" name="rating" value={'5'} id="star5" checked={formReview.rating === '5'} onChange={handleChangeReview}/><label for="star5"></label>
+                                            <input type="radio" name="rating" value={'4'} id="star4" checked={formReview.rating === '4'} onChange={handleChangeReview}/><label for="star4"></label>
+                                            <input type="radio" name="rating" value={'3'} id="star3" checked={formReview.rating === '3'} onChange={handleChangeReview}/><label for="star3"></label>
+                                            <input type="radio" name="rating" value={'2'} id="star2" checked={formReview.rating === '2'} onChange={handleChangeReview}/><label for="star2"></label>
+                                            <input type="radio" name="rating" value={'1'} id="star1" checked={formReview.rating === '1'} onChange={handleChangeReview}/><label for="star1"></label>
+                                        </div>
+                                    </div> 
+                                </div>
+                            </div>
+                            <div className="review-message-box">
+                                <textarea name="comment" placeholder="Add a comment..." id="review-message-textarea" value={formReview.comment} onChange={handleChangeReview}></textarea>
+                            </div>
+                            <div className="review-button-box">
+                                <button type="submit" className="post-review-button">Post</button>
+                            </div>
+                        </form>
+                        {showUpdatePopup && (
+                            <div className="popup-overlay">
+                                <div className="popup-content">
+                                    <h2>Update Reiview</h2>
+                                    <p>Are you sure you want to update your review?</p>
+                                    <div className="popup-buttons">
+                                        <button
+                                            className="cancel-button-review"
+                                            onClick={() => setShowUpdatePopup(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            className="confirm-button-review"
+                                            onClick={handleUpdateReview}
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+              )}  
+                </div>
+                <button className="go-community-button" 
                     onClick={() => navigate('/reviews', { state: { menu_id: actualMenuId } })}
                     >
                     See All Reviews
@@ -694,6 +1012,32 @@ const renderStars = (rate) => {
         >
         </span>
     ));
+};
+
+const showProfle = (review) => {
+    let final_profile = defaultProfile;
+    let avatarUrl = `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}`
+    final_profile = `${avatarUrl}?t=${Date.now()}`;
+    return  (
+        <img
+            src={final_profile
+            ? `${final_profile}`
+            : defaultProfile
+            }  
+            className="my-review-pro"
+            alt="avatar"
+        />
+    );
+};
+
+const showDate = (review) => {
+    if (review.updated_at) {
+        review.updated_at = review.updated_at.split('T')[0];
+        return (<div className="show-date-review">{review.updated_at}</div>);
+    } else {
+        review.created_at = review.created_at.split('T')[0];
+        return (<div className="show-date-review">{review.created_at}</div>);
+    }
 };
 
 export default MenuDetail;

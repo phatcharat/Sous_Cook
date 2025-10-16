@@ -125,6 +125,7 @@ const MenuReview = () => {
             const foundReview = reviews && Array.isArray(reviews) ? 
             reviews.some(review => review.user_id === userId) : false; 
             setHasReview(foundReview);
+            console.log('check has review in fetch', foundReview, userId)
 
         } catch (error) {
             console.error('Error fetching review data:', error);

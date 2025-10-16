@@ -19,6 +19,3 @@ credentials.json
 
 #File in macOS
 .DS_Store
-
-# Ignore all user-uploaded files to avoid permission and repo size issues
-server/uploads/

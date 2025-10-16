@@ -138,6 +138,10 @@
 
 }
 
+.menu-detail-review-container {
+    margin-bottom: 1rem;
+}
+
 .rw-rt {
     display: flex;
     flex-direction: row;
@@ -408,6 +412,12 @@ hr {
     background-color: #FFFDF6;
     border: none;
     padding: none;
+    align-self: end;
+    /* font-size: 12px; */
+    /* align-self: end; */
+    margin-right: 0;
+    /* display: flex; */
+    /* justify-self: end; */
 }
 
 .popup-overlay {
@@ -444,12 +454,14 @@ hr {
 .cancel-button-review, .confirm-button-review {
     border: none;
     border-radius: 10px;
-    height: 30px;
+    height: 40px;
+    width: 70px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     background-color: #e0e0e0;
     color: #333;
+    margin: 1rem;
 }
 
 .confirm-button-review {
