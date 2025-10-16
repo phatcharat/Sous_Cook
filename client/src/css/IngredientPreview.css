@@ -13,6 +13,14 @@
   font-size: 1.75vh;
 }
 /* Header styling */
+.menu-header-container h1 {
+    font-size: 2.5vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-family: 'Manrope', sans-serif;
+}
+
 .ingredient-header {
   font-family: 'Manrope', sans-serif;
   text-align: center;

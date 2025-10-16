@@ -11,61 +11,65 @@ const MenuSuggestion = () => {
   const [recommendations, setRecommendations] = useState([]);
   const navigate = useNavigate();
 
-  const saveMenuToDB = async (menu) => {
-    try {
-      const savedMenus = JSON.parse(localStorage.getItem("savedMenus") || "[]");
+const saveMenuToDB = async (menu) => {
+  try {
+    // First, check if menu already exists by name
+    const existingMenu = await axios.get(
+      `${process.env.REACT_APP_BACKEND_URL}/menus/by-name/${encodeURIComponent(menu.menu_name)}`
+    ).catch(() => null); // Return null if not found
 
-      if (savedMenus.includes(menu.menu_name)) {
-        console.log(`${menu.menu_name} already saved, skipping.`);
-        return menu;
-      }
-
-      const payload = {
-        menu_name: menu.menu_name,
-        prep_time: menu.prep_time || null,
-        cooking_time: menu.cooking_time || null,
-        steps: menu.steps || [],
-        ingredients_quantity: menu.ingredients_quantity || [],
-        ingredients_type: menu.ingredients_type || [],
-        nutrition: menu.nutrition || [],
-        image: menu.image || null,
-      };
-
-      const res = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/menus`,
-        payload
-      );
-
-      console.log("Save menu response:", res.data);
-
-      // เพิ่ม menu_id ที่ได้จาก DB เข้าไปใน object
-      const menuWithId = { ...menu, menu_id: res.data.id };
-
-      // update localStorage
-      localStorage.setItem(
-        "savedMenus",
-        JSON.stringify([...savedMenus, menu.menu_name])
-      );
-
-      return menuWithId;
-    } catch (err) {
-      console.error("Error saving menu to DB:", err);
-      return menu; // ถ้า error ก็ส่ง menu เดิมกลับไป
+    if (existingMenu?.data?.menu_id) {
+      console.log(`Menu "${menu.menu_name}" already exists with ID: ${existingMenu.data.menu_id}`);
+      return { ...menu, menu_id: existingMenu.data.menu_id };
     }
-  };
+
+    // If not exists, create new
+    const payload = {
+      menu_name: menu.menu_name,
+      prep_time: menu.prep_time || null,
+      cooking_time: menu.cooking_time || null,
+      steps: menu.steps || [],
+      ingredients_quantity: menu.ingredients_quantity || [],
+      ingredients_type: menu.ingredients_type || [],
+      nutrition: menu.nutrition || [],
+      tips: menu.tips || [],
+      image: menu.image || null,
+    };
+
+    const res = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/menus`,
+      payload
+    );
+
+    console.log("Save menu response:", res.data);
+
+    if (res.data && res.data.menu && res.data.menu.menu_id) {
+      return { ...menu, menu_id: res.data.menu.menu_id };
+    }
+
+    return menu;
+
+  } catch (err) {
+    console.error("Error saving menu to DB:", err);
+    return menu;
+  }
+};
 
   useEffect(() => {
     const storedRecommendations = getMenuFromLocalStorage();
     console.log("storedRecommendations:", storedRecommendations);
 
     if (storedRecommendations && storedRecommendations.menus && Array.isArray(storedRecommendations.menus)) {
-      // Directly set the recommendations to state to show the UI faster
-      setRecommendations(storedRecommendations.menus);
-
-      // Then, save each menu to the DB and update the state with the menu_id
+      // Save menus to DB and get IDs, then set state once
       Promise.all(storedRecommendations.menus.map(menu => saveMenuToDB(menu)))
-        .then((savedMenus) => {
-          setRecommendations(savedMenus);
+        .then((menusWithIds) => {
+          setRecommendations(menusWithIds);
+          console.log("Recommendations with IDs:", menusWithIds);
+        })
+        .catch(err => {
+          console.error("Error processing recommendations:", err);
+          // Fallback to showing menus without IDs
+          setRecommendations(storedRecommendations.menus);
         });
     } else {
       console.error("Recommendations are not in a valid format:", storedRecommendations);
@@ -73,16 +77,19 @@ const MenuSuggestion = () => {
     }
   }, []);
 
-  const goToMenuDetail = async (menu) => {
-    try {
-      // 1. ดึง menu_id จาก DB
-      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/menus/by-name/${encodeURIComponent(menu.menu_name)}`);
-      const menuFromDB = res.data; // { menu_id, menu_name }
-
-      // 2. navigate ไป MenuDetail พร้อม menu_id
-      navigate('/menu-detail', { state: { menu, menu_id: menuFromDB.menu_id } });
-    } catch (err) {
-      console.error('Cannot get menu_id from DB', err);
+  const goToMenuDetail = (menu) => {
+    // The menu_id should now be present in the menu object.
+    if (menu.menu_id) {
+      navigate('/menu-detail', { state: { menu, menu_id: menu.menu_id } });
+    } else {
+      console.error('Cannot navigate to details, menu_id is missing.', menu);
+      // Optional: Fallback to fetch by name if ID is still missing for some reason
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/menus/by-name/${encodeURIComponent(menu.menu_name)}`)
+        .then(res => {
+          const menuFromDB = res.data;
+          navigate('/menu-detail', { state: { menu, menu_id: menuFromDB.menu_id } });
+        })
+        .catch(err => console.error('Fallback to get menu_id from DB failed', err));
     }
   };
 

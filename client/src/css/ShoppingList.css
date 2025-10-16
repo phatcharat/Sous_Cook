@@ -14,6 +14,12 @@
   flex-wrap: nowrap;
 }
 
+.shopping-header h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.5vh;
+
+}
+
 .back-button {
   background: none;
   border: none;
@@ -107,7 +113,7 @@
 }
 
 .sponsor-button img {
-  width: 120px;
+  width: 100px;
   height: 80px;
   object-fit: contain;
 }

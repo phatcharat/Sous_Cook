@@ -7,7 +7,7 @@ import checkboxOncheck from '../image/menu-detail/Checkbox_check.svg';
 import axios from 'axios';
 import unknowIngImage from '../image/ingredient/unknow-ingredient.svg';
 import unknowMenuImage from '../image/menu-suggestion/notfound-image.svg';
-import tips from '../image/menu-detail/tips.svg'
+import tipscheck from '../image/menu-detail/tips.svg'
 import { getUserId } from '../utils/auth';
 import favorite from '../image/menu-detail/heart-filled.svg';
 import notfavorite from '../image/menu-detail/heart-outline.svg';
@@ -684,10 +684,17 @@ const MenuDetail = () => {
                 <h2>Tips</h2>
                 <div className="tips-container">
                     {menuData.tips?.length > 0 ? (
-                        <ul>
-                            {menuData.tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
+                        <ul className="tips-list">
+                            {menuData.tips.map((tip, idx) => (
+                                <li key={idx} className="tip-item">
+                                    <img src={tipscheck} alt="tip icon" className="tip-icon" />
+                                    <span>{tip}</span>
+                                </li>
+                            ))}
                         </ul>
-                    ) : <p>No tips needed, just follow along and bon appétit!</p>}
+                    ) : (
+                        <p>No tips needed, just follow along and bon appétit!</p>
+                    )}
                 </div>
 
                 <h2>Nutrition (per serving)</h2>
