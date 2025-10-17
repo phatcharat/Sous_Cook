@@ -14,7 +14,7 @@ const multer = require('multer');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcrypt');
 const googleAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
+const cookieParser = require('cookie-parser');
 // db
 const pool = require('./db');
 const { DESTRUCTION } = require('dns');
@@ -109,17 +109,16 @@ const app = express();
 const port = process.env.PORT || 5050;
 const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 
+app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
+
 app.use(cors({
   origin: ['http://localhost:3000', `http://127.0.0.1:3000`,  `https://souscook-production.up.railway.app`],
   credentials: true,
 }));
 
-app.use(express.json({ limit: '50mb' }));
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
-app.use(express.static(path.join(__dirname, 'client_build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client_build', 'index.html'));
-});
+
 app.use('/uploads/avatars', express.static(UPLOAD_DIR));
 
 // POST signup
@@ -1738,6 +1737,11 @@ app.post('/api/community/:post_id/like', async (req, res) => {
     console.error('Error toggling like:', err);
     res.status(500).json({ error: 'Failed to toggle like' });
   }
+});
+
+app.use(express.static(path.join(__dirname, 'client_build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client_build', 'index.html'));
 });
 
 // Start the server
