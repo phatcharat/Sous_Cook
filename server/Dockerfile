@@ -18,10 +18,10 @@ RUN npm install
 
 # Copy the rest of your application code
 COPY . .
-COPY ../client/build ./client/build
+COPY /client/build ./client/build
 
 # Expose the port
 EXPOSE 5050
 
 # Start the application
-CMD ["npx", "nodemon", "index.js"]
+CMD ["npx", "index.js"]
