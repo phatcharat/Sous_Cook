@@ -4,14 +4,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Copy the rest of your application code
+COPY . .
+
 # Copy package.json only
 COPY package.json ./
 
 # Install dependencies
 RUN npm install
-
-# Copy the rest of your application code
-COPY . .
 
 # Expose the port
 EXPOSE 5050
