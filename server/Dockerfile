@@ -4,12 +4,6 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Set NPM registry to the official NPM registry
-RUN npm config set registry https://registry.npmjs.org/
-
-# Clean NPM cache
-RUN npm cache clean --force
-
 # Copy package.json only
 COPY package.json ./
 

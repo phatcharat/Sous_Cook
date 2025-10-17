@@ -17,7 +17,6 @@ const googleAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // db
 const pool = require('./db');
-const { DESTRUCTION } = require('dns');
 
 // File Storage Configuration
 
@@ -102,8 +101,6 @@ const limiter = new Bottleneck({
 
 const endaman_app_id = process.env.EDAMAN_APP_ID;
 const endaman_api_key = process.env.EDAMAN_API_KEY;
-
-// require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5050;
@@ -780,7 +777,6 @@ app.get('/api/users/:user_id/monthly-meal-stats', async (req, res) => {
 });
 
 app.post('/api/menu-detail/:menuId/reviews', async (req, res) => {
-  // const user_id = req.user.id;
   try {
     const { user_id, menu_id, comment, rating } = req.body;
     const menu_idNumber = parseInt(menu_id, 10);
@@ -809,7 +805,6 @@ app.get('/api/menu-detail/:menuId/reviews', async (req, res) => {
   const menuId = parseInt(menuIdStr, 10);
 
   try {
-    // const menu_result = await pool.query("SELECT menu_id FROM menus OFFSET $1 LIMIT 1;", [intIndex]);
     if (!menuId) {
       return res.status(404).send({ message: "Menu not found at this index." });
     }
@@ -843,7 +838,7 @@ app.get('/api/menu-detail/:menuId/reviews', async (req, res) => {
       ...summaryData
     });
 
-  } catch {
+  } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: 'Server error' });
   }
@@ -878,7 +873,6 @@ app.delete('/api/:menuId/:userId/reviews', async (req, res) => {
     const menu_idNumber = parseInt(menuId, 10);
     const user_idNumber = parseInt(userId, 10);
 
-    // Soft delete 
     const result = await pool.query(
       'DELETE FROM review WHERE user_id = $1 AND menu_id = $2',
       [user_idNumber, menu_idNumber]
@@ -891,8 +885,6 @@ app.delete('/api/:menuId/:userId/reviews', async (req, res) => {
   }
 });
 
-//
-//
 // POST endpoint to handle image uploads
 app.post('/api/upload', async (req, res) => {
   const { image } = req.body;
@@ -902,18 +894,14 @@ app.post('/api/upload', async (req, res) => {
   }
 
   try {
-    // Decode base64 image and save it temporarily
     const imageBuffer = Buffer.from(image.split(',')[1], 'base64');
     const imagePath = path.join(__dirname, 'uploads', 'captured_image.jpg');
     fs.writeFileSync(imagePath, imageBuffer);
 
-    // Detect ingredients using Vision API
     const ingredients = await classifyCroppedImage(imagePath);
 
-    // Clean up the image file after processing
     fs.unlinkSync(imagePath);
 
-    // Return detected ingredients
     res.json({ ingredients });
   } catch (error) {
     console.error('Error processing image:', error);
@@ -943,25 +931,18 @@ app.post('/api/menu-recommendations', async (req, res) => {
   }
 });
 
-
-
 async function detectIngredients(imagePath) {
   try {
-    // Perform object localization to detect objects in the image
     const [result] = await client.objectLocalization(imagePath);
     const objects = result.localizedObjectAnnotations;
 
     const classifiedObjects = [];
 
-    // Process each detected object
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i];
 
       try {
-        // Crop the image based on the bounding box
         const croppedImagePath = await cropImage(imagePath, object, i);
-
-        // Classify the cropped image using GPT
         const classificationResult = await classifyCroppedImage(croppedImagePath);
 
         if (classificationResult) {
@@ -994,7 +975,6 @@ async function cropImage(imagePath, object, index) {
     const width = Math.floor((normalizedVertices[2].x - normalizedVertices[0].x) * imageMetadata.width);
     const height = Math.floor((normalizedVertices[2].y - normalizedVertices[0].y) * imageMetadata.height);
 
-    // Validate dimensions before cropping
     if (
       x_min >= 0 &&
       y_min >= 0 &&
@@ -1019,10 +999,8 @@ async function cropImage(imagePath, object, index) {
 
 async function classifyCroppedImage(imagePath) {
   try {
-    // Encode the image to base64
     const base64Image = encodeImage(imagePath);
 
-    // Define the prompt with the categories and instructions
     const prompt = `
       You are an AI that classifies ingredients in images based on the image provided.
   
@@ -1063,7 +1041,6 @@ async function classifyCroppedImage(imagePath) {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     };
 
-    // Payload for the OpenAI API
     const payload = {
       model: 'gpt-4o-mini',
       messages: [
@@ -1087,7 +1064,6 @@ async function classifyCroppedImage(imagePath) {
       temperature: 0.2,
     };
 
-    // Sending the request to OpenAI
     const response = await axios.post('https://api.openai.com/v1/chat/completions', payload, { headers });
 
     const jsonMatch = response.data.choices[0].message.content.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
@@ -1108,7 +1084,6 @@ async function classifyCroppedImage(imagePath) {
 async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences, mealOccasions) {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-  // Safely map the ingredients list and ensure they have a valid 'name' property
   const ingredientsList = ingredients;
 
   if (ingredientsList.length === 0) {
@@ -1128,17 +1103,15 @@ async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences,
       max_tokens: 10000,
     });
 
-    const responseContent = response.choices[0].message.content; // Extract the content from the response
-    console.log("GPT-4o-mini response:", responseContent); // Log the full response to debug
+    const responseContent = response.choices[0].message.content;
+    console.log("GPT-4o-mini response:", responseContent);
 
-    // Extract JSON between <JSON_START> and <JSON_END>
     const jsonMatch = responseContent.match(/<JSON_START>([\s\S]*?)<JSON_END>/);
     if (jsonMatch) {
       const jsonString = jsonMatch[1].trim();
       try {
         const recommendations = JSON.parse(jsonString);
 
-        // Add images to the menus
         recommendations.menus = await addImagesToMenus(recommendations.menus);
 
         return recommendations;
@@ -1152,7 +1125,6 @@ async function getMenuRecommendations(ingredients, cuisines, dietaryPreferences,
     console.error('Error getting menu recommendations:', error);
   }
 }
-
 
 function createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mealOccasionsList) {
   return `
@@ -1218,7 +1190,6 @@ function createPrompt(ingredientsList, cuisinesList, dietaryPreferencesList, mea
     `;
 }
 
-// Function to encode image to base64
 function encodeImage(imagePath) {
   const imageBuffer = fs.readFileSync(imagePath);
   return imageBuffer.toString('base64');
@@ -1239,7 +1210,6 @@ const addImagesToMenus = async (menus) => {
 
 const fetchImageForMenu = limiter.wrap(async (menuName) => {
   try {
-    // Updated to API v2 endpoint
     const response = await fetch(
       `https://api.edamam.com/api/recipes/v2?type=public&q=${encodeURIComponent(menuName)}&app_id=${endaman_app_id}&app_key=${endaman_api_key}&imageSize=REGULAR`
     );
@@ -1263,7 +1233,6 @@ const fetchImageForMenu = limiter.wrap(async (menuName) => {
   }
 });
 
-// POST endpoint for /get_ingredient_image
 app.post('/api/get_ingredient_image', async (req, res) => {
   try {
     const ingredients = req.body.ingredients;
@@ -1274,16 +1243,13 @@ app.post('/api/get_ingredient_image', async (req, res) => {
 
     let results = [];
 
-    // Use the limiter for each ingredient request
     const promises = ingredients.map((ingredient) =>
       limiter.schedule(() => getIngredientImage(ingredient))
         .then((imageUrl) => ({ ingredient, imageUrl }))
     );
 
-    // Wait for all promises to resolve
     results = await Promise.all(promises);
     console.log(`ingredient_image : ${JSON.stringify(results)}`);
-    // Send the response
     res.json(results);
   } catch (error) {
     console.error('Error fetching ingredient images:', error.message);
@@ -1291,12 +1257,11 @@ app.post('/api/get_ingredient_image', async (req, res) => {
   }
 });
 
-
 async function getIngredientImage(ingredient) {
   const url = `https://api.spoonacular.com/food/ingredients/search`;
 
   const params = {
-    query: ingredient, // Search for the ingredient
+    query: ingredient,
     apiKey: process.env.SPOONACULAR_API_KEY,
   };
 
@@ -1305,7 +1270,6 @@ async function getIngredientImage(ingredient) {
     const data = response.data;
 
     if (data.results && data.results.length > 0) {
-      // Get the first result and construct image URL
       const ingredientData = data.results[0];
       const imageUrl = `https://spoonacular.com/cdn/ingredients_100x100/${ingredientData.image}`;
       console.log(`Found image for ingredient "${ingredient}": ${imageUrl}`);
@@ -1320,9 +1284,6 @@ async function getIngredientImage(ingredient) {
   }
 }
 
-module.exports = { getIngredientImage };
-
-// This is the endpoint called from MenuSuggestion.js
 app.post("/api/menus", async (req, res) => {
   try {
     const {
@@ -1378,7 +1339,6 @@ app.post("/api/menus", async (req, res) => {
   }
 });
 
-//Get menu by ID
 app.get('/api/menus/:menuId', async (req, res) => {
   try {
     const { menuId } = req.params;
@@ -1404,7 +1364,6 @@ app.get('/api/menus/:menuId', async (req, res) => {
   }
 });
 
-// Get menu by name
 app.get('/api/menus/by-name/:menu_name', async (req, res) => {
   try {
     const { menu_name } = req.params;
@@ -1416,14 +1375,13 @@ app.get('/api/menus/by-name/:menu_name', async (req, res) => {
 
     if (result.rows.length === 0) return res.status(404).json({ error: 'Menu not found' });
 
-    res.json(result.rows[0]); // { menu_id, menu_name }
+    res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Save history
 app.post('/api/history', async (req, res) => {
   try {
     const { user_id, menu_id } = req.body;
@@ -1447,7 +1405,6 @@ app.post('/api/history', async (req, res) => {
   }
 });
 
-// Get history by user_id
 app.get('/api/history/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
@@ -1475,7 +1432,6 @@ app.get('/api/history/:user_id', async (req, res) => {
   }
 });
 
-// เพิ่มเมนูเข้า favorite
 app.post('/api/favorites', async (req, res) => {
   try {
     const { user_id, menu_id } = req.body;
@@ -1499,7 +1455,6 @@ app.post('/api/favorites', async (req, res) => {
   }
 });
 
-// ลบเมนูออกจาก favorite
 app.delete('/api/favorites', async (req, res) => {
   try {
     const { user_id, menu_id } = req.body;
@@ -1520,7 +1475,6 @@ app.delete('/api/favorites', async (req, res) => {
   }
 });
 
-// ดึงเมนู favorite ของ user
 app.get('/api/favorites/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -1541,7 +1495,6 @@ app.get('/api/favorites/:userId', async (req, res) => {
   }
 });
 
-// POST endpoint to analyze ingredients for allergies using GPT
 app.post('/api/analyze-allergies', async (req, res) => {
   try {
     const { ingredients, allergies } = req.body;
@@ -1582,10 +1535,8 @@ If no allergens are found, return: {"alerts": []}
 
     const content = response.choices[0].message.content.trim();
 
-    // Try to parse the JSON response
     let result;
     try {
-      // Remove markdown code blocks if present
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
       result = JSON.parse(cleanContent);
     } catch (parseError) {
@@ -1601,16 +1552,12 @@ If no allergens are found, return: {"alerts": []}
   }
 });
 
-// small community
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Multer storage สำหรับ community
 const communityStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, 'uploads', 'community');
 
-    // ถ้า folder ยังไม่มี ให้สร้าง
     fs.mkdir(uploadPath, { recursive: true }, (err) => {
       if (err) return cb(err);
       cb(null, uploadPath);
@@ -1625,7 +1572,7 @@ const communityStorage = multer.diskStorage({
 
 const communityUpload = multer({
   storage: communityStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -1636,7 +1583,6 @@ const communityUpload = multer({
   }
 });
 
-// get all post from community db
 app.get('/api/community', async (req, res) => {
   try {
     const menuId = req.query.menu_id ? Number(req.query.menu_id) : null;
@@ -1659,11 +1605,10 @@ app.get('/api/community', async (req, res) => {
 
     const result = await pool.query(sql, params);
 
-    // const serverBase = `http://localhost:5050/`;
     const posts = result.rows.map(post => ({
       ...post,
-      avatar_url: post.avatar ? `${baseUrl}uploads/avatars/${post.avatar}` : null,
-      image_url: post.image ? `${baseUrl}${post.image}` : null
+      avatar_url: post.avatar ? `${baseUrl}/uploads/avatars/${post.avatar}` : null,
+      image_url: post.image ? `${baseUrl}/${post.image}` : null
     }));
 
     res.json({ success: true, posts });
@@ -1673,7 +1618,6 @@ app.get('/api/community', async (req, res) => {
   }
 });
 
-// POST community
 app.post('/api/community', communityUpload.single('image'), async (req, res) => {
   const { user_id, menu_id, caption } = req.body;
 
@@ -1695,13 +1639,12 @@ app.post('/api/community', communityUpload.single('image'), async (req, res) => 
     );
 
     const post = result.rows[0];
-    // const serverBase = baseUrl;
     res.status(201).json({
       message: 'Post uploaded successfully.',
       post: {
         ...post,
-        avatar_url: post.avatar ? `${baseUrl}uploads/avatars/${post.avatar}` : null,
-        image_url: post.image ? `${baseUrl}${post.image}` : null
+        avatar_url: post.avatar ? `${baseUrl}/uploads/avatars/${post.avatar}` : null,
+        image_url: post.image ? `${baseUrl}/${post.image}` : null
       }
     });
   } catch (err) {
@@ -1710,7 +1653,6 @@ app.post('/api/community', communityUpload.single('image'), async (req, res) => 
   }
 });
 
-// Toggle like/unlike post
 app.post('/api/community/:post_id/like', async (req, res) => {
   const { post_id } = req.params;
   const { user_id } = req.body;
@@ -1725,7 +1667,6 @@ app.post('/api/community/:post_id/like', async (req, res) => {
     let like_count;
 
     if (check.rows.length > 0) {
-      // User already liked → unlike
       await pool.query(
         'DELETE FROM community_likes WHERE user_id = $1 AND post_id = $2',
         [user_id, post_id]
@@ -1738,7 +1679,6 @@ app.post('/api/community/:post_id/like', async (req, res) => {
       );
       like_count = update.rows[0].like_count;
     } else {
-      // Like
       await pool.query(
         'INSERT INTO community_likes (user_id, post_id) VALUES ($1, $2)',
         [user_id, post_id]
@@ -1760,14 +1700,28 @@ app.post('/api/community/:post_id/like', async (req, res) => {
 });
 
 // Serve static files from React build
-const buildPath = path.join(__dirname, 'client/build');  // <-- ตรงนี้ตรงกับ Docker COPY
-app.use(express.static(buildPath));
+const buildPath = path.join(__dirname, '../client/build');
+console.log('Looking for client build at:', buildPath);
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html'));
-});
+if (fs.existsSync(buildPath)) {
+  console.log('✓ Client build directory found');
+  app.use(express.static(buildPath));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+} else {
+  console.warn('⚠ Client build directory not found at:', buildPath);
+  console.warn('Please build the client first: cd client && npm run build');
+  
+  app.get('*', (req, res) => {
+    res.status(404).json({ 
+      error: 'Client build not found. Please run: cd client && npm run build' 
+    });
+  });
+}
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log(`Base URL: ${baseUrl}`);
 });
