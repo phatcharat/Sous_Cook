@@ -1760,11 +1760,11 @@ app.post('/api/community/:post_id/like', async (req, res) => {
 });
 
 // Serve static files from React build
-const buildPath = path.join(__dirname, '../client/build');
+const buildPath = path.join(__dirname, 'client/build');  // <-- ตรงนี้ตรงกับ Docker COPY
 app.use(express.static(buildPath));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
 // Start the server
