@@ -21,7 +21,6 @@
     "nodemon": "^3.1.4"
   },
   "scripts": {
-    "start": "node index.js",
-    "postinstall": "cd client && npm install && npm run build"
+    "start": "node index.js"
   }
 }
