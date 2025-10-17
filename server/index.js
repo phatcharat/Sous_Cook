@@ -107,7 +107,8 @@ const endaman_api_key = process.env.EDAMAN_API_KEY;
 
 const app = express();
 const port = process.env.PORT || 5050;
-const server_ip = process.env.SERVER_IP || '0.0.0.0';
+// const server_ip = process.env.SERVER_IP || '0.0.0.0';
+const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 
 app.use(cors({
   origin: ['http://localhost:3000', `http://127.0.0.1:3000`,  `https://souscook-production.up.railway.app`],
@@ -115,6 +116,7 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '50mb' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use(express.static(path.join(__dirname, 'client_build')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client_build', 'index.html'));
@@ -346,7 +348,7 @@ app.post('/google-auth', async (req, res) => {
 
     // สร้าง avatar_url
     if (user.avatar) {
-      user.avatar_url = `http://${server_ip}:${port}/uploads/avatars/${user.avatar}`;
+      user.avatar_url = `${baseUrl}/uploads/avatars/${user.avatar}`;
     }
 
     // Return response
@@ -379,7 +381,7 @@ app.get('/api/users/:user_id', async (req, res) => {
     const user = result.rows[0];
 
     if (user.avatar) {
-      user.avatar_url = `http://${server_ip}:${port}/uploads/avatars/${user.avatar}`;
+      user.avatar_url = `${baseUrl}/uploads/avatars/${user.avatar}`;
     }
 
     res.json({
@@ -444,7 +446,7 @@ app.put('/api/users/:user_id', avatarUpload.single('avatar'), async (req, res) =
     const updatedUser = result.rows[0];
 
     if (updatedUser.avatar) {
-      updatedUser.avatar_url = `http://${server_ip}:${port}/uploads/avatars/${updatedUser.avatar}`;
+      updatedUser.avatar_url = `${baseUrl}/uploads/avatars/${updatedUser.avatar}`;
     }
 
     res.json({ success: true, user: updatedUser });
@@ -1675,7 +1677,7 @@ app.post('/api/community', communityUpload.single('image'), async (req, res) => 
     );
 
     const post = result.rows[0];
-    const serverBase = `http://${server_ip}:${port}/`;
+    const serverBase = baseUrl;
     res.status(201).json({
       message: 'Post uploaded successfully.',
       post: {
