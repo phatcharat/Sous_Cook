@@ -111,10 +111,31 @@ const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 
 app.use(express.json({ limit: '50mb' }));
 
+// Dynamic CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://souscook-production.up.railway.app',
+  process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null,
+  baseUrl
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:3000', `http://127.0.0.1:3000`,  `https://souscook-production.up.railway.app`],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
+
+console.log('CORS allowed origins:', allowedOrigins);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
@@ -1738,10 +1759,29 @@ app.post('/api/community/:post_id/like', async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, 'client_build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client_build', 'index.html'));
-});
+// Serve static files from React build
+const buildPath = path.join(__dirname, '../client/build');
+console.log('Looking for client build at:', buildPath);
+
+if (fs.existsSync(buildPath)) {
+  console.log('✓ Client build directory found');
+  app.use(express.static(buildPath));
+  
+  // Serve index.html for all other routes (SPA support)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+} else {
+  console.warn('⚠ Client build directory not found at:', buildPath);
+  console.warn('Please build the client first: cd client && npm run build');
+  
+  // Fallback for development
+  app.get('*', (req, res) => {
+    res.status(404).json({ 
+      error: 'Client build not found. Please run: cd client && npm run build' 
+    });
+  });
+}
 
 // Start the server
 app.listen(port, () => {
