@@ -22,6 +22,6 @@
   },
   "scripts": {
     "start": "node index.js",
-    "build": "cd ../client && npm install && npm run build && cp -r build ../server/client_build"
+    "postinstall": "cd client && npm install && npm run build"
   }
 }
