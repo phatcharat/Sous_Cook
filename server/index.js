@@ -14,7 +14,7 @@ const multer = require('multer');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcrypt');
 const googleAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const cookieParser = require('cookie-parser');
+
 // db
 const pool = require('./db');
 const { DESTRUCTION } = require('dns');
@@ -110,7 +110,6 @@ const port = process.env.PORT || 5050;
 const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 
 app.use(express.json({ limit: '50mb' }));
-app.use(cookieParser());
 
 app.use(cors({
   origin: ['http://localhost:3000', `http://127.0.0.1:3000`,  `https://souscook-production.up.railway.app`],
