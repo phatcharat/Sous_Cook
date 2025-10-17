@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 5050
 
 # Start the application
-CMD ["npx", "index.js"]
+CMD ["node", "index.js"]
