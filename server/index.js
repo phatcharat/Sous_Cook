@@ -1760,28 +1760,12 @@ app.post('/api/community/:post_id/like', async (req, res) => {
 });
 
 // Serve static files from React build
-const buildPath = path.join(__dirname, 'client', 'build');
-console.log('Looking for client build at:', buildPath);
+const buildPath = path.join(__dirname, '../client/build');
+app.use(express.static(buildPath));
 
-if (fs.existsSync(buildPath)) {
-  console.log('✓ Client build directory found');
-  app.use(express.static(buildPath));
-  
-  // Serve index.html for all other routes (SPA support)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-  });
-} else {
-  console.warn('⚠ Client build directory not found at:', buildPath);
-  console.warn('Please build the client first: cd client && npm run build');
-  
-  // Fallback for development
-  app.get('*', (req, res) => {
-    res.status(404).json({ 
-      error: 'Client build not found. Please run: cd client && npm run build' 
-    });
-  });
-}
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
 
 // Start the server
 app.listen(port, () => {
