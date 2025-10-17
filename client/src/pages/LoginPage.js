@@ -188,6 +188,7 @@ const LoginPage = () => {
 
     setIsSubmitting(true);
     setAlert({ type: '', message: '' });
+    console.log('Backend URL:', process.env.REACT_APP_BASE_URL);
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/login`, {
