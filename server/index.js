@@ -107,7 +107,6 @@ const endaman_api_key = process.env.EDAMAN_API_KEY;
 
 const app = express();
 const port = process.env.PORT || 5050;
-// const server_ip = process.env.SERVER_IP || '0.0.0.0';
 const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
 
 app.use(cors({
@@ -1641,11 +1640,11 @@ app.get('/api/community', async (req, res) => {
 
     const result = await pool.query(sql, params);
 
-    const serverBase = `http://localhost:5050/`;
+    // const serverBase = `http://localhost:5050/`;
     const posts = result.rows.map(post => ({
       ...post,
-      avatar_url: post.avatar ? `${serverBase}uploads/avatars/${post.avatar}` : null,
-      image_url: post.image ? `${serverBase}${post.image}` : null
+      avatar_url: post.avatar ? `${baseUrl}uploads/avatars/${post.avatar}` : null,
+      image_url: post.image ? `${baseUrl}${post.image}` : null
     }));
 
     res.json({ success: true, posts });
@@ -1677,13 +1676,13 @@ app.post('/api/community', communityUpload.single('image'), async (req, res) => 
     );
 
     const post = result.rows[0];
-    const serverBase = baseUrl;
+    // const serverBase = baseUrl;
     res.status(201).json({
       message: 'Post uploaded successfully.',
       post: {
         ...post,
-        avatar_url: post.avatar ? `${serverBase}uploads/avatars/${post.avatar}` : null,
-        image_url: post.image ? `${serverBase}${post.image}` : null
+        avatar_url: post.avatar ? `${baseUrl}uploads/avatars/${post.avatar}` : null,
+        image_url: post.image ? `${baseUrl}${post.image}` : null
       }
     });
   } catch (err) {
