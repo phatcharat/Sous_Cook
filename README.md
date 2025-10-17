@@ -22,8 +22,9 @@ Edit the `client/.env` file:
 
 ```bash
 # client/.env
-REACT_APP_API_URL=http://localhost:5050
+REACT_APP_BACKEND_URL=http://localhost:5050/api
 REACT_APP_ENV=production
+REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id_key_here
 ```
 
 Edit the `server/.env` file:
@@ -34,6 +35,9 @@ NODE_ENV=production
 PORT=5050
 OPENAI_API_KEY=your_openai_api_key_here
 GOOGLE_CLOUD_VISION_API_KEY=your_google_vision_api_key_here <optional no use>
+EDAMAN_APP_ID=your_edamam_app_id_here
+EDAMAN_API_KEY=your_edamam_api_key_here
+SPOONACULAR_API_KEY=your_spoonacular_api_key_here
 ```
 
 ### Running the Application
