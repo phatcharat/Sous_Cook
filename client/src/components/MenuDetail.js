@@ -1021,21 +1021,26 @@ const renderStars = (rate) => {
     ));
 };
 
-const showProfle = (review) => {
-    let final_profile = defaultProfile;
-    let avatarUrl = `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}`
-    final_profile = `${avatarUrl}?t=${Date.now()}`;
-    return  (
+const showProfile = (review) => {
+    // ใช้ defaultProfile เป็น fallback
+    let avatarUrl = review?.avatar
+        ? `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}?t=${Date.now()}`
+        : defaultProfile;
+
+    return (
         <img
-            src={final_profile
-            ? `${final_profile}`
-            : defaultProfile
-            }  
+            src={avatarUrl}
             className="my-review-pro"
             alt="avatar"
+            onError={(e) => {
+                // fallback ไป defaultProfile ถ้าโหลด avatar ไม่ได้
+                e.target.onerror = null; // ป้องกัน loop
+                e.target.src = defaultProfile;
+            }}
         />
     );
 };
+
 
 const showDate = (review) => {
     if (review.updated_at) {
