@@ -867,7 +867,7 @@ const MenuDetail = () => {
 
                         <div className="review-profile">
                             <div className="review-pro-pic">
-                                {showProfle(review)}
+                                {showProfile(review)}
                             </div>
                             <div className="review-pro-rate">
                                 <div className="review-username">{review.username}</div>
