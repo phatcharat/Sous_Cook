@@ -1364,6 +1364,28 @@ app.get('/api/menus/:menuId', async (req, res) => {
   }
 });
 
+// Update menu image
+app.put('/api/menus/:menuId', async (req, res) => {
+  const { menuId } = req.params;
+  const { image } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE menus SET image=$1 WHERE menu_id=$2 RETURNING menu_id, menu_name, image`,
+      [image, menuId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Menu not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating menu image:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.get('/api/menus/by-name/:menu_name', async (req, res) => {
   try {
     const { menu_name } = req.params;
