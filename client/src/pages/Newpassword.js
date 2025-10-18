@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import '../css/ResetPassword.css';
 import logo from '../image/Logo1.svg';
 import axios from 'axios';
@@ -10,13 +10,45 @@ const NewPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState({});
   const [message, setMessage] = useState('');
+  const [tokenValid, setTokenValid] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
+  const { token } = useParams();
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      if (!token) {
+        setTokenValid(false);
+        setErrors({ submit: 'Invalid reset link' });
+        return;
+      }
+
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/auth/verify-reset-token/${token}`);
+        if (res.data.valid) {
+          setTokenValid(true);
+          setUserEmail(res.data.email);
+        } else {
+          setTokenValid(false);
+          setErrors({ submit: res.data.message || 'Invalid or expired reset link' });
+        }
+      } catch (error) {
+        setTokenValid(false);
+        setErrors({ 
+          submit: error.response?.data?.message || 'Invalid or expired reset link. Please request a new one.' 
+        });
+      }
+    };
+
+    verifyToken();
+  }, [token]);
 
   const validateField = (name, value) => {
     if (name === 'password') {
       if (!value) return 'Password is required';
       if (value.length < 8) return 'Password must be at least 8 characters';
-      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) return 'Password must contain uppercase, lowercase, and number';
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) 
+        return 'Password must contain uppercase, lowercase, and number';
       return '';
     }
     if (name === 'confirmPassword') {
@@ -48,7 +80,6 @@ const NewPasswordPage = () => {
       setErrors((prev) => ({ ...prev, [name]: error }));
     }
 
-    // Re-validate confirmPassword when password changes
     if (name === 'password' && touched.confirmPassword && formData.confirmPassword) {
       const confirmError = validateField('confirmPassword', formData.confirmPassword);
       setErrors((prev) => ({ ...prev, confirmPassword: confirmError }));
@@ -76,7 +107,8 @@ const NewPasswordPage = () => {
     setMessage('');
 
     try {
-      const res = await axios.post('/api/auth/new-password', {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/new-password`, {
+        token: token,
         password: formData.password,
       });
 
@@ -98,6 +130,59 @@ const NewPasswordPage = () => {
     const baseClasses = 'login-input';
     return errors[fieldName] ? `${baseClasses} login-input-error` : baseClasses;
   };
+
+  if (tokenValid === null) {
+    return (
+      <div className="reset-container">
+        <div className="logo-header">
+          <div className="logo-circle">
+            <img src={logo} alt="Company Logo" className="Logo" />
+          </div>
+        </div>
+        <div className="reset-card">
+          <div className="reset-header">
+            <h1 className="reset-title">Verifying Link...</h1>
+            <p className="reset-subtitle">Please wait while we verify your reset link.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tokenValid === false) {
+    return (
+      <div className="reset-container">
+        <div className="logo-header">
+          <div className="logo-circle">
+            <img src={logo} alt="Company Logo" className="Logo" />
+          </div>
+        </div>
+        <div className="reset-card">
+          <div className="reset-header">
+            <h1 className="reset-title">Invalid Link</h1>
+            <p className="reset-subtitle">
+              This password reset link is invalid or has expired.
+            </p>
+          </div>
+          {errors.submit && (
+            <div className="login-error" role="alert" style={{ margin: '20px 0' }}>
+              {errors.submit}
+            </div>
+          )}
+          <div className="reset-link">
+            <Link to="/reset-password" className="login-link-text">
+              Request New Reset Link
+            </Link>
+          </div>
+          <div className="reset-link">
+            <Link to="/login" className="login-link-text">
+              Back to Sign In
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="reset-container">
@@ -123,12 +208,14 @@ const NewPasswordPage = () => {
         <div className="reset-header">
           <h1 className="reset-title">SET NEW PASSWORD</h1>
           <p className="reset-subtitle">
+            {userEmail && `Setting new password for ${userEmail}`}
+          </p>
+          <p className="reset-subtitle">
             Please enter your new password and confirm it below.
           </p>
         </div>
 
         <form className="reset" onSubmit={handleSubmit}>
-          {/* Password Input Wrapper */}
           <div className="input-wrapper">
             <input
               id="password"
@@ -151,7 +238,6 @@ const NewPasswordPage = () => {
             )}
           </div>
 
-          {/* Confirm Password Input Wrapper */}
           <div className="input-wrapper">
             <input
               id="confirmPassword"
@@ -174,14 +260,12 @@ const NewPasswordPage = () => {
             )}
           </div>
 
-          {/* Success Message */}
           {message && (
             <div className="login-success" role="alert">
               {message}
             </div>
           )}
 
-          {/* Submit Error */}
           {errors.submit && (
             <div className="login-error" role="alert">
               {errors.submit}

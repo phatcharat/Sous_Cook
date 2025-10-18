@@ -14,6 +14,8 @@ const multer = require('multer');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcrypt');
 const googleAuthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const crypto = require('crypto');
+const sgMail = require('@sendgrid/mail');
 
 // db
 const pool = require('./db');
@@ -118,10 +120,10 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, curl, etc)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -380,6 +382,276 @@ app.post('/google-auth', async (req, res) => {
   }
 });
 
+// Send Grid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// POST reset-password
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Check if user exists
+    const userResult = await pool.query(
+      'SELECT user_id, email, username FROM users WHERE email = $1 AND deleted_at IS NULL',
+      [email]
+    );
+
+    // Always return success to prevent email enumeration
+    if (userResult.rows.length === 0) {
+      return res.json({
+        message: 'If an account exists with this email, you will receive a password reset link.'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
+
+    // Save reset token to database
+    await pool.query(
+      `INSERT INTO password_resets (user_id, token, expires_at)
+       VALUES ($1, $2, $3)`,
+      [user.user_id, resetToken, expiresAt]
+    );
+
+    // Create reset URL
+    const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
+
+    // Send email via SendGrid
+    const msg = {
+      to: email,
+      from: process.env.SENDGRID_FROM_EMAIL, // verified sender in SendGrid
+      subject: 'Password Reset Request - SousCook',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { background-color: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
+            .button { 
+              display: inline-block; 
+              padding: 12px 30px; 
+              background-color: #007bff; 
+              color: #ffffff; 
+              text-decoration: none; 
+              border-radius: 5px; 
+              margin: 20px 0;
+            }
+            .footer { 
+              background-color: #f8f9fa; 
+              padding: 20px; 
+              text-align: center; 
+              font-size: 12px; 
+              color: #666;
+              border-radius: 0 0 5px 5px;
+            }
+            .warning { color: #dc3545; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>SousCook</h1>
+            </div>
+            <div class="content">
+              <h2>Password Reset Request</h2>
+              <p>Hello ${user.username},</p>
+              <p>We received a request to reset your password. Click the button below to create a new password:</p>
+              <div style="text-align: center;">
+                <a href="${resetUrl}" class="button">Reset Password</a>
+              </div>
+              <p>Or copy and paste this link into your browser:</p>
+              <p style="word-break: break-all; color: #007bff;">${resetUrl}</p>
+              <p class="warning">
+                <strong>Important:</strong> This link will expire in 1 hour. 
+                If you didn't request a password reset, please ignore this email.
+              </p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} SousCook. All rights reserved.</p>
+              <p>This is an automated email. Please do not reply.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+        Hello ${user.username},
+        
+        We received a request to reset your password. 
+        Please visit this link to reset your password: ${resetUrl}
+        
+        This link will expire in 1 hour.
+        
+        If you didn't request a password reset, please ignore this email.
+        
+        Best regards,
+        SousCook Team
+      `
+    };
+
+    await sgMail.send(msg);
+
+    console.log(`Password reset email sent to ${email}`);
+
+    res.json({
+      message: 'If an account exists with this email, you will receive a password reset link.'
+    });
+
+  } catch (error) {
+    console.error('Error in password reset request:', error);
+
+    if (error.response) {
+      console.error('SendGrid error:', error.response.body);
+    }
+
+    res.status(500).json({
+      message: 'An error occurred while processing your request. Please try again.'
+    });
+  }
+});
+
+// GET verify-reset-token
+app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const result = await pool.query(
+      `SELECT pr.*, u.email 
+       FROM password_resets pr
+       JOIN users u ON pr.user_id = u.user_id
+       WHERE pr.token = $1 
+         AND pr.used = FALSE 
+         AND pr.expires_at > NOW()
+         AND u.deleted_at IS NULL`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        valid: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+
+    res.json({
+      valid: true,
+      email: result.rows[0].email
+    });
+
+  } catch (error) {
+    console.error('Error verifying reset token:', error);
+    res.status(500).json({
+      valid: false,
+      message: 'Error verifying token'
+    });
+  }
+});
+
+// POST new password
+app.post('/api/auth/new-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        message: 'Token and password are required'
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters'
+      });
+    }
+
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      return res.status(400).json({
+        message: 'Password must contain uppercase, lowercase, and number'
+      });
+    }
+
+    // Verify token and get user
+    const resetResult = await pool.query(
+      `SELECT pr.*, u.user_id 
+       FROM password_resets pr
+       JOIN users u ON pr.user_id = u.user_id
+       WHERE pr.token = $1 
+         AND pr.used = FALSE 
+         AND pr.expires_at > NOW()
+         AND u.deleted_at IS NULL`,
+      [token]
+    );
+
+    if (resetResult.rows.length === 0) {
+      return res.status(400).json({
+        message: 'Invalid or expired reset token'
+      });
+    }
+
+    const resetRecord = resetResult.rows[0];
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user password
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE user_id = $2',
+      [hashedPassword, resetRecord.user_id]
+    );
+
+    // Mark token as used
+    await pool.query(
+      'UPDATE password_resets SET used = TRUE WHERE reset_id = $1',
+      [resetRecord.reset_id]
+    );
+
+    // Optional: Delete all other reset tokens for this user
+    await pool.query(
+      'DELETE FROM password_resets WHERE user_id = $1 AND reset_id != $2',
+      [resetRecord.user_id, resetRecord.reset_id]
+    );
+
+    console.log(`Password reset successful for user ${resetRecord.user_id}`);
+
+    res.json({
+      message: 'Your password has been reset successfully!'
+    });
+
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({
+      message: 'An error occurred while resetting your password. Please try again.'
+    });
+  }
+});
+
+app.delete('/api/auth/cleanup-expired-tokens', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM password_resets WHERE expires_at < NOW() OR used = TRUE'
+    );
+
+    res.json({
+      message: 'Cleanup completed',
+      deleted: result.rowCount
+    });
+  } catch (error) {
+    console.error('Error cleaning up tokens:', error);
+    res.status(500).json({ error: 'Cleanup failed' });
+  }
+});
+
 // GET user info by user_id
 app.get('/api/users/:user_id', async (req, res) => {
   try {
@@ -587,7 +859,7 @@ IMPORTANT:
 
     const jsonString = jsonMatch[1].trim();
     let randomMenu;
-    
+
     try {
       randomMenu = JSON.parse(jsonString);
     } catch (parseError) {
@@ -879,7 +1151,7 @@ app.put('/api/reviews', async (req, res) => {
     const ratingNumber = parseInt(rating, 10);
 
     if (!user_idNumber || !menu_idNumber || !comment || !ratingNumber) {
-       return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
+      return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
     }
 
     await pool.query(
@@ -891,7 +1163,7 @@ app.put('/api/reviews', async (req, res) => {
     console.error(error.message);
     res.status(500).json({ error: "Server Error" });
   }
-  
+
 });
 
 app.delete('/api/:menuId/:userId/reviews', async (req, res) => {
@@ -1228,7 +1500,7 @@ const addImagesToMenus = async (menus) => {
       const imageUrl = await fetchImageForMenu(menu.menu_name);
       return {
         ...menu,
-        image: imageUrl, 
+        image: imageUrl,
       };
     })
   );
@@ -1755,17 +2027,17 @@ console.log('Looking for client build at:', buildPath);
 if (fs.existsSync(buildPath)) {
   console.log('✓ Client build directory found');
   app.use(express.static(buildPath));
-  
+
   app.get('*', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
   });
 } else {
   console.warn('⚠ Client build directory not found at:', buildPath);
   console.warn('Please build the client first: cd client && npm run build');
-  
+
   app.get('*', (req, res) => {
-    res.status(404).json({ 
-      error: 'Client build not found. Please run: cd client && npm run build' 
+    res.status(404).json({
+      error: 'Client build not found. Please run: cd client && npm run build'
     });
   });
 }

@@ -10,9 +10,9 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState({});
   const [message, setMessage] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
 
-  // Validation rules
   const validateField = (name, value) => {
     if (name === 'email') {
       if (!value.trim()) return 'Email is required';
@@ -62,12 +62,14 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
     setErrors({});
     setMessage('');
+    
     try {
-      const res = await axios.post('/api/auth/reset-password', {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/reset-password`, {
         email: formData.email,
       });
 
-      setMessage(res.data?.message || 'Password reset link sent to your email.');
+      setMessage(res.data?.message || 'If an account exists with this email, you will receive a password reset link.');
+      setEmailSent(true);
       setFormData({ email: '' });
       setTouched({});
     } catch (error) {
@@ -109,62 +111,84 @@ const ResetPasswordPage = () => {
         <div className="reset-header">
           <h1 className="reset-title">RESET YOUR PASSWORD</h1>
           <p className="reset-subtitle">
-            Don't worry! It happens. Please enter your email, You will soon receive a Password Reset link.
+            {emailSent 
+              ? 'Please check your email for the password reset link. It will expire in 1 hour.'
+              : "Don't worry! It happens. Please enter your email to receive a password reset link."}
           </p>
         </div>
 
-        <form className="reset" onSubmit={handleSubmit}>
-          {/* Input Wrapper to contain error message */}
-          <div className="input-wrapper">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              placeholder="Email"
-              className={getInputClasses('email')}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              aria-invalid={errors.email ? 'true' : 'false'}
-              autoComplete="email"
-              disabled={isLoading}
-            />
-            {errors.email && (
-              <div id="email-error" className="login-error" role="alert">
-                {errors.email}
+        {!emailSent ? (
+          <form className="reset" onSubmit={handleSubmit}>
+            <div className="input-wrapper">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                placeholder="Email"
+                className={getInputClasses('email')}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                aria-invalid={errors.email ? 'true' : 'false'}
+                autoComplete="email"
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <div id="email-error" className="login-error" role="alert">
+                  {errors.email}
+                </div>
+              )}
+            </div>
+
+            {errors.submit && (
+              <div className="login-error" role="alert">
+                {errors.submit}
               </div>
             )}
-          </div>
 
-          {/* Success Message */}
-          {message && (
+            <button
+              type="submit"
+              className="send-reset-button"
+              disabled={!formData.email || !!errors.email || isLoading}
+            >
+              {isLoading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+
+            <div className="reset-link">
+              <Link to="/login" className="login-link-text">
+                Back to Sign In
+              </Link>
+            </div>
+          </form>
+        ) : (
+          <div className="reset-success-content">
             <div className="login-success" role="alert">
               {message}
             </div>
-          )}
-
-          {/* Submit Error */}
-          {errors.submit && (
-            <div className="login-error" role="alert">
-              {errors.submit}
+            
+            <div className="reset-info">
+              <p>Didn't receive the email? Check your spam folder or try again.</p>
             </div>
-          )}
 
-          <button
-            type="submit"
-            className="send-reset-button"
-            disabled={!formData.email || !!errors.email || isLoading}
-          >
-            {isLoading ? 'Sending...' : 'Send Reset Link'}
-          </button>
+            <button
+              onClick={() => {
+                setEmailSent(false);
+                setMessage('');
+              }}
+              className="send-reset-button"
+              style={{ marginTop: '20px' }}
+            >
+              Try Different Email
+            </button>
 
-          <div className="reset-link">
-            <Link to="/login" className="login-link-text">
-              Back to Sign In
-            </Link>
+            <div className="reset-link">
+              <Link to="/login" className="login-link-text">
+                Back to Sign In
+              </Link>
+            </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
