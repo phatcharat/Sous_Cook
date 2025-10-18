@@ -168,22 +168,6 @@ const MenuReview = () => {
         return newErrors;
     };
 
-    // const showProfile = (review) => {
-    //     let final_profile = defaultProfile;
-    //     let avatarUrl = `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}`
-    //     final_profile = `${avatarUrl}?t=${Date.now()}`;
-    //     return  (
-    //         <img
-    //             src={final_profile
-    //             ? `${final_profile}`
-    //             : defaultProfile
-    //             }  
-    //             className="my-review-pro"
-    //             alt="avatar"
-    //         />
-    //     );
-    // };
-
     const showProfile = (review) => {
         // ใช้ defaultProfile เป็น fallback
         let avatarUrl = review?.avatar
