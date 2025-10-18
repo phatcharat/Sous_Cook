@@ -923,7 +923,7 @@ const MenuDetail = () => {
                                     />
                                 </div>
                                 <div className="review-pro-rate">
-                                    <div className="review-username">{review?.username || 'Unknown user'}</div>
+                                    <div className="review-username">{userData?.username || 'Unknown user'}</div>
                                     <div className="review-rate my-rate">
                                         <div className="star-rating">
                                             <input type="radio" name="rating" value={'5'} id="star5" checked={formReview.rating === '5'} onChange={handleChangeReview}/><label for="star5"></label>
