@@ -107,11 +107,11 @@
 
 .logout-place {
     /* background-color: #a9987e; */
-    height: 60%;
+    height: 70%;
     display: flex;
     /* justify-items: center; */
     justify-content: center;
-    margin-top: 0.4rem;
+    margin-top: auto;
     margin-bottom: 1rem;
 }
 

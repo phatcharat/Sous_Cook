@@ -49,6 +49,7 @@
 }
 
 .form-field {
+  background-color: #43a76d;
   display: flex;
   position: relative;
   min-height: 4.5rem;
@@ -107,7 +108,7 @@
 
 
 .submit-button {
-  height: 3rem;
+  height: 2.5rem;
   margin-top: 0.5rem;
   margin-bottom: 2rem;
   margin-left: 3.5rem;
@@ -116,7 +117,7 @@
   border-radius: 1rem;
   background: #FE9801;
   color: #FFFDF6;
-  font-size: 0.7rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 1.6px;
   font-family: 'Manrope', sans-serif;
