@@ -270,7 +270,7 @@ hr {
     background-color: #FFFDF6;
     box-shadow: 0px 5px 10px #cacaca;
     border-radius: 10px;
-    height: 175px;
+    min-height: 175px;
     bottom: 1rem;
     right: 1rem;
     left: 1rem;
@@ -324,6 +324,18 @@ hr {
     /* background-color: aquamarine; */
 }
 
+.rating-error {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FE98011A;
+    border-radius: 10px;
+    border: 2px solid #FE9801;
+    margin: 1rem;
+    color: #FE9801;
+}
+
 .review-button-box {
     height: 40.5px;
     /* background-color: aqua; */
@@ -351,7 +363,18 @@ hr {
     height: 50px;
     font-family: 'Questrial';
     resize: none;
+    border: none;
+    background-color: #697C371A;
+    color: black;
+    /* opacity: 0.1; */
+    border-radius: 10px;
 }
+
+#review-message-textarea:focus {
+  border: none; 
+  outline: none; 
+}
+
 
 .review-text {
     /* background-color: aqua; */

@@ -90,6 +90,7 @@ const MenuDetail = () => {
 
     const [hasReviewed, setHasReview] = useState(false);
     const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const userId = getUserId();
 
@@ -261,9 +262,19 @@ const MenuDetail = () => {
     }, []);
 
     // Change Review
+    
     const handleChangeReview = (e) => {
-        setReviewData({ ...formReview, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setReviewData(prevForm => ({ ...prevForm, [name]: value }));
+        if (errors[name] && value) {
+            setErrors(prevErrors => {
+                const updatedErrors = { ...prevErrors };
+                delete updatedErrors[name]; 
+                return updatedErrors;
+            });
+        }
     };
+
 
     // Submit Review
     const handleReview = async (e) => {
@@ -275,6 +286,13 @@ const MenuDetail = () => {
             menu_id: actualMenuId
         }));
 
+        const newErrors = validateReviewForm(formReview);
+        setErrors(newErrors); // แสดงข้อผิดพลาดทั้งหมด
+        const isValid = Object.keys(newErrors).length === 0;
+        
+        if (!isValid) {
+            return; 
+        }
         // console.log("information of formReview", formReview);
 
         const rating_int = parseInt(formReview.rating, 10);
@@ -864,8 +882,11 @@ const MenuDetail = () => {
                     </div>
 
                     <hr></hr>
-
-                        <div className="review-profile">
+                        {!review ?
+                        (<p className="no-review-text">Be the first to leave a review!</p>
+                        ) : (
+                            <div>
+                                <div className="review-profile">
                             <div className="review-pro-pic">
                                 {showProfle(review)}
                             </div>
@@ -882,6 +903,8 @@ const MenuDetail = () => {
                             <div className="review-text">{review.comment}</div>
                             {showDate(review)}
                         </div>
+                            </div>
+                        )}
 
                         <hr></hr>
 
@@ -912,6 +935,12 @@ const MenuDetail = () => {
                             </div>
                             <div className="review-message-box">
                                 <textarea name="comment" placeholder="Add a comment..." id="review-message-textarea" value={formReview.comment} onChange={handleChangeReview}></textarea>
+                            </div>
+                            <div className="message-error-box">
+                                {errors.rating &&
+                                <div className="rating-error">{errors.rating}</div>}
+                                {errors.comment &&
+                                <div className="rating-error">{errors.comment}</div>}
                             </div>
                             <div className="review-button-box">
                                 <button type="submit" className="post-review-button">Post</button>
@@ -1036,6 +1065,20 @@ const showProfle = (review) => {
         />
     );
 };
+
+const validateReviewForm = (formData) => {
+        const newErrors = {};
+
+        if (!formData.rating) {
+            newErrors.rating = 'Please give a star rating.';
+        }
+
+        if (!formData.comment || formData.comment.trim() === '') {
+            newErrors.comment = 'Please comment.';
+        }
+
+        return newErrors;
+    };
 
 const showDate = (review) => {
     if (review.updated_at) {

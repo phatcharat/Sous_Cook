@@ -23,8 +23,6 @@ const MenuReview = () => {
         avatar_url: defaultProfile
     });
 
-    // const [profileImage, setProfileImage] = useState(defaultProfile);
-
     const [formReview, setReviewData] = useState({
         user_id: '',
         menu_id: '',
@@ -60,9 +58,7 @@ const MenuReview = () => {
 
     const [hasReviewed, setHasReview] = useState(false);
 
-    const [confirmUpdate, setUpdate] = useState(false);
-    
-    const [confirmDelete, setDelete] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
@@ -158,6 +154,20 @@ const MenuReview = () => {
         ));
     };
 
+    const validateForm = (formData) => {
+        const newErrors = {};
+
+        if (!formData.rating) {
+            newErrors.rating = 'Please give a star rating.';
+        }
+
+        if (!formData.comment || formData.comment.trim() === '') {
+            newErrors.comment = 'Please comment.';
+        }
+
+        return newErrors;
+    };
+
     const showProfle = (review) => {
         let final_profile = defaultProfile;
         let avatarUrl = `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}`
@@ -184,10 +194,6 @@ const MenuReview = () => {
         }
     };
 
-    // const showUpdate = () => {
-    //     return ()
-    // };
-
     const showDeleteReview = (review) => {
         if (review.user_id === userId) {
             return (<button className="del-rew-bttn" onClick={() => setShowDeletePopup(true)}><img src={deleteicon}/></button>)
@@ -195,11 +201,28 @@ const MenuReview = () => {
     };
 
     const handleChange = (e) => {
-        setReviewData({ ...formReview, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        
+        setReviewData(prevForm => ({ ...prevForm, [name]: value }));
+
+        if (errors[name] && value) {
+            setErrors(prevErrors => {
+                const updatedErrors = { ...prevErrors };
+                delete updatedErrors[name]; 
+                return updatedErrors;
+            });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const newErrors = validateForm(formReview);
+        setErrors(newErrors); // แสดงข้อผิดพลาดทั้งหมด
+        const isValid = Object.keys(newErrors).length === 0;
+        
+        if (!isValid) {
+            return; 
+        }
 
         const rating_int = parseInt(formReview.rating, 10);
 
@@ -210,13 +233,11 @@ const MenuReview = () => {
             console.error("rate should be in 1 - 5")
             return;
         }
-
         if (!menuId) {
             console.error("Cannot submit review: menu_id is missing.");
             // setError("Menu ID not set. Please refresh."); // ถ้าคุณมี setError
             return; 
         }
-
         try {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/menu-detail/${menuId}/reviews`, formReview);
             setReviewData({
@@ -235,7 +256,6 @@ const MenuReview = () => {
         e.preventDefault();
             try {
                 const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/reviews`, formReview);
-                // setUpdate(false);
                 setShowUpdatePopup(false);
                 setReviewData({
                     comment: '',
@@ -427,6 +447,12 @@ const MenuReview = () => {
                     </div>
                     <div className="review-message-box">
                         <textarea name="comment" placeholder="Add a comment..." id="review-message-textarea" value={formReview.comment} onChange={handleChange}></textarea>
+                    </div>
+                    <div className="message-error-box">
+                        {errors.rating &&
+                        <div className="rating-error">{errors.rating}</div>}
+                        {errors.comment &&
+                        <div className="rating-error">{errors.comment}</div>}
                     </div>
                     <div className="review-button-box">
                         <button type="submit" className="post-review-button">Post</button>
