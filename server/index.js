@@ -416,8 +416,8 @@ app.post('/api/auth/reset-password', async (req, res) => {
     // Save reset token to database
     await pool.query(
       `INSERT INTO password_resets (user_id, token, expires_at)
-       VALUES ($1, $2, $3)`,
-      [user.user_id, resetToken, expiresAt]
+      VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
+      [user.user_id, resetToken]
     );
 
     // Create reset URL
@@ -527,12 +527,12 @@ app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
 
     const result = await pool.query(
       `SELECT pr.*, u.email 
-       FROM password_resets pr
-       JOIN users u ON pr.user_id = u.user_id
-       WHERE pr.token = $1 
-         AND pr.used = FALSE 
-         AND pr.expires_at > NOW()
-         AND u.deleted_at IS NULL`,
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.user_id
+      WHERE pr.token = $1 
+      AND pr.used = FALSE 
+      AND pr.expires_at > NOW() AT TIME ZONE 'Asia/Bangkok'
+      AND u.deleted_at IS NULL`,
       [token]
     );
 
