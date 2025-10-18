@@ -1700,7 +1700,7 @@ app.post('/api/community/:post_id/like', async (req, res) => {
 });
 
 // Serve static files from React build
-const buildPath = path.join(__dirname, 'client_build');
+const buildPath = path.join(__dirname, '../client/build');
 console.log('Looking for client build at:', buildPath);
 
 if (fs.existsSync(buildPath)) {
