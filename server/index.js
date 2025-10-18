@@ -673,6 +673,33 @@ IMPORTANT:
   }
 });
 
+
+// POST meal completion
+app.post('/api/meal-completions', async (req, res) => {
+  try {
+    const { user_id, menu_id } = req.body;
+
+    if (!user_id || !menu_id) {
+      return res.status(400).json({ error: 'user_id and menu_id are required' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO meal_completions (user_id, menu_id, completed_at)
+       VALUES ($1, $2, NOW())
+       RETURNING *`,
+      [user_id, menu_id]
+    );
+
+    res.status(201).json({
+      message: 'Meal completion saved successfully',
+      completion: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Error saving meal completion:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET meal statistics
 app.get('/api/users/:user_id/meal-stats', async (req, res) => {
   try {

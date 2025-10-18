@@ -78,15 +78,11 @@ const SignUpPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // validate all fields
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
-            setAlert({
-                type: 'error',
-                message: 'Please fix the error above'
-            });
             return;
         }
 
@@ -106,47 +102,51 @@ const SignUpPage = () => {
                 navigate('/login');
             }, 1500);
         } catch (err) {
-            let errorMessage = 'An error occured. Please try again.';
-
-            if (err.response?.data?.message){
-                errorMessage = err.response.data.message;
-            } else if (err.request) {
-                errorMessage = 'Cannot connect to server. Please check your connection.';
+            if (err.response?.data?.field) {
+                // Field-specific error
+                setFieldErrors({
+                    [err.response.data.field]: err.response.data.message
+                });
             }
 
-            setAlert({ type: 'error', message: errorMessage});
+            setAlert({
+                type: 'error',
+                message: err.response?.data?.message || 'An error occurred. Please try again.'
+            });
         } finally {
             setIsSubmitting(false);
         }
-        
     };
-
 
     const handleGuestClick = () => {
         navigate('/home');
     };
 
+    const handleSignInClick = () => {
+        navigate('/login');
+    };
+
     return (
         <div className="page-container">
-            <img src={logo} alt="Sous Cook Logo" className="logo-image"/>
-            <img src={textlogo} alt="Text Logo" className="textlogo-image"/>
+            <img src={logo} alt="Sous Cook Logo" className="logo-image" />
+            <img src={textlogo} alt="Text Logo" className="textlogo-image" />
 
             <div className="signup-container">
                 <p className="signup-text">Sign Up</p>
                 <form className="signup-form" onSubmit={handleSubmit} noValidate>
                     <div className="form-field">
-                        <input 
-                            type="text" 
-                            name="username" 
-                            placeholder="Username" 
-                            className={`input ${fieldErrors.username ? 'input-error' : ''}`} 
-                            value={formData.username} 
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Username"
+                            className={`input ${fieldErrors.username ? 'input-error' : ''}`}
+                            value={formData.username}
                             onChange={handleChange}
                             disabled={isSubmitting}
                             aria-label="Username"
-                            arai-invalid={!!fieldErrors.username}
+                            aria-invalid={!!fieldErrors.username}
                             aria-describedby={fieldErrors.username ? "username-error" : undefined}
-                        /> 
+                        />
                         {fieldErrors.username && (
                             <p id="username-error" className="field-error" role="alert">
                                 {fieldErrors.username}
@@ -155,64 +155,64 @@ const SignUpPage = () => {
                     </div>
 
                     <div className="form-field">
-                        <input 
-                            type="email" 
-                            name="email" 
-                            placeholder="Email" 
-                            className={`input ${fieldErrors.email ? 'input-error' : ''}`} 
-                            value={formData.email} 
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            className={`input ${fieldErrors.email ? 'input-error' : ''}`}
+                            value={formData.email}
                             onChange={handleChange}
                             disabled={isSubmitting}
                             aria-label="Email"
-                            arai-invalid={!!fieldErrors.email}
+                            aria-invalid={!!fieldErrors.email}
                             aria-describedby={fieldErrors.email ? "email-error" : undefined}
-                        /> 
+                        />
                         {fieldErrors.email && (
                             <p id="email-error" className="field-error" role="alert">
                                 {fieldErrors.email}
                             </p>
                         )}
                     </div>
-                    
+
 
                     <div className="form-field">
-                        <input 
-                            type={showPassword ? "text" : "password"} 
-                            name="password" 
-                            placeholder="Password" 
-                            className={`input ${fieldErrors.password ? 'input-error' : ''}`} 
-                            value={formData.password} 
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            placeholder="Password"
+                            className={`input ${fieldErrors.password ? 'input-error' : ''}`}
+                            value={formData.password}
                             onChange={handleChange}
                             disabled={isSubmitting}
                             aria-label="Password"
-                            arai-invalid={!!fieldErrors.password}
+                            aria-invalid={!!fieldErrors.password}
                             aria-describedby={fieldErrors.password ? "password-error" : undefined}
-                        /> 
+                        />
 
                         {formData.password && (
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(prev => !prev)}
-                            className="show-password-button"
-                            tabIndex={-1}
-                        >
-                            {showPassword ? "Hide" : "Show"}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(prev => !prev)}
+                                className="show-password-button"
+                                tabIndex={-1}
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
                         )}
-                        
+
                         {fieldErrors.password && (
                             <p id="password-error" className="field-error" role="alert">
                                 {fieldErrors.password}
                             </p>
                         )}
                     </div>
-                    
-                    <button 
-                        type="submit" 
-                        className="summit-button"
+
+                    <button
+                        type="submit"
+                        className="submit-button"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'CREATING ACCOUNT...' : 'CREATE AN ACOUNT'}
+                        {isSubmitting ? 'CREATING ACCOUNT...' : 'CREATE AN ACCOUNT'}
                     </button>
                 </form>
 
@@ -225,11 +225,23 @@ const SignUpPage = () => {
                         {alert.message}
                     </div>
                 )}
+
+                <div className="signin-link">
+                    <span className="signin-text-small">Already have an account? </span>
+                    <button
+                        type="button"
+                        className="signin-link-button"
+                        onClick={handleSignInClick}
+                        disabled={isSubmitting}
+                    >
+                        Sign In
+                    </button>
+                </div>
             </div>
 
             <p className="guest-text">Or you want to take a look first?</p>
-            <button 
-                className="guest-button" 
+            <button
+                className="guest-button"
                 onClick={handleGuestClick}
                 disabled={isSubmitting}
             >
