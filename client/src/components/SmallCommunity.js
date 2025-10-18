@@ -25,7 +25,7 @@ const SmallCommunity = () => {
     useEffect(() => {
         const fetchPosts = async () => {
         try {
-            const res = await axios.get('http://localhost:5050/api/community', {
+            const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/community`, {
             params: menuId ? { menu_id: menuId } : {}
             });
 
@@ -51,7 +51,7 @@ const SmallCommunity = () => {
     // Toggle like/unlike
     const handleLike = async (postId) => {
         try {
-        const res = await axios.post(`http://localhost:5050/api/community/${postId}/like`, {
+        const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/community/${postId}/like`, {
             user_id: currentUserId,
         });
 

@@ -93,6 +93,19 @@ CREATE TABLE meal_completions (
     UNIQUE(user_id, menu_id, completed_at)
 );
 
+-- password_resets table
+CREATE TABLE password_resets (
+    "reset_id" SERIAL PRIMARY KEY,
+    "user_id" INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    "token" VARCHAR(255) NOT NULL UNIQUE,
+    "expires_at" TIMESTAMP NOT NULL,
+    "used" BOOLEAN DEFAULT FALSE,
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+-- Add index for faster lookups
+CREATE INDEX idx_password_resets_token ON password_resets(token);
+CREATE INDEX idx_password_resets_expires ON password_resets(expires_at);
+
 -- nutrition
 -- CREATE TABLE nutrition (
 --     "nutrition_id" SERIAL PRIMARY KEY,

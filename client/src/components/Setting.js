@@ -284,7 +284,7 @@ const Setting = () => {
                 </div>
 
                 <div className="form-setting">
-                    <label>Allergies</label>
+                    <label>Allergy</label>
                     <input
                         type="text"
                         name="allergies"

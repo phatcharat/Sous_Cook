@@ -96,6 +96,8 @@ const MenuDetail = () => {
 
     const actualMenuId = menu_id || menuData?.menu_id;
 
+    console.log('userData: [HIDDEN]');
+
     // Back navigation
     const handleBackNavigation = () => {
         navigate(-1);
@@ -336,7 +338,7 @@ const MenuDetail = () => {
                     comment: '',
                     rating: ''
                 });
-                fetchReviewData(); 
+                await fetchReviewData(); 
             } catch (error) {
                 console.error('Error for put review:', error);
             }
@@ -888,19 +890,19 @@ const MenuDetail = () => {
                             <div>
                                 <div className="review-profile">
                             <div className="review-pro-pic">
-                                {showProfle(review)}
+                                {showProfile(review)}
                             </div>
                             <div className="review-pro-rate">
-                                <div className="review-username">{review.username}</div>
+                                <div className="review-username">{review?.username || 'Unknown user'}</div>
                                 <div className="review-rate my-rate">
                                     <div className="star-rating all-users-review">
-                                        {renderStars(review.rating)}
+                                        {renderStars(review?.rating ?? 0)}
                                     </div>
                                 </div> 
                             </div>
                         </div>
                         <div className="comment-box">
-                            <div className="review-text">{review.comment}</div>
+                            <div className="review-text">{review?.comment || 'No comment yet'}</div>
                             {showDate(review)}
                         </div>
                             </div>
@@ -921,7 +923,7 @@ const MenuDetail = () => {
                                     />
                                 </div>
                                 <div className="review-pro-rate">
-                                    <div className="review-username">{userData.username}</div>
+                                    <div className="review-username">{review?.username || 'Unknown user'}</div>
                                     <div className="review-rate my-rate">
                                         <div className="star-rating">
                                             <input type="radio" name="rating" value={'5'} id="star5" checked={formReview.rating === '5'} onChange={handleChangeReview}/><label for="star5"></label>
@@ -1050,18 +1052,22 @@ const renderStars = (rate) => {
     ));
 };
 
-const showProfle = (review) => {
-    let final_profile = defaultProfile;
-    let avatarUrl = `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}`
-    final_profile = `${avatarUrl}?t=${Date.now()}`;
-    return  (
+const showProfile = (review) => {
+    // ใช้ defaultProfile เป็น fallback
+    let avatarUrl = review?.avatar
+        ? `${process.env.REACT_APP_BASE_URL}/uploads/avatars/${review.avatar}?t=${Date.now()}`
+        : defaultProfile;
+
+    return (
         <img
-            src={final_profile
-            ? `${final_profile}`
-            : defaultProfile
-            }  
+            src={avatarUrl}
             className="my-review-pro"
             alt="avatar"
+            onError={(e) => {
+                // fallback ไป defaultProfile ถ้าโหลด avatar ไม่ได้
+                e.target.onerror = null; // ป้องกัน loop
+                e.target.src = defaultProfile;
+            }}
         />
     );
 };
@@ -1081,13 +1087,11 @@ const validateReviewForm = (formData) => {
     };
 
 const showDate = (review) => {
-    if (review.updated_at) {
-        review.updated_at = review.updated_at.split('T')[0];
-        return (<div className="show-date-review">{review.updated_at}</div>);
-    } else {
-        review.created_at = review.created_at.split('T')[0];
-        return (<div className="show-date-review">{review.created_at}</div>);
-    }
+   const date = review?.updated_at || review?.created_at;
+    if (!date) return <div className="show-date-review">No date</div>;
+
+    const formattedDate = date.split('T')[0];
+    return <div className="show-date-review">{formattedDate}</div>;
 };
 
 export default MenuDetail;

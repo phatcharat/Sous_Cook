@@ -106,7 +106,7 @@
 }
 
 
-.summit-button {
+.submit-button {
   height: 3.75rem;
   margin-top: 0.5rem;
   margin-bottom: 2rem;
@@ -124,16 +124,16 @@
   transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-.summit-button:hover:not(:disabled) {
+.submit-button:hover:not(:disabled) {
   background: #e88a01;
   border-color: #e88a01;
 }
 
-.summit-button:active:not(:disabled) {
+.submit-button:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-.summit-button:disabled {
+.submit-button:disabled {
   background: #cccccc;
   border-color: #cccccc;
   cursor: not-allowed;
@@ -198,6 +198,29 @@
   border: 2px solid #43a76d;
   background-color: rgb(251, 255, 242);
   color: #43a76d;
+}
+
+.signin-link {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.signin-text-small {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.signin-link-button {
+  background: none;
+  border: none;
+  color: #FE9801;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.875rem;
 }
 
 

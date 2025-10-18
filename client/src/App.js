@@ -18,7 +18,7 @@ import FavoriteMenu from './components/FavoriteMenu';
 import SearchBar from './components/SearchBar';
 import HistoryScreen from './components/History';
 import Setting from './components/Setting';
-import Newpassword from './pages/Newpassword';
+import NewpasswordPage from './pages/Newpassword';
 import MenuReview from './components/MenuReview';
 import ShoppingList from './components/ShoppingList';
 import CameraSearch from './components/cameraSearch';
@@ -49,7 +49,7 @@ function App() {
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/search" element={<SearchBar />} />
         <Route path="/setting" element={<Setting />} />
-        <Route path="/new-password" element={<Newpassword/>}/>
+        <Route path="/reset-password/:token" element={<NewpasswordPage/>}/>
         <Route path="/reviews" element={<MenuReview />} />
         <Route path="/shoppinglist" element={<ShoppingList />} />
         <Route path="/camera-share-dish" element={<CameraSharedDish />} />
