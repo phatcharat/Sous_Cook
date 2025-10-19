@@ -137,7 +137,7 @@ const LoginPage = () => {
 
     // Clear field error
     if (fieldErrors[name]) {
-      setFieldErrors(prevErrors => {
+      setFieldErrors(prev => {
           const updatedErrors = { ...prevErrors };
           delete updatedErrors[name]; 
           return updatedErrors;
