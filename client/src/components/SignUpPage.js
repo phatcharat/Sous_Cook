@@ -34,8 +34,13 @@ const SignUpPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
 
         // clear field error
-        if (fieldErrors[name]) {
-            setFieldErrors(prev => ({ ...prev, [name]: '' }));
+        if (fieldErrors[name] && value) {
+            setFieldErrors(prev => {
+                const updatedErrors = { ...prevErrors };
+                delete updatedErrors[name]; 
+                return updatedErrors;
+            });
+            
         }
 
         // clear alert
