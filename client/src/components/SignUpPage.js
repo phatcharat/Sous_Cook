@@ -35,7 +35,7 @@ const SignUpPage = () => {
 
         // clear field error
         if (fieldErrors[name] && value) {
-            setFieldErrors(prev => {
+            setFieldErrors(prevErrors => {
                 const updatedErrors = { ...prevErrors };
                 delete updatedErrors[name]; 
                 return updatedErrors;
