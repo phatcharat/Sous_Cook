@@ -49,11 +49,12 @@
 }
 
 .form-field {
+  background-color: #43a76d;
   display: flex;
   position: relative;
   min-height: 4.5rem;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .input {
@@ -116,7 +117,7 @@
   border-radius: 1rem;
   background: #FE9801;
   color: #FFFDF6;
-  font-size: 1rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 1.6px;
   font-family: 'Manrope', sans-serif;
