@@ -1873,6 +1873,8 @@ If no allergens are found, return: {"alerts": []}
   }
 });
 
+// small community
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const communityStorage = multer.diskStorage({
@@ -1904,9 +1906,11 @@ const communityUpload = multer({
   }
 });
 
+// Fetch community posts, optionally filtered by menu_id
 app.get('/api/community', async (req, res) => {
   try {
     const menuId = req.query.menu_id ? Number(req.query.menu_id) : null;
+
     let sql = `
       SELECT 
         c.post_id, c.user_id, c.menu_id, c.image, c.caption, 
@@ -1916,20 +1920,43 @@ app.get('/api/community', async (req, res) => {
       JOIN users u ON c.user_id = u.user_id
     `;
     const params = [];
-
     if (menuId) {
       sql += ' WHERE c.menu_id = $1';
       params.push(menuId);
     }
-
     sql += ' ORDER BY c.created_at DESC';
-
     const result = await pool.query(sql, params);
+
+    // Fetch comments for all posts at once
+    const postIds = result.rows.map(p => p.post_id);
+    let commentsMap = {};
+    if (postIds.length) {
+      const commentsRes = await pool.query(`
+        SELECT cm.comment_id, cm.post_id, cm.user_id, cm.comment_text, cm.created_at,
+               u.username, u.avatar
+        FROM comments cm
+        JOIN users u ON cm.user_id = u.user_id
+        WHERE cm.post_id = ANY($1::int[])
+        ORDER BY cm.created_at DESC
+      `, [postIds]);
+      commentsRes.rows.forEach(c => {
+        if (!commentsMap[c.post_id]) commentsMap[c.post_id] = [];
+        commentsMap[c.post_id].push({
+          comment_id: c.comment_id,
+          user_id: c.user_id,
+          username: c.username,
+          avatar_url: c.avatar ? `${baseUrl}/uploads/avatars/${path.basename(c.avatar)}` : null,
+          comment_text: c.comment_text,
+          created_at: c.created_at
+        });
+      });
+    }
 
     const posts = result.rows.map(post => ({
       ...post,
       avatar_url: post.avatar ? `${baseUrl}/uploads/avatars/${post.avatar}` : null,
-      image_url: post.image ? `${baseUrl}/${post.image}` : null
+      image_url: post.image ? `${baseUrl}/uploads/community/${path.basename(post.image)}` : null,
+      comments: commentsMap[post.post_id] || []
     }));
 
     res.json({ success: true, posts });
@@ -1939,6 +1966,7 @@ app.get('/api/community', async (req, res) => {
   }
 });
 
+// Upload a new community post
 app.post('/api/community', communityUpload.single('image'), async (req, res) => {
   const { user_id, menu_id, caption } = req.body;
 
@@ -1965,7 +1993,7 @@ app.post('/api/community', communityUpload.single('image'), async (req, res) => 
       post: {
         ...post,
         avatar_url: post.avatar ? `${baseUrl}/uploads/avatars/${post.avatar}` : null,
-        image_url: post.image ? `${baseUrl}/${post.image}` : null
+        image_url: post.image ? `${baseUrl}/uploads/community/${path.basename(post.image)}` : null
       }
     });
   } catch (err) {
@@ -1974,11 +2002,13 @@ app.post('/api/community', communityUpload.single('image'), async (req, res) => 
   }
 });
 
+// Toggle like/unlike for a post
 app.post('/api/community/:post_id/like', async (req, res) => {
   const { post_id } = req.params;
   const { user_id } = req.body;
 
   try {
+    // Check if the user has already liked the post
     const check = await pool.query(
       'SELECT * FROM community_likes WHERE user_id = $1 AND post_id = $2',
       [user_id, post_id]
@@ -1988,6 +2018,7 @@ app.post('/api/community/:post_id/like', async (req, res) => {
     let like_count;
 
     if (check.rows.length > 0) {
+      // Unlike the post
       await pool.query(
         'DELETE FROM community_likes WHERE user_id = $1 AND post_id = $2',
         [user_id, post_id]
@@ -2000,6 +2031,7 @@ app.post('/api/community/:post_id/like', async (req, res) => {
       );
       like_count = update.rows[0].like_count;
     } else {
+      // Like the post
       await pool.query(
         'INSERT INTO community_likes (user_id, post_id) VALUES ($1, $2)',
         [user_id, post_id]
@@ -2017,6 +2049,45 @@ app.post('/api/community/:post_id/like', async (req, res) => {
   } catch (err) {
     console.error('Error toggling like:', err);
     res.status(500).json({ error: 'Failed to toggle like' });
+  }
+});
+
+// Add a comment to a community post
+app.post('/api/community/:postId/comments', async (req, res) => {
+  try {
+    const postId = Number(req.params.postId);
+    const { user_id, comment_text } = req.body;
+
+    if (isNaN(postId) || !user_id || !comment_text) {
+      return res.status(400).json({ error: 'Missing required fields.' });
+    }
+
+    // Insert new comment
+    const insertCommentSql = `
+      INSERT INTO comments (post_id, user_id, comment_text)
+      VALUES ($1, $2, $3)
+      RETURNING comment_id, created_at;
+    `;
+    const commentResult = await pool.query(insertCommentSql, [postId, user_id, comment_text]);
+    const newCommentId = commentResult.rows[0].comment_id;
+    const newCommentCreatedAt = commentResult.rows[0].created_at;
+
+    // Fetch username and avatar of the commenter
+    const userSql = `SELECT username, avatar FROM users WHERE user_id = $1;`;
+    const userResult = await pool.query(userSql, [user_id]);
+    const { username, avatar } = userResult.rows[0];
+
+    res.status(201).json({
+      success: true,
+      message: 'Comment added successfully.',
+      comment_id: newCommentId,
+      username,
+      avatar_url: avatar ? `${baseUrl}/uploads/avatars/${path.basename(avatar)}` : null,
+      created_at: newCommentCreatedAt
+    });
+  } catch (err) {
+    console.error('Error adding comment:', err);
+    res.status(500).json({ error: 'Failed to add comment.' });
   }
 });
 
