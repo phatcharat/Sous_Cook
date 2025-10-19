@@ -51,7 +51,7 @@
 .form-field {
   display: flex;
   position: relative;
-  min-height: 3.5rem;
+  min-height: 4rem;
   flex-direction: column;
   margin-bottom: 0.7rem;
 }
@@ -86,7 +86,7 @@
 
 .field-error {
   position: absolute;
-  top: 1.2rem;
+  top: 1.5rem;
   left: 2.5rem;
   color: #FE9801;
   font-size: 0.75rem;

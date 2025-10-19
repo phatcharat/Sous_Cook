@@ -1124,7 +1124,7 @@ app.get('/api/menu-detail/:menuId/reviews', async (req, res) => {
     const rawStats = rating_result.rows.length > 0 ? rating_result.rows[0] : {};
     const summaryData = {
       sum_rating: parseFloat(rawStats.sum_rating) || 0,
-      avg_rating: parseFloat(rawStats.avg_rating).toFixed(0) || 0,
+      avg_rating: parseFloat(rawStats.avg_rating).toFixed(2) || 0,
       rate_5: parseInt(rawStats.rate_5) || 0,
       rate_4: parseInt(rawStats.rate_4) || 0,
       rate_3: parseInt(rawStats.rate_3) || 0,
