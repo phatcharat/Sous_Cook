@@ -49,10 +49,10 @@
 }
 
 .form-field {
-  background-color: #43a76d;
+  /* background-color: #43a76d; */
   display: flex;
   position: relative;
-  min-height: 4.5rem;
+  min-height: 3.5rem;
   flex-direction: column;
   margin-bottom: 0.5rem;
 }
@@ -117,7 +117,7 @@
   border-radius: 1rem;
   background: #FE9801;
   color: #FFFDF6;
-  font-size: 0.7rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 1.6px;
   font-family: 'Manrope', sans-serif;
