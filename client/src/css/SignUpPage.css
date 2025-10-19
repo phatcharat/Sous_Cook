@@ -53,7 +53,7 @@
   position: relative;
   min-height: 3.5rem;
   flex-direction: column;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .input {
@@ -84,7 +84,7 @@
 
 .field-error {
   position: absolute;
-  top: 1.5rem;
+  top: 1rem;
   left: 2.5rem;
   color: #FE9801;
   font-size: 0.75rem;
