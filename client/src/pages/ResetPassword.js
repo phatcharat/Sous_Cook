@@ -168,7 +168,7 @@ const ResetPasswordPage = () => {
             </div>
             
             <div className="reset-info">
-              <p>Didn't receive the email? Check your spam folder or try again.</p>
+              <p className="reset-info-text">Didn't receive the email? Check your spam folder or try again.</p>
             </div>
 
             <button
