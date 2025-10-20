@@ -423,80 +423,184 @@ app.post('/api/auth/reset-password', async (req, res) => {
     // Create reset URL
     const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
 
-    // Send email via SendGrid
     const msg = {
       to: email,
-      from: process.env.SENDGRID_FROM_EMAIL, // verified sender in SendGrid
-      subject: 'Password Reset Request - SousCook',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
-            .content { background-color: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
-            .button { 
-              display: inline-block; 
-              padding: 12px 30px; 
-              background-color: #007bff; 
-              color: #ffffff; 
-              text-decoration: none; 
-              border-radius: 5px; 
-              margin: 20px 0;
-            }
-            .footer { 
-              background-color: #f8f9fa; 
-              padding: 20px; 
-              text-align: center; 
-              font-size: 12px; 
-              color: #666;
-              border-radius: 0 0 5px 5px;
-            }
-            .warning { color: #dc3545; margin-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>SousCook</h1>
-            </div>
-            <div class="content">
-              <h2>Password Reset Request</h2>
-              <p>Hello ${user.username},</p>
-              <p>We received a request to reset your password. Click the button below to create a new password:</p>
-              <div style="text-align: center;">
-                <a href="${resetUrl}" class="button">Reset Password</a>
-              </div>
-              <p>Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #007bff;">${resetUrl}</p>
-              <p class="warning">
-                <strong>Important:</strong> This link will expire in 1 hour. 
-                If you didn't request a password reset, please ignore this email.
-              </p>
-            </div>
-            <div class="footer">
-              <p>© ${new Date().getFullYear()} SousCook. All rights reserved.</p>
-              <p>This is an automated email. Please do not reply.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
+      from: {
+        email: process.env.SENDGRID_FROM_EMAIL || 'noreply@souscook.com',
+        name: process.env.SENDGRID_FROM_NAME || 'SousCook'
+      },
+      subject: 'Reset Your SousCook Password',
+
       text: `
-        Hello ${user.username},
+Hello ${user.username},
+
+We received a request to reset your password for your SousCook account.
+
+Please visit this link to reset your password:
+${resetUrl}
+
+IMPORTANT:
+• This link will expire in 1 hour
+• If you didn't request this reset, please ignore this email
+• Your password won't change until you click the link and set a new one
+
+Best regards,
+The SousCook Team
+
+© ${new Date().getFullYear()} SousCook - Your Personal Cooking Assistant
+This is an automated email. Please do not reply.
+  `,
+
+      html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+          line-height: 1.6; 
+          color: #333;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f4;
+        }
+        .container { 
+          max-width: 600px; 
+          margin: 0 auto; 
+          background-color: #ffffff;
+        }
+        .header { 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 40px 20px; 
+          text-align: center;
+        }
+        .header h1 {
+          color: #ffffff;
+          margin: 0;
+          font-size: 28px;
+          font-weight: 600;
+        }
+        .content { 
+          padding: 40px 30px;
+        }
+        .content h2 {
+          color: #333;
+          font-size: 24px;
+          margin-top: 0;
+          margin-bottom: 20px;
+        }
+        .content p {
+          color: #555;
+          font-size: 16px;
+          margin-bottom: 20px;
+        }
+        .button-container {
+          text-align: center;
+          margin: 35px 0;
+        }
+        .button { 
+          display: inline-block; 
+          padding: 16px 40px; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #ffffff !important; 
+          text-decoration: none; 
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 16px;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+          transition: transform 0.2s;
+        }
+        .button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .link-box {
+          background-color: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 6px;
+          padding: 15px;
+          margin: 25px 0;
+          word-break: break-all;
+        }
+        .link-text {
+          color: #667eea;
+          font-size: 14px;
+          text-decoration: none;
+        }
+        .warning { 
+          background-color: #fff3cd;
+          border-left: 4px solid #ffc107;
+          padding: 15px;
+          margin: 25px 0;
+          border-radius: 4px;
+        }
+        .warning strong {
+          color: #856404;
+          display: block;
+          margin-bottom: 5px;
+        }
+        .warning p {
+          color: #856404;
+          margin: 0;
+          font-size: 14px;
+        }
+        .footer { 
+          background-color: #f8f9fa; 
+          padding: 30px 20px; 
+          text-align: center; 
+          border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+          font-size: 13px; 
+          color: #6c757d;
+          margin: 5px 0;
+        }
+        .footer a {
+          color: #667eea;
+          text-decoration: none;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>SousCook</h1>
+        </div>
         
-        We received a request to reset your password. 
-        Please visit this link to reset your password: ${resetUrl}
+        <div class="content">
+          <h2>Password Reset Request</h2>
+          <p>Hello <strong>${user.username}</strong>,</p>
+          <p>We received a request to reset your password for your SousCook account. Click the button below to create a new password:</p>
+          
+          <div class="button-container">
+            <a href="${resetUrl}" class="button">Reset My Password</a>
+          </div>
+          
+          <p style="text-align: center; color: #888; font-size: 14px;">
+            Button not working? Copy and paste this link into your browser:
+          </p>
+          <div class="link-box">
+            <a href="${resetUrl}" class="link-text">${resetUrl}</a>
+          </div>
+          
+          <div class="warning">
+            <strong>Important Security Information:</strong>
+            <p>• This link will expire in <strong>1 hour</strong></p>
+            <p>• If you didn't request this reset, please ignore this email</p>
+            <p>• Your password will not change until you click the link and set a new one</p>
+          </div>
+        </div>
         
-        This link will expire in 1 hour.
-        
-        If you didn't request a password reset, please ignore this email.
-        
-        Best regards,
-        SousCook Team
-      `
+        <div class="footer">
+          <p><strong>© ${new Date().getFullYear()} SousCook</strong> - Your Personal Cooking Assistant</p>
+          <p>This is an automated email. Please do not reply to this message.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
     };
 
     await sgMail.send(msg);
