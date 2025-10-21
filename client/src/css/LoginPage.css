@@ -257,13 +257,10 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  background-color: #43a76d;
 }
 
 #google-signin-button {
-  width: 85%;
-  /* margin-left: 0.5rem;
-  margin-right: 0.5rem; */
+  width: 50vw;
   display: flex;
   justify-content: center;
 }
