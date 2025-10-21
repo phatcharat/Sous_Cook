@@ -26,8 +26,6 @@ const LoginPage = () => {
   // Initialize Google Sign-In
   useEffect(() => {
     const initializeGoogleSignIn = () => {
-      const containerGoogle = document.getElementById('google-signin-button');
-      const googleWidth = containerGoogle.clientWidth - 32;
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
           client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
@@ -36,11 +34,11 @@ const LoginPage = () => {
           cancel_on_tap_outside: true,
         });
         window.google.accounts.id.renderButton(
-          containerGoogle,
+          document.getElementById('google-signin-button'),
           {
             theme: 'outline',
             size: 'large',
-            width: googleWidth.toString(),
+            width: '270',
             text: 'signin_with',
             shape: 'rectangular',
           }
