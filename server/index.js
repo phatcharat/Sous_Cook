@@ -2192,33 +2192,6 @@ app.post('/api/community/:postId/comments', async (req, res) => {
   }
 });
 
-// Delete a comment
-app.delete('/api/community/:postId/comments/:commentId', async (req, res) => {
-  try {
-    const postId = Number(req.params.postId);
-    const commentId = Number(req.params.commentId);
-
-    if (isNaN(postId) || isNaN(commentId)) {
-      return res.status(400).json({ error: 'Invalid postId or commentId' });
-    }
-
-    const result = await pool.query(
-      'DELETE FROM comments WHERE comment_id = $1 AND post_id = $2 RETURNING *',
-      [commentId, postId]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Comment not found' });
-    }
-
-    res.json({ success: true, message: 'Comment deleted successfully.' });
-  } catch (err) {
-    console.error('Error deleting comment:', err);
-    res.status(500).json({ error: 'Failed to delete comment.' });
-  }
-});
-
-
 // Serve static files from React build
 const buildPath = path.join(__dirname, 'client_build');
 console.log('Looking for client build at:', buildPath);
