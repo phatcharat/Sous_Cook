@@ -148,7 +148,6 @@
 .chart-svg {
   width: 100%;
   height: 240px;
-  /* เพิ่มความสูงของ SVG */
   background: #fff;
   margin-bottom: 10px;
 }
@@ -269,54 +268,222 @@
   }
 }
 
-.chart-svg circle {
-  transition: all 0.2s ease;
-}
-
-.chart-svg circle:hover {
-  r: 6;
-  cursor: pointer;
-  fill: #7fb428;
-}
-
 @keyframes spinner {
   to {
     transform: rotate(360deg);
   }
 }
 
+/* Mobile Responsive Styles */
 @media (max-width: 480px) {
+  .homepage-container {
+    padding: 0 15px;
+  }
+
+  .header-image {
+    max-width: 200px;
+  }
+
+  .second-container {
+    padding-left: 0;
+  }
+
+  .greet-user {
+    font-size: 22px;
+  }
+
+  .list-icon-container {
+    padding-left: 0.5rem;
+  }
+
+  .list-badge {
+    font-size: 10px;
+    min-width: 18px;
+    padding: 1px 1px;
+  }
+
+  .question-text {
+    margin-top: 20px;
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
   .search-box {
-    width: 86%;
+    width: 100%;
+    max-width: 340px;
+    height: 45px;
+    padding-left: 18px;
+  }
+
+  .search-icon {
+    width: 20px;
+    height: 20px;
   }
 
   .search-text {
-    font-size: 16px;
+    font-size: 15px;
+    padding-left: 15px;
+  }
+
+  .most-searched {
+    padding-left: 0;
+  }
+
+  .most-searched-text {
+    font-size: 18px;
+    margin-top: 25px;
+  }
+
+  .ingredients-scroll {
+    gap: 15px;
+    height: 110px;
+  }
+
+  .food-waste-stat {
+    padding-left: 0;
+  }
+
+  .food-waste-text {
+    font-size: 18px;
+    margin-top: 25px;
+    margin-bottom: 15px;
   }
 
   .chart-box {
-    width: 320px;
-    height: 291px;
+    width: 100%;
+    max-width: 300px;
+    height: 270px;
+    border-radius: 35px;
+    padding: 20px 15px 15px 15px;
   }
 
   .chart-svg {
-    height: 200px;
+    height: 180px;
+  }
+
+  .axis-label {
+    font-size: 11px;
   }
 
   .x-axis-labels {
-    padding: 0 30px;
-    font-size: 12px;
+    font-size: 11px;
+  }
+
+  .stat-info {
+    margin-top: 10px;
   }
 
   .stat-text {
     font-size: 14px;
+    margin: 3px 0;
   }
 
   .highlight-orange {
+    font-size: 15px;
+  }
+
+  .banner-container {
+    margin-bottom: 20px;
+  }
+
+  .banner-scroll {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 340px;
+    height: 110px;
+  }
+
+  .random-box {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .random-menu {
+    width: 100%;
+    max-width: 340px;
+    height: 350px;
+    object-fit: cover;
+  }
+
+  .random-btn {
+    bottom: 20px;
+    width: 160px;
+    height: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .news {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    margin-top: 20px;
+    margin-bottom: 80px;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+  .header-image {
+    max-width: 180px;
+  }
+
+  .greet-user {
+    font-size: 20px;
+  }
+
+  .question-text {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+
+  .search-box {
+    max-width: 300px;
+    height: 42px;
+  }
+
+  .search-text {
+    font-size: 14px;
+  }
+
+  .most-searched-text,
+  .food-waste-text {
     font-size: 16px;
   }
 
-  .axis-label {
-    font-size: 10px;
+  .chart-box {
+    max-width: 300px;
+    height: 280px;
+    border-radius: 30px;
+  }
+
+  .chart-svg {
+    height: 160px;
+  }
+
+  .stat-text {
+    font-size: 13px;
+  }
+
+  .highlight-orange {
+    font-size: 14px;
+  }
+
+  .banner-scroll,
+  .random-menu,
+  .news {
+    max-width: 300px;
+  }
+
+  .random-menu {
+    height: 320px;
+  }
+
+  .random-btn {
+    width: 140px;
+    height: 36px;
+    font-size: 13px;
   }
 }
