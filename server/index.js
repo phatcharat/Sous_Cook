@@ -411,7 +411,6 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
 
     // Save reset token to database
     await pool.query(
@@ -420,8 +419,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
       [user.user_id, resetToken]
     );
 
-    // Create reset URL
-    const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
+    const resetUrl = `https://souscook.com/reset-password/${resetToken}`;
 
     const msg = {
       to: email,
@@ -472,7 +470,7 @@ This is an automated email. Please do not reply.
           background-color: #ffffff;
         }
         .header { 
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #FE9801;
           padding: 40px 20px; 
           text-align: center;
         }
@@ -503,7 +501,7 @@ This is an automated email. Please do not reply.
         .button { 
           display: inline-block; 
           padding: 16px 40px; 
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #FE9801;
           color: #ffffff !important; 
           text-decoration: none; 
           border-radius: 8px;
@@ -538,7 +536,6 @@ This is an automated email. Please do not reply.
         }
         .warning strong {
           color: #856404;
-          display: block;
           margin-bottom: 5px;
         }
         .warning p {
