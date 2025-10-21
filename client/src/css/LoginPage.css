@@ -260,7 +260,7 @@
 }
 
 #google-signin-button {
-  width: 50vw;
+  width: 100%;
   display: flex;
   justify-content: center;
 }

@@ -38,7 +38,7 @@ const LoginPage = () => {
           {
             theme: 'outline',
             size: 'large',
-            width: '300',
+            width: '250',
             text: 'signin_with',
             shape: 'rectangular',
           }
