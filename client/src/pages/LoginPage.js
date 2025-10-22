@@ -26,6 +26,7 @@ const LoginPage = () => {
   // Initialize Google Sign-In
   useEffect(() => {
     const initializeGoogleSignIn = () => {
+<<<<<<< HEAD
           if (window.google && window.google.accounts) {
             window.google.accounts.id.initialize({
               client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
@@ -44,6 +45,23 @@ const LoginPage = () => {
               }
             );
             setIsGoogleReady(true);
+=======
+      if (window.google && window.google.accounts) {
+        window.google.accounts.id.initialize({
+          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+          callback: handleGoogleSignIn,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById('google-signin-button'),
+          {
+            theme: 'outline',
+            size: 'large',
+            width: '300',
+            text: 'signin_with',
+            shape: 'rectangular',
+>>>>>>> parent of 9d5a44d (update ui signin google button)
           }
         };
 
