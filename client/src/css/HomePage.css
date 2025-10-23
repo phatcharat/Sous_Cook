@@ -148,7 +148,7 @@
   font-family: 'Manrope';
   font-size: 20px;
   font-weight: 700;
-  margin-top: 35px;
+  margin-top: 45px;
   margin-bottom: 20px;
 }
 
@@ -228,6 +228,7 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   margin-bottom: 28px;
+  margin-top: 14px;
 }
 
 .banner-row {
@@ -248,6 +249,8 @@
 .random-box {
   position: relative;
   display: inline-block;
+  margin-top: 14px;
+  margin-bottom: 14px;
 }
 
 .random-menu {
@@ -427,7 +430,6 @@
     width: 100%;
     max-width: 340px;
     height: 350px;
-    object-fit: cover;
   }
 
   .random-btn {
