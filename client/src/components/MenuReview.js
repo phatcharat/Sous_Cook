@@ -427,14 +427,7 @@ const MenuReview = () => {
                 <form className="review-form" onSubmit={handleSubmit}>
                     <div className="review-profile">
                         <div className="review-pro-pic">
-                            <img
-                                src={userData.avatar_url
-                                    ? `${userData.avatar_url}`
-                                    : defaultProfile
-                                }
-                                className="my-review-pro"
-                                alt="avatar"
-                                />
+                            {showProfile(userData)}
                         </div>
                         <div className="review-pro-rate">
                             <div className="review-username">{userData.username}</div>

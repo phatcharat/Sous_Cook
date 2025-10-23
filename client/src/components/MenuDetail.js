@@ -282,12 +282,6 @@ const MenuDetail = () => {
     const handleReview = async (e) => {
         e.preventDefault();
 
-        setReviewData(prevData => ({
-            ...prevData,
-            user_id: parseInt(userId, 10),
-            menu_id: actualMenuId
-        }));
-
         const newErrors = validateReviewForm(formReview);
         setErrors(newErrors); // แสดงข้อผิดพลาดทั้งหมด
         const isValid = Object.keys(newErrors).length === 0;
@@ -295,7 +289,6 @@ const MenuDetail = () => {
         if (!isValid) {
             return; 
         }
-        // console.log("information of formReview", formReview);
 
         const rating_int = parseInt(formReview.rating, 10);
         console.log('has review?', hasReviewed);
@@ -545,6 +538,11 @@ const MenuDetail = () => {
                 percent_rate_2: (reviews.length > 0 ? (rate_2 / reviews.length) * 100 : 0),
                 percent_rate_1: (reviews.length > 0 ? (rate_1 / reviews.length) * 100 : 0)
             });
+            setReviewData(prevData => ({
+                ...prevData,
+                user_id: parseInt(userId, 10),
+                menu_id: actualMenuId
+            }));
             const foundReview = reviews && Array.isArray(reviews) ? 
             reviews.some(review_find => String(review_find.user_id) === userId) : false; 
             setHasReview(foundReview);
@@ -913,14 +911,7 @@ const MenuDetail = () => {
                         <form className="review-form" onSubmit={handleReview}>
                             <div className="review-profile">
                                 <div className="review-pro-pic">
-                                    <img
-                                        src={userData.avatar_url
-                                            ? `${userData.avatar_url}`
-                                            : defaultProfile
-                                        }
-                                        className="my-review-pro"
-                                        alt="avatar"
-                                    />
+                                    {showProfile(userData)}
                                 </div>
                                 <div className="review-pro-rate">
                                     <div className="review-username">{userData?.username || 'Unknown user'}</div>
