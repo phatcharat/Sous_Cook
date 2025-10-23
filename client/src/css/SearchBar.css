@@ -9,12 +9,12 @@
     width: 90%;
     max-width: 360px;
     margin: 10px auto 24px auto;
-    background: #fdfdfd;
     border-radius: 20px;
     box-shadow: none;
     padding: 5px 12px;
     height: 45px;
     border: #f9b959 2px solid;
+    background-color: #fffefd;
 }
 
 .search-input {
@@ -49,7 +49,6 @@
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    background-color: #f6f1e5;
     text-align: center;
     font-family: 'Manrope', sans-serif;
     padding: 0 20px;
@@ -105,6 +104,9 @@
 .ingredients-container {
     width: 100%;
     flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .ingredients-text {
@@ -200,18 +202,19 @@
 
 .selected-ingredients-badge p {
     margin: 0;
-    font-size: 12px;
+    font-size: 8px;
 }
 
 .ingredient-added-popup {
+    font-size: 12px;
     position: fixed;
-    top: 20px;
-    left: 50%;
+    top: 430px;
+    left: 25%;
     transform: translateX(-50%);
     background-color: #ffffff;
     color: rgb(99, 99, 99);
-    padding: 1px 8px;
-    border-radius: 8px;
+    padding: 0.8px 15px;
+    border-radius: 15px;
     z-index: 1000;
     animation: fadeInOut 2s ease-in-out;
 }

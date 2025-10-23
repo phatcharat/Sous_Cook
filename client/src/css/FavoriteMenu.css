@@ -30,7 +30,7 @@
 
 .meal-card {
   background-color: none;
-  padding: 1.5rem;
+  padding: 1rem;
   position: relative;
 }
 
@@ -70,8 +70,9 @@
 }
 
 .meal-info {
-  flex: 1;
+  display: flex;
   min-width: 0;
+  flex-direction: column;
 }
 
 .meal-title {
@@ -79,7 +80,7 @@
   font-weight: 600;
   color: #111827;
   line-height: 1.25;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-family: 'Manrope', sans-serif;
 }
 
@@ -88,10 +89,10 @@
   flex-direction: column;
   gap: 0.25rem;
   font-family: 'Manrope', sans-serif;
+  font-size: 0.5rem;
 }
 
 .time-text {
-  font-size: 0.875rem;
   color: #6b7280;
   margin: 0;
   font-family: 'Manrope', sans-serif;
@@ -99,12 +100,12 @@
 
 .favorite-heart {
   position: absolute;
-  right: 1rem;
+  left: 90%;
+  top: 85%;
   background: none;
   border: none;
   cursor: pointer;
   padding-bottom: 1rem;
-  border-radius: 50%;
   transition: background-color 0.2s ease;
 }
 

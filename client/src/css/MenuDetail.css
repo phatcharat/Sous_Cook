@@ -49,25 +49,27 @@
 
 
 .favorite-button {
-    background-color: #fdf6e3;
+    width: 40px;
+    height: 40px;
+    background-color: #fdf6e3; 
+    padding: 5px;
     position: absolute;
     top: 12px;
     right: 10px;
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
-    z-index: 10;
 }
 
 .favorite-button img {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
+    margin-right: -1.2px;
+    margin-bottom: -2px;
 }
 
 .favorite-button:hover {
@@ -141,13 +143,13 @@ div.text-container div.header{
 }
 
 .ingredientAndSeasoning-container {
-    display: grid;                       /* ใช้ Grid Layout */
-    grid-template-columns: repeat(3, 1fr); /* 3 คอลัมน์เท่าๆ กัน */
-    gap: 15px;                            /* ระยะห่างระหว่างการ์ด */
-    justify-items: center;                /* จัดการ์ดให้อยู่กลางคอลัมน์ */
-    align-items: start;                   /* จัดแนวบน */
-    margin: 0 auto;
-    padding: 0 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    align-items: start;
+    margin: auto;
 }
 
 .ingredient-item {
@@ -174,8 +176,8 @@ div.text-container div.header{
 }
 
 .ingredients-image {
-    height: 80px;
-    width: 80px;
+    height: 70px;
+    width: 70px;
     object-fit: contain;
 }
 
@@ -326,6 +328,7 @@ ul.instructions-list li{
 
 .tips-container, .nutrition-container {
   font-family: 'Quicksand', sans-serif;
+  font-size: 1rem;
 }
 
 .tips-container ul,
