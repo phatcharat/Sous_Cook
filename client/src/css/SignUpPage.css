@@ -53,7 +53,6 @@
   position: relative;
   min-height: 4rem;
   flex-direction: column;
-  margin-bottom: 0.5rem;
 }
 
 .input {
@@ -79,14 +78,14 @@
 }
 
 .input-error {
-  border-color: #FE9801;
+  border-color: #FF3B30;
 }
 
 .field-error {
   position: absolute;
-  top: 1.7rem;
+  top: 2.5rem;
   left: 2.5rem;
-  color: #FE9801;
+  color: #FF3B30;
   font-size: 0.75rem;
   text-align: left;
   font-weight: 400;
@@ -109,7 +108,7 @@
 .submit-button {
   height: 3rem;
   margin-top: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   margin-left: 3.5rem;
   margin-right: 3.5rem;
   border: 1px solid #FE9801;
@@ -189,9 +188,9 @@
 }
 
 .alert-error {
-  border: 2px solid #FE9801;
-  background-color: #fcf4e7;
-  color: #FE9801;
+  border: 2px solid #FF3B30;
+  background-color: #fff0f0;
+  color: #FF3B30;
 }
 
 .alert-success {
@@ -243,11 +242,6 @@
   .guest-button {
     width: 90%;
     max-width: 400px;
-  }
-
-  .field-error {
-    margin-left: 1rem;
-    margin-right: 1rem;
   }
 
   .summit-button {

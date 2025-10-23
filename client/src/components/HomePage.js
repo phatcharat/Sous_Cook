@@ -28,6 +28,7 @@ const HomePage = () => {
   const [activeImages, setActiveImages] = useState([bread, tomato, celery, pork]);
   const [username, setUsername] = useState("USER");
   const [isLoadingRandom, setIsLoadingRandom] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [shoppingListCount, setShoppingListCount] = useState(0);
 
@@ -119,6 +120,14 @@ const HomePage = () => {
     return () => window.removeEventListener('storage', loadShoppingList);
   }, []);
 
+  const smoothNavigate = (path, state = {}) => {
+    setIsNavigating(true);
+    
+    setTimeout(() => {
+      navigate(path, { state });
+    }, 150);
+  };
+
   const toggleImage = (index) => {
     const newImages = [...activeImages];
     switch (index) {
@@ -142,11 +151,11 @@ const HomePage = () => {
 
   // ค่าคงที่สำหรับกราฟ - ขยายความสูงโดยลด bottomPadding
   const chartWidth = 314;
-  const chartHeight = 220;  // เพิ่มจาก 180 เป็น 220
+  const chartHeight = 220;
   const leftPadding = 35;
   const rightPadding = 15;
   const topPadding = 15;
-  const bottomPadding = 28;  // ลดจาก 35 เป็น 28 เพื่อไม่ดันข้อความ
+  const bottomPadding = 28;
 
   const getChartBounds = () => {
     if (chartData.length === 0) {
@@ -242,30 +251,29 @@ const HomePage = () => {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/random-menu`);
 
       if (response.data.success && response.data.menu?.menu_id) {
-        navigate('/menu-detail', {
-          state: {
-            menu: response.data.menu,
-            menu_id: response.data.menu.menu_id,
-            isRandomMenu: true
-          }
+        smoothNavigate('/menu-detail', {
+          menu: response.data.menu,
+          menu_id: response.data.menu.menu_id,
+          isRandomMenu: true
         });
       }
     } catch (error) {
       console.error('Error:', error);
       alert("Failed to generate menu. Please try again.");
-    } finally {
       setIsLoadingRandom(false);
     }
   };
-
-  // Update list icon click handler
   const handleListIconClick = () => {
     const shoppingList = getShoppingListFromStorage();
-    navigate("/shoppinglist", { state: { missingIngredients: shoppingList } });
+    smoothNavigate("/shoppinglist", { missingIngredients: shoppingList });
+  };
+
+  const handleSearchClick = () => {
+    smoothNavigate("/search");
   };
 
   return (
-    <div className="homepage-container">
+    <div className={`homepage-container ${isNavigating ? 'navigating' : ''}`}>
       <img src={header} alt="Header" className="header-image" />
       <div className="second-container">
         <p className="greet-user">HELLO <span className="username">{username}</span></p>
@@ -275,7 +283,7 @@ const HomePage = () => {
             alt="List" 
             className="list-icon" 
             onClick={handleListIconClick}
-            style={{ cursor: "pointer" }} 
+            style={{ cursor: isNavigating ? "not-allowed" : "pointer" }} 
           />
           {shoppingListCount > 0 && (
             <span className="list-badge">{shoppingListCount}</span>
@@ -284,7 +292,11 @@ const HomePage = () => {
       </div>
 
       <p className="question-text">What's on your mind today chef?</p>
-      <div className="search-box" onClick={() => navigate("/search")}>
+      <div 
+        className="search-box" 
+        onClick={handleSearchClick}
+        style={{ cursor: isNavigating ? "not-allowed" : "pointer" }}
+      >
         <img src={searchicon} alt="search" className="search-icon" />
         <p className="search-text">Search your ingredients here</p>
       </div>
@@ -435,9 +447,9 @@ const HomePage = () => {
           <img src={randommenu} alt="RANDOM" className="random-menu" />
           <button
             className={`random-btn ${isLoadingRandom ? 'loading' : ''}`}
-            style={{ cursor: isLoadingRandom ? "not-allowed" : "pointer" }}
+            style={{ cursor: (isLoadingRandom || isNavigating) ? "not-allowed" : "pointer" }}
             onClick={handleRandomMenu}
-            disabled={isLoadingRandom}
+            disabled={isLoadingRandom || isNavigating}
           >
             {isLoadingRandom ? 'GENERATING...' : 'START RANDOM'}
           </button>

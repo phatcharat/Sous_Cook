@@ -10,6 +10,31 @@
   min-height: 100vh;
   background-color: #f6f1e5;
   padding: 0 20px;
+  transition: opacity 0.15s ease-out;
+}
+
+.homepage-container.navigating {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.search-box,
+.list-icon,
+.random-btn {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.search-box:active,
+.list-icon:active {
+  transform: scale(0.95);
+}
+
+.random-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.random-btn.loading {
+  opacity: 0.7;
 }
 
 .header-image {
