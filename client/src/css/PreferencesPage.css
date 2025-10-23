@@ -27,8 +27,7 @@
   font-size: 4.5vh;
   font-weight: 600;
   margin-bottom: 6%;
-  appearance: none;
-  -webkit-appearance: none;
+  color: #000;
 }
 
 .back-button:hover {

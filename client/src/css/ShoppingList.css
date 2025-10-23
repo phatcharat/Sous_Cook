@@ -28,8 +28,7 @@
   display: flex;
   white-space: nowrap;
   gap: 10px;
-  appearance: none;
-  -webkit-appearance: none;
+  color: #000;
 }
 
 .shopping-items {
@@ -46,7 +45,7 @@
   padding: 12px;
   width: 100px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
@@ -67,10 +66,10 @@
 /* ปุ่ม Order */
 .order-button {
   font-family: 'Manrope', sans-serif;
-  position: fixed;      
-  bottom: 20px;         
-  left: 50%;            
-  transform: translateX(-50%); 
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 12px 80px;
   border-radius: 20px;
   font-weight: bold;
@@ -87,7 +86,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -128,11 +127,13 @@
 }
 
 .sponsor-button.lineman {
-  background-color: rgb(255, 250, 241); /* LINE MAN */
+  background-color: rgb(255, 250, 241);
+  /* LINE MAN */
 }
 
 .sponsor-button.grab {
-  background-color: rgb(255, 250, 241); /* Grab */
+  background-color: rgb(255, 250, 241);
+  /* Grab */
 }
 
 .close-button {
@@ -146,25 +147,22 @@
 }
 
 .remove-item {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
 }
 
 .remove-item:hover {
-    background: #ff5252;
+  background: #ff5252;
 }
-
-
-
