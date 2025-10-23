@@ -183,10 +183,6 @@ const LoginPage = () => {
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setAlert({
-        type: 'error',
-        message: 'Please fix the errors above'
-      });
       return;
     }
 
