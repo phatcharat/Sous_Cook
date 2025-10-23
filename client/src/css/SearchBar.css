@@ -1,48 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Quicksand');
 
-/* search bar */
-.search-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 90%;
-    max-width: 360px;
-    margin: 10px auto 24px auto;
-    border-radius: 20px;
-    box-shadow: none;
-    padding: 5px 12px;
-    height: 45px;
-    border: #f9b959 2px solid;
-    background-color: #fffefd;
-}
-
-.search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    background: transparent;
-    padding: 0 8px;
-    font-family: 'Manrope', 'Quicksand', sans-serif;
-}
-
-.camera-icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0 8px;
-    display: flex;
-    align-items: center;
-}
-
-.camera-icon {
-    width: 25px;
-    height: 25px;
-}
-.camera-icon-btn:hover .camera-icon {
-    filter: none;
-}
+/* Search Bar - รวม style ทั้งหมด */
 
 .search-container {
     display: flex;
@@ -55,6 +14,93 @@
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 350px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 2;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+}
+
+.search-input::placeholder {
+  color: #c1c1c1;
+  font-family: 'Manrope', sans-serif;
+}
+
+.search-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.camera-icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.camera-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* --- Dropdown ต่อกับกล่อง search --- */
+.suggestions-dropdown {
+  position: absolute;
+  top: 80%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 10px 12px;
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  z-index: 1;
+  overflow: hidden;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-top: 1px solid #e8e8e8;
+}
+
+.suggestion-item:first-child {
+  border-top: none;
+}
+
+.suggestion-item:hover {
+  background-color: #fffaf0;
+}
+
+.suggestion-name {
+  font-weight: 500;
+}
+
+.suggestion-type {
+  color: #999;
+  font-size: 14px;
 }
 
 .back-home {
@@ -82,10 +128,10 @@
 
 .logo-section {
     display: flex;
-    flex-direction: column; /* จัดแนวโลโก้เป็นแนวตั้ง */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 30px;
+    margin-top: 20px;
     margin-bottom: 10px;
 }
 
@@ -100,7 +146,6 @@
     margin-top: -2rem;
 }
 
-
 .ingredients-container {
     width: 100%;
     flex-direction: row;
@@ -111,7 +156,7 @@
 
 .ingredients-text {
     text-align: center;
-    margin-top: 17px;
+    margin-top: 25px;
     color: #4C4C4C;
     font-size: 18px;
     font-weight: 700;
@@ -130,7 +175,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 20px;
     width: 100%;
     padding: 0 20px;
@@ -139,11 +184,14 @@
 
 .search-recipe-button {
     width: 250px;
-    height: 58px;
+    height: 50px;
     border-radius: 29px;
     background: #fdab2f;
     cursor: pointer;
     transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-recipe-button:hover {
@@ -214,6 +262,7 @@
     background-color: #ffffff;
     color: rgb(99, 99, 99);
     padding: 0.8px 15px;
+    border: 1px solid #d5d5d5;
     border-radius: 15px;
     z-index: 1000;
     animation: fadeInOut 2s ease-in-out;

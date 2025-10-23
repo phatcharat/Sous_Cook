@@ -6,6 +6,7 @@ import {
     getCameraIngredientsFromLocalStorage
 } from '../utils/storageUtils';
 import '../css/SearchBar.css';
+import searchicon from '../image/homepage/Search-Icon.svg'
 import backicon from '../image/searchbar/Back.svg';
 import bread from '../image/homepage/Bread.svg';
 import tomato from '../image/homepage/Tomato.svg';
@@ -30,6 +31,47 @@ const SearchBar = () => {
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [allIngredients, setAllIngredients] = useState([]);
     const [showAddedMessage, setShowAddedMessage] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+
+    // รายการวัตถุดิบแนะนำ (สามารถเพิ่มเติมได้)
+    const ingredientSuggestions = [
+        { name: 'Bread', type: 'Grains, nuts, and baking products' },
+        { name: 'Tomato', type: 'Vegetables' },
+        { name: 'Celery', type: 'Vegetables' },
+        { name: 'Pork', type: 'Meat, sausages and fish' },
+        { name: 'Shrimp', type: 'Meat, sausages and fish' },
+        { name: 'Chicken', type: 'Meat, sausages and fish' },
+        { name: 'Beef', type: 'Meat, sausages and fish' },
+        { name: 'Fish', type: 'Meat, sausages and fish' },
+        { name: 'Egg', type: 'Eggs' },
+        { name: 'Milk', type: 'Milk and dairy products' },
+        { name: 'Cheese', type: 'Milk and dairy products' },
+        { name: 'Butter', type: 'Milk and dairy products' },
+        { name: 'Rice', type: 'Grains, nuts, and baking products' },
+        { name: 'Pasta', type: 'Grains, nuts, and baking products' },
+        { name: 'Flour', type: 'Grains, nuts, and baking products' },
+        { name: 'Onion', type: 'Vegetables' },
+        { name: 'Garlic', type: 'Vegetables' },
+        { name: 'Carrot', type: 'Vegetables' },
+        { name: 'Potato', type: 'Vegetables' },
+        { name: 'Mushroom', type: 'Vegetables' },
+        { name: 'Broccoli', type: 'Vegetables' },
+        { name: 'Spinach', type: 'Vegetables' },
+        { name: 'Lettuce', type: 'Vegetables' },
+        { name: 'Cucumber', type: 'Vegetables' },
+        { name: 'Bell Pepper', type: 'Vegetables' },
+        { name: 'Apple', type: 'Fruit' },
+        { name: 'Banana', type: 'Fruit' },
+        { name: 'Orange', type: 'Fruit' },
+        { name: 'Lemon', type: 'Fruit' },
+        { name: 'Strawberry', type: 'Fruit' },
+        { name: 'Salt', type: 'Seasoning' },
+        { name: 'Pepper', type: 'Seasoning' },
+        { name: 'Sugar', type: 'Seasoning' },
+        { name: 'Olive Oil', type: 'Oil and fat' },
+        { name: 'Soy Sauce', type: 'Seasoning' }
+    ];
 
     // filter duplicate ingredient names
     const getUniqueIngredients = (ingredients) => {
@@ -37,7 +79,7 @@ const SearchBar = () => {
         return ingredients.filter(ing => {
             if (!ing || typeof ing !== 'object') return false;
             const name = ing.ingredient_name?.trim().toLowerCase();
-            if (!name || seen.has(name)) return false; // Check only for duplicates
+            if (!name || seen.has(name)) return false;
             seen.add(name);
             return true;
         });
@@ -58,26 +100,56 @@ const SearchBar = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchText.trim()) {
-            const ingredientName = searchText.trim();
-
-            const newIngredient = {
-                ingredient_name: ingredientName,
-                ingredient_type: "Other",
-                source: "manual"
-            };
-
-            setSelectedIngredients([...selectedIngredients, newIngredient]);
-            setSearchText("");
-
-            const existingIngredients = getIngredientsFromLocalStorage();
-            saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
-            loadAllIngredients();
-
-            setShowAddedMessage(true);
-            setTimeout(() => {
-                setShowAddedMessage(false);
-            }, 2000);
+            addIngredient(searchText.trim());
         }
+    };
+
+    // ฟังก์ชันสำหรับเพิ่มวัตถุดิบ
+    const addIngredient = (ingredientName) => {
+        const suggestion = ingredientSuggestions.find(
+            s => s.name.toLowerCase() === ingredientName.toLowerCase()
+        );
+
+        const newIngredient = {
+            ingredient_name: ingredientName,
+            ingredient_type: suggestion ? suggestion.type : "Other",
+            source: "manual"
+        };
+
+        setSelectedIngredients([...selectedIngredients, newIngredient]);
+        setSearchText("");
+        setShowSuggestions(false);
+
+        const existingIngredients = getIngredientsFromLocalStorage();
+        saveIngredientsToLocalStorage([...existingIngredients, newIngredient]);
+        loadAllIngredients();
+
+        setShowAddedMessage(true);
+        setTimeout(() => {
+            setShowAddedMessage(false);
+        }, 2000);
+    };
+
+    // Handle input change และกรองคำแนะนำ
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setSearchText(value);
+
+        if (value.trim().length > 0) {
+            const filtered = ingredientSuggestions.filter(suggestion =>
+                suggestion.name.toLowerCase().includes(value.toLowerCase())
+            );
+            setFilteredSuggestions(filtered);
+            setShowSuggestions(filtered.length > 0);
+        } else {
+            setShowSuggestions(false);
+            setFilteredSuggestions([]);
+        }
+    };
+
+    // Handle click suggestion
+    const handleSuggestionClick = (suggestion) => {
+        addIngredient(suggestion.name);
     };
 
     const handleCameraClick = () => {
@@ -196,17 +268,35 @@ const SearchBar = () => {
             </div>
 
             <form className="search-bar" onSubmit={handleSearch}>
+                <img src={searchicon} alt="search" className="search-icon" />
                 <input
                     type="text"
                     className="search-input"
                     placeholder="Search for ingredients..."
                     value={searchText}
-                    onChange={e => setSearchText(e.target.value)}
+                    onChange={handleInputChange}
+                    onFocus={() => searchText.trim() && setShowSuggestions(filteredSuggestions.length > 0)}
                 />
                 <button type="button" className="camera-icon-btn" onClick={handleCameraClick}>
                     <img src={IconCamera} alt="camera" className="camera-icon" />
                 </button>
                 <button type="submit" className="search-btn" style={{ display: 'none' }}></button>
+
+                {/* Dropdown Suggestions */}
+                {showSuggestions && (
+                    <div className="suggestions-dropdown">
+                        {filteredSuggestions.map((suggestion, index) => (
+                            <div
+                                key={index}
+                                className="suggestion-item"
+                                onClick={() => handleSuggestionClick(suggestion)}
+                            >
+                                <span className="suggestion-name">{suggestion.name}</span>
+                                <span className="suggestion-type">{suggestion.type}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </form>
 
             <div className="ingredients-container">
