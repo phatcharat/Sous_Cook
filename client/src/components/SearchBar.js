@@ -11,6 +11,8 @@ import bread from '../image/homepage/Bread.svg';
 import tomato from '../image/homepage/Tomato.svg';
 import celery from '../image/homepage/Celery.svg';
 import pork from '../image/homepage/Pork.svg';
+import shrimp from '../image/homepage/Shrimp.svg';
+import shrimpclick from '../image/homepage/ShrimpClick.svg';
 import breadclick from '../image/homepage/BreadClick.svg';
 import tomatoclick from '../image/homepage/TomatoClick.svg';
 import celeryclick from '../image/homepage/CeleryClick.svg';
@@ -23,7 +25,7 @@ import textlogo from '../image/TextLogo.svg';
 const SearchBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [activeImages, setActiveImages] = useState([bread, tomato, celery, pork]);
+    const [activeImages, setActiveImages] = useState([bread, tomato, celery, pork, shrimp]);
     const [searchText, setSearchText] = useState("");
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [allIngredients, setAllIngredients] = useState([]);
@@ -98,8 +100,8 @@ const SearchBar = () => {
 
     const toggleImage = (index) => {
         const newImages = [...activeImages];
-        const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork'];
-        const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish'];
+        const ingredientNames = ['Bread', 'Tomato', 'Celery', 'Pork', 'Shrimp'];
+        const ingredientTypes = ['Grains, nuts, and baking products', 'Vegetables', 'Vegetables', 'Meat, sausages and fish', 'Meat, sausages and fish'];
 
         const ingredientName = ingredientNames[index];
         const ingredientType = ingredientTypes[index];
@@ -121,6 +123,7 @@ const SearchBar = () => {
                 case 1: newImages[1] = tomato; break;
                 case 2: newImages[2] = celery; break;
                 case 3: newImages[3] = pork; break;
+                case 4: newImages[4] = shrimp; break;
             }
         } else {
             // เพิ่ม ingredient ไปยัง selectedIngredients
@@ -142,6 +145,7 @@ const SearchBar = () => {
                 case 1: newImages[1] = tomatoclick; break;
                 case 2: newImages[2] = celeryclick; break;
                 case 3: newImages[3] = porkclick; break;
+                case 4: newImages[4] = shrimpclick; break;
             }
         }
 

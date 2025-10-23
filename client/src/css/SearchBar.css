@@ -208,8 +208,8 @@
 .ingredient-added-popup {
     font-size: 12px;
     position: fixed;
-    top: 430px;
-    left: 25%;
+    top: 420px;
+    left: 50%;
     transform: translateX(-50%);
     background-color: #ffffff;
     color: rgb(99, 99, 99);
