@@ -28,6 +28,8 @@
   display: flex;
   white-space: nowrap;
   gap: 10px;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .shopping-items {

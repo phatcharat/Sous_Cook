@@ -563,8 +563,7 @@ const MenuDetail = () => {
     if (!menuData) {
         return (
             <div className="menu-detail-container">
-                <p>Loading menu details...</p>
-                <button className="back-button" onClick={handleBackNavigation}>← Back</button>
+                <p className="loading-menu">Loading menu details...</p>
             </div>
         );
     }

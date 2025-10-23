@@ -156,7 +156,7 @@ const MenuSuggestion = () => {
           ))}
         </ul>
       ) : (
-        <p>No recommendations available.</p>
+        <p className="loading-menu">No recommendations available.</p>
       )}
     </div>
   );

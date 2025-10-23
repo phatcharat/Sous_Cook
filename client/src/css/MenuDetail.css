@@ -7,43 +7,60 @@
     color: #333;
 }
 
+.loading-menu {
+    display: flex;
+    justify-content: center;
+    background-color: #FBF6EE;
+}
+
 .menu-header {
     margin-left: 4%;
     margin-right: 4%;
 }
 
-.menu-header h1{
+.menu-header h1 {
     font-weight: 800;
     font-size: 40px;
     margin: 0;
     padding-bottom: 0.5vh;
 }
 
-.menu-header p{
+.menu-header p {
     font-weight: 500;
     font-size: 18px;
     margin: 0;
     padding-bottom: 0.5vh;
 }
 
-.image-header{
+.image-header {
     position: relative;
     display: inline-block;
     width: -webkit-fill-available;
 }
 
-.image-header .back-button{
-    position: absolute; /* Position the button absolutely */
-    top: 10px; /* Adjust the vertical position */
-    left: 3%; /* Adjust the horizontal position */
-    background: #fdf6e3; /* Circle background color */
-    border: none; /* Remove default border */
-    color: #000000; /* Text color */
-    padding: 3px; /* Padding to create circular shape */
-    border-radius: 50%; /* Make the button circular */
-    display: flex; /* Use flexbox to center content */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
+.image-header .back-button {
+    position: absolute;
+    /* Position the button absolutely */
+    top: 10px;
+    /* Adjust the vertical position */
+    left: 3%;
+    /* Adjust the horizontal position */
+    background: #fdf6e3;
+    /* Circle background color */
+    border: none;
+    /* Remove default border */
+    color: #000000;
+    /* Text color */
+    padding: 3px;
+    /* Padding to create circular shape */
+    border-radius: 50%;
+    /* Make the button circular */
+    display: flex;
+    /* Use flexbox to center content */
+    align-items: center;
+    /* Center vertically */
+    justify-content: center;
+    /* Center horizontally */
     cursor: pointer;
 }
 
@@ -51,7 +68,7 @@
 .favorite-button {
     width: 40px;
     height: 40px;
-    background-color: #fdf6e3; 
+    background-color: #fdf6e3;
     padding: 5px;
     position: absolute;
     top: 12px;
@@ -77,7 +94,7 @@
 }
 
 
-.text-container{
+.text-container {
     display: flex;
     padding-left: 2%;
     padding-right: 2%;
@@ -89,7 +106,7 @@
     font-weight: 500;
 }
 
-div.text-container div.header{
+div.text-container div.header {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
@@ -191,7 +208,7 @@ div.text-container div.header{
     max-width: 150px;
 }
 
-.ingredient-item p.header { 
+.ingredient-item p.header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -274,7 +291,8 @@ div.text-container div.header{
 }
 
 .custom-checkbox {
-    display: none; /* Hide the default checkbox */
+    display: none;
+    /* Hide the default checkbox */
 }
 
 /* Style for the custom checkbox using images */
@@ -292,14 +310,15 @@ div.text-container div.header{
 /* Apply strikethrough when step is checked */
 .checked-step {
     text-decoration: line-through;
-    color: #888; /* Optional: Change color when checked */
+    color: #888;
+    /* Optional: Change color when checked */
 }
 
-.checkbox-label p{
+.checkbox-label p {
     font-size: 15px;
 }
 
-ul.instructions-list li{
+ul.instructions-list li {
     margin-left: 0;
     font-size: 1rem;
     padding: 0%;
@@ -307,7 +326,7 @@ ul.instructions-list li{
     margin-bottom: 2%;
 }
 
-.spliteline{
+.spliteline {
     border-bottom: 1px solid rgba(105, 124, 55, 0.5);
     padding-top: 4%;
     margin-left: 4%;
@@ -317,147 +336,148 @@ ul.instructions-list li{
 
 .nutrition-container ul,
 .nutrition-container li {
-  list-style: disc !important;
-  border: none !important;
-  border-bottom: none !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-  background: none !important;
-  margin-left: 10px;
+    list-style: disc !important;
+    border: none !important;
+    border-bottom: none !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    background: none !important;
+    margin-left: 10px;
 }
 
-.tips-container, .nutrition-container {
-  font-family: 'Quicksand', sans-serif;
-  font-size: 1rem;
+.tips-container,
+.nutrition-container {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
 }
 
 .tips-container ul,
 .tips-container li {
-  list-style: none !important;
-  border: none !important;
-  border-bottom: none !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-  background: none !important;
+    list-style: none !important;
+    border: none !important;
+    border-bottom: none !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    background: none !important;
 }
 
 .tips-list {
-  list-style: none;
-  padding-left: 0;
+    list-style: none;
+    padding-left: 0;
 }
 
 .tip-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 2px;
-  
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+
 }
 
 .tip-icon {
-  width: 20px;
-  height: 20px;
-  margin-left: 40px;
+    width: 20px;
+    height: 20px;
+    margin-left: 40px;
 
 }
 
 .allergy-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center; 
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
 .allergy-popup {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  max-width: 90%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-  padding: 20px;
-  overflow: hidden;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden;
 }
 
 .allergy-popup-content {
-  width: 100%;
-  max-width: 500px;
-  text-align: center; 
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
 }
 
 .allergy-popup-content h2 {
-  color: #d32f2f;
-  font-size: 24px;
-  margin-bottom: 12px;
+    color: #d32f2f;
+    font-size: 24px;
+    margin-bottom: 12px;
 }
 
 .allergy-popup-content p {
-  margin-bottom: 12px;
-  color: #333;
-  font-size: 16px;
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 16px;
 }
 
 .allergy-list {
-  margin: 0 auto 16px auto;
-  padding: 0;
-  list-style: none;
-  max-height: 300px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    margin: 0 auto 16px auto;
+    padding: 0;
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .allergy-list li {
-  margin-bottom: 12px;
-  color: #d32f2f;
-  font-size: 16px;
-  font-weight: 600;
+    margin-bottom: 12px;
+    color: #d32f2f;
+    font-size: 16px;
+    font-weight: 600;
 }
 
 .allergy-confirm-btn {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
 }
 
 .allergy-confirm-btn:hover {
-  background-color: #b71c1c;
+    background-color: #b71c1c;
 }
 
 /* share dish container*/
-.share-dish-container { 
+.share-dish-container {
     background-color: #ffff;
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    margin: 60px auto 0 auto; 
+    flex-direction: column;
+    align-items: center;
+    margin: 60px auto 0 auto;
     padding: 0;
-    width: 90%; 
-    border-radius: 12px; 
-    font-family: 'Quicksand', sans-serif; 
+    width: 90%;
+    border-radius: 12px;
+    font-family: 'Quicksand', sans-serif;
     font-size: 18px;
     font-weight: 600;
     color: #3f3f3f;
     box-shadow: 5px 5px 10px #cacaca;
-    overflow: visible; 
+    overflow: visible;
     position: relative;
-} 
+}
 
 .chef {
     width: 80%;
@@ -470,68 +490,70 @@ ul.instructions-list li{
 }
 
 
-.dish-photo-buttons { 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    margin-bottom: 20px; 
+.dish-photo-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
     gap: 20px;
-} 
+}
 
-.dish-take-photo-button, .dish-select-photo-button { 
-    background-color: #FFA500; 
-    border-radius: 10px; 
-    border: none; 
-    padding: 10px 20px; 
-    color: white; 
-    font-family: 'Quicksand', sans-serif; 
-    font-weight: 600; 
-    cursor: pointer; 
-    transition: background-color 0.3s ease; 
-} 
+.dish-take-photo-button,
+.dish-select-photo-button {
+    background-color: #FFA500;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-.dish-take-photo-button:active, .dish-select-photo-button:active { 
-    background-color: #e39503; 
-} 
+.dish-take-photo-button:active,
+.dish-select-photo-button:active {
+    background-color: #e39503;
+}
 
-.dish-submit-buttons { 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    margin-bottom: 20px; 
-    gap: 20px; 
-} 
+.dish-submit-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
 
-.dish-share-button { 
-    background-color: #B0BD39;  
-    border-radius: 10px; 
-    border: none; 
-    padding: 10px 20px; 
-    color: white; 
-    font-family: 'Quicksand', sans-serif; 
-    font-weight: 600; 
-    cursor: pointer; 
-    transition: background-color 0.3s ease; 
-} 
+.dish-share-button {
+    background-color: #B0BD39;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-.dish-retake-button { 
-    background-color: #FFA500; 
-    border-radius: 10px; 
-    border: none; 
-    padding: 10px 20px; 
-    color: white; 
-    font-family: 'Quicksand', sans-serif; 
-    font-weight: 600; 
-    cursor: pointer; 
-    transition: background-color 0.3s ease; 
-} 
+.dish-retake-button {
+    background-color: #FFA500;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-.dish-image { 
-    display: block; 
-    margin: 20px auto; 
-    height: auto; 
-    border-radius: 12px; 
-    object-fit: cover; 
+.dish-image {
+    display: block;
+    margin: 20px auto;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
 }
 
 .go-community-container {
@@ -564,23 +586,23 @@ ul.instructions-list li{
     font-size: 14px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    height: 20%;             
+    height: 20%;
     padding-top: 16px;
-    padding-left: 10px;         
-    text-align: start;       
+    padding-left: 10px;
+    text-align: start;
     display: flex;
-    align-items: start;       
-    justify-content: start;   
+    align-items: start;
+    justify-content: start;
     box-sizing: border-box;
     resize: none;
-    font-family: 'Quicksand', sans-serif;   
+    font-family: 'Quicksand', sans-serif;
 }
 
 .dish-caption-box::placeholder {
-    text-align: center; 
+    text-align: center;
     color: #888;
     padding-left: 0;
-    font-family: 'Quicksand', sans-serif; 
+    font-family: 'Quicksand', sans-serif;
 }
 
 .dish-button-row {
