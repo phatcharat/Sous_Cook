@@ -19,7 +19,6 @@ const NewPasswordPage = () => {
     const verifyToken = async () => {
       if (!token) {
         setTokenValid(false);
-        setErrors({ submit: 'Invalid reset link' });
         return;
       }
 
@@ -30,13 +29,9 @@ const NewPasswordPage = () => {
           setUserEmail(res.data.email);
         } else {
           setTokenValid(false);
-          setErrors({ submit: res.data.message || 'Invalid or expired reset link' });
         }
       } catch (error) {
         setTokenValid(false);
-        setErrors({ 
-          submit: error.response?.data?.message || 'Invalid or expired reset link. Please request a new one.' 
-        });
       }
     };
 
@@ -152,6 +147,14 @@ const NewPasswordPage = () => {
   if (tokenValid === false) {
     return (
       <div className="reset-container">
+        <button
+          className="back-arrow"
+          onClick={() => navigate('/login')}
+          aria-label="Go back to login"
+        >
+          ‹
+        </button>
+
         <div className="logo-header">
           <div className="logo-circle">
             <img src={logo} alt="Company Logo" className="Logo" />
@@ -164,11 +167,6 @@ const NewPasswordPage = () => {
               This password reset link is invalid or has expired.
             </p>
           </div>
-          {errors.submit && (
-            <div className="login-error" role="alert" style={{ margin: '20px 0' }}>
-              {errors.submit}
-            </div>
-          )}
           <div className="reset-link">
             <Link to="/reset-password" className="login-link-text">
               Request New Reset Link
