@@ -899,7 +899,9 @@ const MenuDetail = () => {
                             </div>
                         </div>
                         <div className="comment-box">
-                            <div className="review-text">{review?.comment || 'No comment yet'}</div>
+                            {review?.comment && review.comment.trim() !== "" && (
+                                <div className="review-text">{review.comment}</div>
+                            )}
                             {showDate(review)}
                         </div>
                             </div>
