@@ -46,6 +46,7 @@
 .preference-item {
   font-family: 'Manrope', sans-serif;
   background-color: #fff;
+  color: #000;
   border: 1px solid #ccc;
   border-radius: 20px;
   padding: 1vh 2vh;
