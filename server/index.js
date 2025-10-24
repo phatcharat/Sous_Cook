@@ -1183,14 +1183,16 @@ app.post('/api/menu-detail/:menuId/reviews', async (req, res) => {
     const user_idNumber = parseInt(user_id, 10);
     const ratingNumber = parseInt(rating, 10);
 
-    if (!user_idNumber || !menu_idNumber || !comment || !ratingNumber) {
-      return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
+    if (!user_idNumber || !menu_idNumber || !ratingNumber) {
+      return res.status(400).json({ message: "Missing required fields: menu_id, and rating are required." });
     }
 
-    await pool.query(
-      "INSERT INTO review (user_id, menu_id, rating, comment, created_at) VALUES ($1, $2, $3, $4, NOW())",
-      [user_idNumber, menu_idNumber, ratingNumber, comment]
-    );
+  const safeComment = comment && comment.trim() !== "" ? comment.trim() : null;
+
+  await pool.query(
+    "INSERT INTO review (user_id, menu_id, rating, comment, created_at) VALUES ($1, $2, $3, $4, NOW())",
+    [user_idNumber, menu_idNumber, ratingNumber, safeComment]
+  );
     res.status(201).json({ message: "Review posted Successfully" });
   } catch (error) {
     console.error(error.message);
@@ -1251,14 +1253,16 @@ app.put('/api/reviews', async (req, res) => {
     const user_idNumber = parseInt(user_id, 10);
     const ratingNumber = parseInt(rating, 10);
 
-    if (!user_idNumber || !menu_idNumber || !comment || !ratingNumber) {
-      return res.status(400).json({ message: "Missing required fields: menu_id, comment, and rating are required." });
+    if (!user_idNumber || !menu_idNumber || !ratingNumber) {
+      return res.status(400).json({ message: "Missing required fields: menu_id, and rating are required." });
     }
 
-    await pool.query(
-      "UPDATE review SET rating = $1, comment= $2, updated_at = now() WHERE menu_id = $3 AND user_id = $4; ",
-      [ratingNumber, comment, menu_idNumber, user_idNumber]
-    );
+  const safeComment = comment && comment.trim() !== "" ? comment.trim() : null;
+
+  await pool.query(
+    "UPDATE review SET rating = $1, comment = $2, updated_at = now() WHERE menu_id = $3 AND user_id = $4",
+    [ratingNumber, safeComment, menu_idNumber, user_idNumber]
+  );
     res.status(201).json({ message: "Review posted Successfully" });
   } catch (error) {
     console.error(error.message);

@@ -161,10 +161,6 @@ const MenuReview = () => {
             newErrors.rating = 'Please give a star rating.';
         }
 
-        if (!formData.comment || formData.comment.trim() === '') {
-            newErrors.comment = 'Please comment.';
-        }
-
         return newErrors;
     };
 
@@ -448,8 +444,6 @@ const MenuReview = () => {
                     <div className="message-error-box">
                         {errors.rating &&
                         <div className="rating-error">{errors.rating}</div>}
-                        {errors.comment &&
-                        <div className="rating-error">{errors.comment}</div>}
                     </div>
                     <div className="review-button-box">
                         <button type="submit" className="post-review-button">Post</button>

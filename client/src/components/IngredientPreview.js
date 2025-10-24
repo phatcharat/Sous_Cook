@@ -80,7 +80,7 @@ useEffect(() => {
     }
   }, [updatedIngredients]);
 
-  const handleConfirm = () => setIsReferencePage(true);
+  const handleConfirm = () => navigate('/preferences');
   const handleBackToIngredientPreview = () => setIsReferencePage(false);
 
   const handleEdit = (index) => {
